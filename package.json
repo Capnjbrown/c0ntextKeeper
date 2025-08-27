@@ -1,0 +1,63 @@
+{
+  "name": "c0ntextkeeper",
+  "version": "0.1.0",
+  "description": "Intelligent context preservation and retrieval for Claude Code",
+  "main": "dist/index.js",
+  "bin": {
+    "c0ntextkeeper": "dist/cli.js",
+    "c0ntextkeeper-server": "dist/server/index.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server/index.ts",
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write 'src/**/*.ts'",
+    "format:check": "prettier --check 'src/**/*.ts'",
+    "typecheck": "tsc --noEmit",
+    "preinstall": "node scripts/setup-hooks.js 2>/dev/null || true",
+    "postinstall": "node scripts/setup-hooks.js 2>/dev/null || true"
+  },
+  "keywords": ["claude", "mcp", "context", "ai", "development", "claude-code"],
+  "author": "Jason Brown",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Capnjbrown/c0ntextKeeper"
+  },
+  "homepage": "https://c0ntextkeeper.com",
+  "bugs": {
+    "url": "https://github.com/Capnjbrown/c0ntextKeeper/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.24.1",
+    "dotenv": "^16.4.7",
+    "commander": "^12.1.0",
+    "p-queue": "^8.0.1",
+    "debounce-fn": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.19.0",
+    "@typescript-eslint/parser": "^8.19.0",
+    "eslint": "^9.17.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.4.2",
+    "ts-jest": "^29.2.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ]
+}
