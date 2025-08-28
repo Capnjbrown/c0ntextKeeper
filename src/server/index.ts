@@ -15,12 +15,12 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { ContextRetriever } from '../core/retriever.js';
-import { ContextArchiver } from '../core/archiver.js';
+import { ContextArchiver as _ContextArchiver } from '../core/archiver.js';
 import { PatternAnalyzer } from '../core/patterns.js';
 import { 
-  FetchContextInput, 
-  SearchArchiveInput, 
-  GetPatternsInput 
+  FetchContextInput as _FetchContextInput, 
+  SearchArchiveInput as _SearchArchiveInput, 
+  GetPatternsInput as _GetPatternsInput 
 } from '../core/types.js';
 
 // Initialize server

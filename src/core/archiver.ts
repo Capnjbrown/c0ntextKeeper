@@ -122,7 +122,7 @@ export class ContextArchiver {
   /**
    * Clean up old archives based on retention policy
    */
-  async cleanup(daysToKeep = 90): Promise<{
+  async cleanup(_daysToKeep = 90): Promise<{
     cleaned: number;
     errors: string[];
   }> {

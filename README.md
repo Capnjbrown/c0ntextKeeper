@@ -2,12 +2,15 @@
 
 > Intelligent context preservation and retrieval for Claude Code - Never lose valuable context again!
 > 
-> Last Updated: 2025-08-27
+> Last Updated: 2025-08-28
 
+[![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple)](https://modelcontextprotocol.io)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ## 🎯 The Problem
 
@@ -29,11 +32,50 @@ Every time Claude Code runs `/compact`, valuable context is lost forever:
 - 📊 **Relevance Scoring** - Multi-factor scoring ensures only valuable context is preserved
 - 🔍 **Smart Retrieval** - MCP tools provide instant access to relevant historical context
 - 📈 **Pattern Recognition** - Identifies recurring solutions and approaches
+- 🔒 **Security First** - Automatic filtering of sensitive data (API keys, passwords, PII)
 - 💾 **Efficient Storage** - File-based storage with searchable indices
+- ✅ **Production Ready** - Full CI/CD pipeline, comprehensive testing, TypeScript strict mode
+
+## 📋 Table of Contents
+
+- [Quick Start](#-quick-start)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [MCP Tools](#mcp-tools)
+- [Security Features](#-security-features)
+- [Examples](#-examples)
+- [CLI Commands](#-cli-commands)
+- [Architecture](#-architecture)
+- [Configuration](#-configuration)
+- [Development](#-development)
+- [Testing](#-testing)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Support](#-support)
 
 ## 🚀 Quick Start
 
-### Installation
+```bash
+# Install globally
+npm install -g c0ntextkeeper
+
+# Run setup wizard
+c0ntextkeeper setup
+
+# Verify installation
+c0ntextkeeper validate
+```
+
+That's it! c0ntextKeeper now automatically captures context before each `/compact`.
+
+## 📦 Installation
+
+### Prerequisites
+- Node.js >= 18.0.0
+- Claude Code installed and configured
+- npm or yarn package manager
+
+### Global Installation (Recommended)
 
 ```bash
 # Install globally via npm
@@ -43,14 +85,27 @@ npm install -g c0ntextkeeper
 c0ntextkeeper setup
 ```
 
-Or install locally in a project:
+### Project Installation
 
 ```bash
+# Install in your project
 npm install c0ntextkeeper
+
+# Run setup
 npx c0ntextkeeper setup
 ```
 
-### Usage
+### Verify Installation
+
+```bash
+# Check version
+c0ntextkeeper --version
+
+# Validate setup
+c0ntextkeeper validate
+```
+
+## 📖 Usage
 
 Once installed, c0ntextKeeper works automatically! 
 
@@ -78,6 +133,30 @@ Search through all archived contexts with filters:
 Identify recurring patterns and solutions:
 ```
 "Show me recurring error patterns in this project"
+```
+
+## 🔒 Security Features
+
+c0ntextKeeper automatically protects your sensitive information with comprehensive security filtering:
+
+### Protected Data Types
+- **API Keys**: OpenAI, Anthropic, AWS, GitHub, and generic API keys
+- **Credentials**: Passwords, secrets, database connection strings
+- **Private Keys**: RSA, SSH, and other private keys
+- **Personal Information**: Emails (partially redacted), IP addresses, phone numbers
+- **Tokens**: JWT tokens, bearer tokens, session tokens
+- **Environment Variables**: Secret environment variables
+
+### Security Implementation
+```typescript
+// All context is automatically filtered before storage
+const securityFilter = new SecurityFilter();
+const safeContext = securityFilter.filterObject(extractedContext);
+
+// Example redactions:
+// API_KEY=sk-1234... → API_KEY=[REDACTED]
+// user@example.com → ***@example.com
+// 192.168.1.100 → 192.168.***.***
 ```
 
 ## 📖 Examples
@@ -177,6 +256,11 @@ Structure:
 
 ## 🧪 Development
 
+### Prerequisites
+- Node.js 18.x, 20.x, or 22.x
+- TypeScript 5.9+
+- Git
+
 ### Building from Source
 
 ```bash
@@ -190,11 +274,22 @@ npm install
 # Build the project
 npm run build
 
-# Run tests
-npm test
+# Run tests with coverage
+npm run test:coverage
 
 # Start development mode
 npm run dev
+```
+
+### Development Scripts
+
+```bash
+npm run dev          # Start development server with watch mode
+npm run build        # Build TypeScript to JavaScript
+npm test            # Run Jest tests
+npm run lint        # Run ESLint
+npm run typecheck   # Run TypeScript type checking
+npm run format      # Format code with Prettier
 ```
 
 ### Project Structure
@@ -204,14 +299,52 @@ src/
 ├── server/          # MCP server implementation
 ├── hooks/           # PreCompact hook handlers
 ├── core/            # Extraction and analysis logic
+│   ├── extractor.ts # Context extraction engine
+│   ├── scorer.ts    # Relevance scoring
+│   └── patterns.ts  # Pattern recognition
 ├── storage/         # Storage abstraction
 ├── tools/           # MCP tool implementations
 └── utils/           # Utilities and helpers
+    ├── security-filter.ts # Security filtering
+    └── transcript.ts      # JSONL parsing
 ```
+
+## 🧪 Testing
+
+c0ntextKeeper uses Jest for comprehensive testing:
+
+```bash
+# Run all tests
+npm test
+
+# Watch mode for development
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+### CI/CD Pipeline
+
+Our GitHub Actions pipeline runs on every push and PR:
+- **Multi-version testing**: Node.js 18.x, 20.x, 22.x
+- **Code quality**: ESLint, TypeScript, Prettier
+- **Security audits**: npm audit for vulnerabilities
+- **Coverage reporting**: Automated Codecov integration
+- **Automated releases**: Semantic versioning on main branch
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Quick Contribution Guide
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`npm test`) and linting (`npm run lint`)
+5. Commit using conventional commits (`feat:`, `fix:`, etc.)
+6. Push to your branch
+7. Open a Pull Request
 
 ### Areas for Contribution
 
@@ -220,6 +353,9 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 - 🚀 Performance optimizations
 - 📊 Analytics and visualization
 - 🌐 Cloud sync capabilities
+- 🧪 Expanding test coverage
+- 📝 Documentation improvements
+- 🔒 Security enhancements
 
 ## 📝 License
 
@@ -227,29 +363,58 @@ MIT - See [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-Built for the Claude Code community to solve the universal problem of context loss during compaction.
+Special thanks to:
+- The Claude Code team at Anthropic for creating an amazing development environment
+- The MCP community for protocol development and support
+- All contributors who help make c0ntextKeeper better
 
-## 📊 Status
+## 📊 Project Status
 
-- ✅ Core extraction engine
-- ✅ MCP server implementation
-- ✅ PreCompact hook integration
-- ✅ File-based storage
-- ✅ Pattern recognition
-- ✅ CLI tools
-- 🚧 Vector search (coming soon)
-- 🚧 Team sharing (planned)
-- 🚧 VS Code extension (planned)
+### ✅ Completed Features
+- Core extraction engine with intelligent analysis
+- MCP server implementation with 3 tools
+- PreCompact hook integration
+- File-based storage with indexing
+- Pattern recognition and analysis
+- CLI tools for manual operations
+- Security filtering for sensitive data
+- CI/CD pipeline with automated testing
+- Full TypeScript with strict mode
+- ESLint v9 with flat configuration
+- Comprehensive test suite
 
-## 🔗 Links
+### 🚧 Roadmap
+- Vector search for semantic queries (Q1 2025)
+- Team sharing and collaboration (Q2 2025)
+- VS Code extension (Q2 2025)
+- Web dashboard for analytics (Q3 2025)
+- Cloud sync across devices (Q3 2025)
 
+## 💬 Support
+
+### Getting Help
+- 📖 [Documentation Wiki](https://github.com/Capnjbrown/c0ntextKeeper/wiki)
+- 💬 [GitHub Discussions](https://github.com/Capnjbrown/c0ntextKeeper/discussions)
+- 🐛 [Issue Tracker](https://github.com/Capnjbrown/c0ntextKeeper/issues)
+- 📧 [Email Support](mailto:support@c0ntextkeeper.com)
+
+### Resources
 - [Homepage](https://c0ntextkeeper.com)
-- [Documentation](https://github.com/Capnjbrown/c0ntextKeeper/wiki)
-- [Issues](https://github.com/Capnjbrown/c0ntextKeeper/issues)
 - [NPM Package](https://www.npmjs.com/package/c0ntextkeeper)
+- [MCP Documentation](https://modelcontextprotocol.io)
+- [Claude Code Docs](https://docs.anthropic.com/en/docs/claude-code)
 
 ---
 
-**Never lose context again.** Start using c0ntextKeeper today!
+<p align="center">
+  <strong>Never lose context again.</strong> Start using c0ntextKeeper today!
+</p>
 
-> Built with ❤️ for the Claude Code community. SMB.
+<p align="center">
+  Built with ❤️ for the Claude Code community by <a href="https://github.com/Capnjbrown">Jason Brown</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Capnjbrown/c0ntextKeeper/stargazers">⭐ Star us on GitHub</a> • 
+  <a href="https://twitter.com/intent/tweet?text=Check%20out%20c0ntextKeeper%20-%20Never%20lose%20valuable%20context%20in%20Claude%20Code%20again!&url=https://github.com/Capnjbrown/c0ntextKeeper">Share on Twitter</a>
+</p>

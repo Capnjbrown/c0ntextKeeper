@@ -199,7 +199,7 @@ program
     try {
       console.log('Starting c0ntextKeeper MCP server...');
       const serverPath = path.join(__dirname, 'server', 'index.js');
-      require(serverPath);
+      await import(serverPath);
     } catch (error) {
       logger.error('Server error:', error);
       process.exit(1);

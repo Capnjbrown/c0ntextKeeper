@@ -11,25 +11,29 @@ import {
   Implementation, 
   Decision, 
   Pattern,
-  ContextMetadata,
-  RelevanceFactors,
   CodeChange
 } from './types.js';
 import { RelevanceScorer } from './scorer.js';
+import { SecurityFilter } from '../utils/security-filter.js';
 import crypto from 'crypto';
 
 export class ContextExtractor {
   private scorer: RelevanceScorer;
+  private securityFilter: SecurityFilter;
   private relevanceThreshold: number;
   private maxContextItems: number;
+  private enableSecurityFilter: boolean;
 
   constructor(
     relevanceThreshold = 0.5,
-    maxContextItems = 50
+    maxContextItems = 50,
+    enableSecurityFilter = true
   ) {
     this.scorer = new RelevanceScorer();
+    this.securityFilter = new SecurityFilter();
     this.relevanceThreshold = relevanceThreshold;
     this.maxContextItems = maxContextItems;
+    this.enableSecurityFilter = enableSecurityFilter;
   }
 
   /**
@@ -43,7 +47,7 @@ export class ContextExtractor {
     const startTime = new Date(entries[0].timestamp).getTime();
     const endTime = new Date(entries[entries.length - 1].timestamp).getTime();
 
-    const context: ExtractedContext = {
+    let context: ExtractedContext = {
       sessionId: entries[0]?.sessionId || this.generateSessionId(),
       projectPath: this.extractProjectPath(entries),
       timestamp: new Date().toISOString(),
@@ -78,6 +82,16 @@ export class ContextExtractor {
     context.implementations = context.implementations.slice(0, this.maxContextItems);
     context.decisions = context.decisions.slice(0, this.maxContextItems);
     context.patterns = context.patterns.slice(0, this.maxContextItems);
+
+    // Apply security filtering if enabled
+    if (this.enableSecurityFilter) {
+      context = this.securityFilter.filterObject(context);
+      
+      // Add security stats to metadata
+      const securityStats = this.securityFilter.getStats();
+      (context.metadata as any).securityFiltered = true;
+      (context.metadata as any).redactedCount = securityStats.redactedCount;
+    }
 
     return context;
   }

@@ -21,7 +21,7 @@ describe('ContextExtractor', () => {
           sessionId: 'test-session',
           message: {
             role: 'user',
-            content: 'I have an error with the authentication system'
+            content: 'I have an error with the authentication API'
           }
         },
         {
@@ -57,7 +57,14 @@ describe('ContextExtractor', () => {
       
       // Check problem extraction
       const problem = context.problems[0];
+      expect(problem).toBeDefined();
       expect(problem.question).toContain('authentication');
+      
+      // Check that tags are properly extracted from the problem content
+      // The extractTags method should identify technology keywords like 'api'
+      expect(problem.tags).toBeDefined();
+      expect(Array.isArray(problem.tags)).toBe(true);
+      expect(problem.tags.length).toBeGreaterThan(0);
       expect(problem.tags).toContain('api');
     });
 

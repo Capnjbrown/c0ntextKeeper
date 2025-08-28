@@ -2,7 +2,6 @@
  * Transcript parsing utilities
  */
 
-import fs from 'fs/promises';
 import { createReadStream } from 'fs';
 import readline from 'readline';
 import { TranscriptEntry } from '../core/types.js';
