@@ -197,11 +197,13 @@ export interface C0ntextKeeperConfig {
 
 // Hook types
 export interface HookInput {
-  hook_event_name: string;
-  transcript_path?: string;
-  session_id?: string;
-  project_path?: string;
-  timestamp: string;
+  hook_event_name: 'PreCompact' | 'preCompact' | string;  // Accept both capitalizations
+  session_id: string;
+  transcript_path: string;
+  trigger?: 'manual' | 'auto';  // How compaction was triggered
+  custom_instructions?: string;  // User instructions for manual compaction
+  project_path?: string;  // Optional project directory path
+  timestamp?: string;  // Optional ISO 8601 timestamp
 }
 
 export interface HookOutput {

@@ -30,6 +30,13 @@ export class FileStore {
   }
 
   /**
+   * Get the base storage path
+   */
+  getBasePath(): string {
+    return this.basePath;
+  }
+
+  /**
    * Initialize storage directories
    */
   async initialize(): Promise<void> {

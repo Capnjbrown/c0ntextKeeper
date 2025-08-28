@@ -45,6 +45,33 @@ export class RelevanceScorer {
   }
 
   /**
+   * Score generic content (for hooks)
+   */
+  scoreContent(item: { type: string; content: string; metadata?: any }): number {
+    let score = 0;
+    
+    // Base scoring based on content type
+    if (item.type === 'exchange') {
+      if (item.metadata?.hasSolution) score += this.weights.problemSolution;
+      if (item.metadata?.hasError) score += this.weights.errorResolution;
+      if (item.metadata?.hasCode) score += this.weights.codeChanges * 0.5;
+      if (item.metadata?.toolsUsed > 0) score += this.weights.toolComplexity * 0.3;
+    } else if (item.type === 'prompt') {
+      score += this.weights.userEngagement * 0.5;
+    } else if (item.type === 'tool') {
+      score += this.weights.toolComplexity * 0.4;
+    }
+    
+    // Check content for valuable patterns
+    const content = item.content.toLowerCase();
+    if (this.containsProblemIndicators(content)) score += 0.2;
+    if (this.containsDecisionIndicators(content)) score += 0.1;
+    
+    // Normalize to 0-1 range
+    return Math.min(score, 1);
+  }
+
+  /**
    * Extract relevance factors from an entry
    */
   private extractFactors(entry: TranscriptEntry): RelevanceFactors {

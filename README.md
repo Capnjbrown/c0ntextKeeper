@@ -1,6 +1,6 @@
 # 🧠 c0ntextKeeper
 
-> Intelligent context preservation and retrieval for Claude Code - Never lose valuable context again!
+> Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
 > Last Updated: 2025-08-28
 
@@ -10,11 +10,12 @@
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple)](https://modelcontextprotocol.io)
+[![🤖 Fully Automatic](https://img.shields.io/badge/🤖-Fully%20Automatic-success)](https://github.com/Capnjbrown/c0ntextKeeper#-how-it-works-automatically)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ## 🎯 The Problem
 
-Every time Claude Code runs `/compact`, valuable context is lost forever:
+Every time Claude Code runs `/compact` (manually OR automatically), valuable context is lost forever:
 - ❌ Problem-solution pairs vanish
 - ❌ Architectural decisions disappear  
 - ❌ Successful implementations are forgotten
@@ -25,15 +26,27 @@ Every time Claude Code runs `/compact`, valuable context is lost forever:
 
 **c0ntextKeeper** automatically preserves high-value context before compaction and makes it instantly retrievable through MCP tools. It's like having perfect memory for your Claude Code sessions!
 
+### 🤖 Fully Automatic Operation
+
+**No manual intervention required!** c0ntextKeeper works automatically:
+1. **Claude Code monitors context size** during your work
+2. **When context gets large**, Claude Code auto-compacts
+3. **c0ntextKeeper captures everything** before compaction
+4. **You continue working** without interruption
+5. **Context is never lost** - it's always preserved!
+
 ### Key Features
 
-- 🎣 **Automatic Capture** - Hooks into preCompact events to preserve context before it's lost
+- 🤖 **Fully Automatic** - Works with both manual `/compact` and automatic compaction
+- 🎣 **4 Hook System** - PreCompact, UserPromptSubmit, PostToolUse, and Stop hooks
 - 🧠 **Intelligent Extraction** - Identifies problems, solutions, decisions, and patterns
 - 📊 **Relevance Scoring** - Multi-factor scoring ensures only valuable context is preserved
 - 🔍 **Smart Retrieval** - MCP tools provide instant access to relevant historical context
 - 📈 **Pattern Recognition** - Identifies recurring solutions and approaches
+- ⚙️ **CLI Management** - Complete control over hook configuration and settings
+- 📝 **Configuration System** - Centralized config.json for all preferences
 - 🔒 **Security First** - Automatic filtering of sensitive data (API keys, passwords, PII)
-- 💾 **Efficient Storage** - File-based storage with searchable indices
+- 💾 **Efficient Storage** - Multiple storage locations for different data types
 - ✅ **Production Ready** - Full CI/CD pipeline, comprehensive testing, TypeScript strict mode
 
 ## 📋 Table of Contents
@@ -51,6 +64,7 @@ Every time Claude Code runs `/compact`, valuable context is lost forever:
 - [Testing](#-testing)
 - [Contributing](#-contributing)
 - [License](#-license)
+- [Where Is My Data?](#-where-is-my-data-stored)
 - [Support](#-support)
 
 ## 🚀 Quick Start
@@ -67,6 +81,25 @@ c0ntextkeeper validate
 ```
 
 That's it! c0ntextKeeper now automatically captures context before each `/compact`.
+
+## 🤖 How It Works Automatically
+
+c0ntextKeeper requires **zero effort** after installation:
+
+1. **Install once** - Run setup and you're done
+2. **Work normally** - No changes to your workflow
+3. **Automatic capture** - Claude Code compacts when needed, c0ntextKeeper captures
+4. **Context preserved** - Everything saved before it's lost
+5. **Retrieve anytime** - Use MCP tools or CLI to access
+
+### Two Types of Compaction (Both Captured!)
+
+| Type | Trigger | c0ntextKeeper Action |
+|------|---------|---------------------|
+| **Manual** | You type `/compact` | Captures context before compaction |
+| **Automatic** | Claude Code detects large context | Captures context automatically |
+
+**You don't need to do anything** - both types are handled automatically!
 
 ## 📦 Installation
 
@@ -107,11 +140,28 @@ c0ntextkeeper validate
 
 ## 📖 Usage
 
-Once installed, c0ntextKeeper works automatically! 
+Once installed, c0ntextKeeper works **completely automatically**! 
+
+### Automatic Context Preservation
 
 1. **Work normally in Claude Code** - Make changes, solve problems, build features
-2. **Run `/compact` when needed** - c0ntextKeeper captures context before compaction
-3. **Retrieve context anytime** - Use MCP tools to access preserved knowledge
+2. **Claude Code auto-compacts when needed** - No action required from you!
+3. **c0ntextKeeper captures everything** - Archives created automatically
+4. **Manual `/compact` also supported** - Works both ways
+5. **Retrieve context anytime** - Use MCP tools to access preserved knowledge
+
+### Check Automation Status
+
+```bash
+# See how c0ntextKeeper is working
+c0ntextkeeper status
+```
+
+This shows:
+- ✅ Whether automatic capture is enabled
+- 🔄 What triggers preservation (manual + automatic)
+- 📦 Where your archives are stored
+- 📊 Which additional hooks are available
 
 ### MCP Tools
 
@@ -193,9 +243,12 @@ Decision from 2024-01-10:
 
 ## 🛠️ CLI Commands
 
+### Core Commands
+
 ```bash
 # Setup and configuration
 c0ntextkeeper setup          # Configure hooks for Claude Code
+c0ntextkeeper status         # Show automation status
 
 # Manual operations
 c0ntextkeeper archive <file> # Manually archive a transcript
@@ -209,20 +262,78 @@ c0ntextkeeper --help         # Show all commands
 c0ntextkeeper <cmd> --help   # Show command options
 ```
 
+### Hook Management (Advanced)
+
+```bash
+# Manage multiple hooks
+c0ntextkeeper hooks list              # Show all available hooks
+c0ntextkeeper hooks enable <hook>     # Enable a specific hook
+c0ntextkeeper hooks disable <hook>    # Disable a specific hook
+c0ntextkeeper hooks test <hook>       # Test a hook
+c0ntextkeeper hooks stats             # Show hook statistics
+c0ntextkeeper hooks config <hook> -m <pattern>  # Configure matcher
+```
+
+Available hooks:
+- **PreCompact** (enabled by default) - Automatic context preservation
+- **UserPromptSubmit** - Track your questions and prompts
+- **PostToolUse** - Capture tool results and patterns
+- **Stop** - Save complete Q&A exchanges
+
 ## 🏗️ Architecture
 
 ```
 c0ntextKeeper/
-├── Hook System          # Captures transcripts during preCompact
-├── Extraction Engine    # Analyzes transcripts for valuable context
+├── Hook System             # 4 hooks for comprehensive capture
+│   ├── PreCompact         # Auto + manual compaction
+│   ├── UserPromptSubmit   # Question tracking
+│   ├── PostToolUse        # Tool pattern analysis
+│   └── Stop               # Q&A knowledge base
+├── Extraction Engine       # Analyzes transcripts for valuable context
 │   ├── Problem Detector
 │   ├── Solution Mapper
 │   ├── Decision Extractor
 │   └── Pattern Identifier
-├── Storage Layer        # Efficient file-based archival
-│   └── ~/.c0ntextkeeper/archive/
-└── MCP Server           # Exposes retrieval tools to Claude Code
+├── Configuration System    # Centralized settings
+│   └── ~/.c0ntextkeeper/config.json
+├── Storage Layer          # Multiple storage locations
+│   ├── ~/.c0ntextkeeper/archive/    # Session transcripts
+│   ├── ~/.c0ntextkeeper/prompts/    # User questions
+│   ├── ~/.c0ntextkeeper/patterns/   # Tool usage
+│   └── ~/.c0ntextkeeper/knowledge/  # Q&A pairs
+└── MCP Server            # Exposes retrieval tools to Claude Code
+    ├── fetch_context
+    ├── search_archive
+    └── get_patterns
 ```
+
+## 📁 Where Is My Data Stored?
+
+**All data is stored locally on your Mac** in hidden directories:
+
+| Data Type | Location | Purpose |
+|-----------|----------|----------|
+| **Archived Contexts** | `~/.c0ntextkeeper/archive/` | Your preserved work sessions |
+| **Hook Configuration** | `~/.claude/settings.json` | Claude Code integration settings |
+| **Logs** | `~/.c0ntextkeeper/logs/` | Debug and execution logs |
+
+### Quick Access Commands
+
+```bash
+# Open your archives in Finder
+open ~/.c0ntextkeeper/archive
+
+# View your latest archive
+ls -t ~/.c0ntextkeeper/archive/projects/*/sessions/*.json | head -1 | xargs cat | jq '.'
+
+# Search your archives
+c0ntextkeeper search "authentication"
+
+# Check storage size
+du -sh ~/.c0ntextkeeper/
+```
+
+**📖 For detailed information, see the [USER-GUIDE.md](USER-GUIDE.md)**
 
 ## ⚙️ Configuration
 
@@ -237,21 +348,18 @@ MAX_CONTEXT_ITEMS=50     # Maximum items per extraction
 RELEVANCE_THRESHOLD=0.5  # Minimum relevance score (0-1)
 ```
 
-### Storage Location
+### Storage Structure
 
-Archives are stored in: `~/.c0ntextkeeper/archive/`
-
-Structure:
 ```
 ~/.c0ntextkeeper/archive/
 ├── projects/
-│   ├── [project-hash]/
-│   │   ├── sessions/
+│   ├── [project-hash]/         # Unique hash per project
+│   │   ├── sessions/           # Individual work sessions
 │   │   │   └── YYYY-MM-DD-[session-id].json
-│   │   └── index.json
+│   │   └── index.json          # Project index
 │   └── ...
 └── global/
-    └── index.json
+    └── index.json              # Master index
 ```
 
 ## 🧪 Development
@@ -370,25 +478,29 @@ Special thanks to:
 
 ## 📊 Project Status
 
-### ✅ Completed Features
+### ✅ Completed Features (v1.0.0)
+- **Fully automatic operation** with manual and auto compaction support
+- **4 working hooks** (PreCompact, UserPromptSubmit, PostToolUse, Stop)
+- **Hook management CLI** with enable/disable/test commands
+- **Configuration system** via config.json
 - Core extraction engine with intelligent analysis
 - MCP server implementation with 3 tools
-- PreCompact hook integration
-- File-based storage with indexing
+- File-based storage with multiple directories
 - Pattern recognition and analysis
-- CLI tools for manual operations
 - Security filtering for sensitive data
 - CI/CD pipeline with automated testing
 - Full TypeScript with strict mode
 - ESLint v9 with flat configuration
-- Comprehensive test suite
+- Comprehensive test suite with 18 core modules
 
 ### 🚧 Roadmap
-- Vector search for semantic queries (Q1 2025)
-- Team sharing and collaboration (Q2 2025)
-- VS Code extension (Q2 2025)
-- Web dashboard for analytics (Q3 2025)
-- Cloud sync across devices (Q3 2025)
+- SessionStart/SessionEnd hooks (Q1 2025)
+- PreToolUse hook implementation (Q1 2025)
+- Vector search for semantic queries (Q2 2025)
+- Team sharing and collaboration (Q3 2025)
+- VS Code extension (Q4 2025)
+- Web dashboard for analytics (Q1 2026)
+- Cloud sync across devices (Q2 2026)
 
 ## 💬 Support
 
@@ -399,6 +511,8 @@ Special thanks to:
 - 📧 [Email Support](mailto:support@c0ntextkeeper.com)
 
 ### Resources
+- [User Guide](USER-GUIDE.md) - Complete guide to accessing your data
+- [Hook Integration](HOOK-INTEGRATION.md) - Technical setup details
 - [Homepage](https://c0ntextkeeper.com)
 - [NPM Package](https://www.npmjs.com/package/c0ntextkeeper)
 - [MCP Documentation](https://modelcontextprotocol.io)
@@ -418,3 +532,5 @@ Special thanks to:
   <a href="https://github.com/Capnjbrown/c0ntextKeeper/stargazers">⭐ Star us on GitHub</a> • 
   <a href="https://twitter.com/intent/tweet?text=Check%20out%20c0ntextKeeper%20-%20Never%20lose%20valuable%20context%20in%20Claude%20Code%20again!&url=https://github.com/Capnjbrown/c0ntextKeeper">Share on Twitter</a>
 </p>
+
+SMB

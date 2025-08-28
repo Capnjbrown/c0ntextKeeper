@@ -28,8 +28,15 @@ program
   .description('Configure c0ntextKeeper hooks for Claude Code')
   .action(async () => {
     try {
-      const setupScript = path.join(__dirname, '..', 'scripts', 'setup-hooks.js');
-      execSync(`node ${setupScript}`, { stdio: 'inherit' });
+      // Use the new install-hook.js script instead of setup-hooks.js
+      const installScript = path.join(__dirname, '..', 'scripts', 'install-hook.js');
+      if (!require('fs').existsSync(installScript)) {
+        // Fall back to old script if new one doesn't exist
+        const setupScript = path.join(__dirname, '..', 'scripts', 'setup-hooks.js');
+        execSync(`node ${setupScript}`, { stdio: 'inherit' });
+      } else {
+        execSync(`node ${installScript}`, { stdio: 'inherit' });
+      }
     } catch (error) {
       logger.error('Setup failed:', error);
       process.exit(1);
@@ -170,23 +177,256 @@ program
     }
   });
 
+// Hooks command group
+const hooks = program
+  .command('hooks')
+  .description('Manage Claude Code hooks');
+
+// List hooks
+hooks
+  .command('list')
+  .description('List all available hooks and their status')
+  .action(async () => {
+    try {
+      const HooksManager = (await import('./cli/hooks-manager.js')).HooksManager;
+      const manager = new HooksManager();
+      await manager.listHooks();
+    } catch (error) {
+      logger.error('List hooks error:', error);
+      process.exit(1);
+    }
+  });
+
+// Enable hook
+hooks
+  .command('enable <hook>')
+  .description('Enable a specific hook')
+  .action(async (hookName: string) => {
+    try {
+      const HooksManager = (await import('./cli/hooks-manager.js')).HooksManager;
+      const manager = new HooksManager();
+      await manager.enableHook(hookName);
+    } catch (error) {
+      logger.error('Enable hook error:', error);
+      process.exit(1);
+    }
+  });
+
+// Disable hook
+hooks
+  .command('disable <hook>')
+  .description('Disable a specific hook')
+  .action(async (hookName: string) => {
+    try {
+      const HooksManager = (await import('./cli/hooks-manager.js')).HooksManager;
+      const manager = new HooksManager();
+      await manager.disableHook(hookName);
+    } catch (error) {
+      logger.error('Disable hook error:', error);
+      process.exit(1);
+    }
+  });
+
+// Configure hook
+hooks
+  .command('config <hook>')
+  .description('Configure a hook')
+  .option('-m, --matcher <pattern>', 'Set matcher pattern')
+  .action(async (hookName: string, options: any) => {
+    try {
+      const HooksManager = (await import('./cli/hooks-manager.js')).HooksManager;
+      const manager = new HooksManager();
+      await manager.configureHook(hookName, options.matcher);
+    } catch (error) {
+      logger.error('Configure hook error:', error);
+      process.exit(1);
+    }
+  });
+
+// Test hook
+hooks
+  .command('test <hook>')
+  .description('Test a specific hook')
+  .action(async (hookName: string) => {
+    try {
+      const HooksManager = (await import('./cli/hooks-manager.js')).HooksManager;
+      const manager = new HooksManager();
+      await manager.testHook(hookName);
+    } catch (error) {
+      logger.error('Test hook error:', error);
+      process.exit(1);
+    }
+  });
+
+// Hook stats
+hooks
+  .command('stats')
+  .description('Show hook statistics')
+  .action(async () => {
+    try {
+      const HooksManager = (await import('./cli/hooks-manager.js')).HooksManager;
+      const manager = new HooksManager();
+      await manager.showStats();
+    } catch (error) {
+      logger.error('Hook stats error:', error);
+      process.exit(1);
+    }
+  });
+
+// Status command - Show automation status
+program
+  .command('status')
+  .description('Show c0ntextKeeper automation status')
+  .action(async () => {
+    try {
+      console.log('\n🤖 c0ntextKeeper Automation Status\n');
+      console.log('═'.repeat(60));
+      
+      // Check PreCompact hook
+      const fs = require('fs');
+      const os = require('os');
+      const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+      
+      console.log('📌 PreCompact Hook (Primary):');
+      if (fs.existsSync(settingsPath)) {
+        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+        const hasHook = settings.hooks?.PreCompact;
+        if (hasHook) {
+          console.log('  ✅ ENABLED - Fully Automatic!');
+          console.log('  🔄 Triggers on:');
+          console.log('     • Manual /compact command');
+          console.log('     • Automatic compaction by Claude Code');
+          console.log('  📦 Archives saved to: ~/.c0ntextkeeper/archive/');
+        } else {
+          console.log('  ❌ Not enabled - run "c0ntextkeeper setup"');
+        }
+      }
+      
+      console.log('\n🎯 How It Works:');
+      console.log('  1. Claude Code monitors context size automatically');
+      console.log('  2. When context gets large, it auto-compacts');
+      console.log('  3. PreCompact hook fires automatically');
+      console.log('  4. c0ntextKeeper archives everything');
+      console.log('  5. You never lose context!');
+      
+      console.log('\n📊 Additional Hooks (Optional):');
+      const hooks = ['UserPromptSubmit', 'PostToolUse', 'Stop'];
+      for (const hook of hooks) {
+        const settings = fs.existsSync(settingsPath) ? 
+          JSON.parse(fs.readFileSync(settingsPath, 'utf-8')) : {};
+        const enabled = settings.hooks?.[hook];
+        const status = enabled ? '✅ Enabled' : '⭕ Disabled';
+        console.log(`  ${status} ${hook}`);
+      }
+      
+      console.log('\n💡 Tips:');
+      console.log('  • PreCompact works automatically - no action needed!');
+      console.log('  • Enable other hooks for more granular capture');
+      console.log('  • Use "c0ntextkeeper hooks list" to manage hooks');
+      
+      console.log('\n═'.repeat(60));
+      
+    } catch (error) {
+      logger.error('Status error:', error);
+      process.exit(1);
+    }
+  });
+
 // Validate command
 program
   .command('validate')
-  .description('Validate that archival is working')
+  .description('Validate c0ntextKeeper installation and hook configuration')
   .action(async () => {
     try {
-      const archiver = new ContextArchiver();
-      const valid = await archiver.validate();
-
-      if (valid) {
-        console.log('✅ Validation successful! c0ntextKeeper is working correctly.');
+      console.log('🔍 Validating c0ntextKeeper installation...\n');
+      const fs = require('fs');
+      const os = require('os');
+      let valid = true;
+      
+      // Check hook configuration in settings.json
+      const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+      if (fs.existsSync(settingsPath)) {
+        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+        const hasHook = settings.hooks?.PreCompact?.some((config: any) => 
+          config.hooks?.some((h: any) => h.command?.includes('c0ntextkeeper') || h.command?.includes('precompact'))
+        );
+        if (hasHook) {
+          console.log('✅ Hook configured in settings.json');
+        } else {
+          console.log('❌ Hook not found in settings.json');
+          valid = false;
+        }
       } else {
-        console.log('❌ Validation failed. Check logs for details.');
+        console.log('⚠️  Settings.json not found');
+        valid = false;
+      }
+      
+      // Check hook script exists
+      const hookScript = path.join(__dirname, 'hooks', 'precompact.js');
+      if (fs.existsSync(hookScript)) {
+        console.log('✅ Hook script exists');
+      } else {
+        console.log('❌ Hook script not found (run "npm run build")');
+        valid = false;
+      }
+      
+      // Check archive directory
+      const archiveDir = path.join(os.homedir(), '.c0ntextkeeper', 'archive');
+      if (fs.existsSync(archiveDir)) {
+        console.log('✅ Archive directory exists');
+        
+        // Count archived sessions
+        const storage = new FileStore();
+        const stats = await storage.getStats();
+        if (stats.totalSessions > 0) {
+          console.log(`✅ Found ${stats.totalSessions} archived sessions`);
+        }
+      } else {
+        console.log('⚠️  Archive directory will be created on first use');
+      }
+      
+      // Test archiver functionality
+      const archiver = new ContextArchiver();
+      const archiverValid = await archiver.validate();
+      if (archiverValid) {
+        console.log('✅ Archiver functionality validated');
+      } else {
+        console.log('❌ Archiver validation failed');
+        valid = false;
+      }
+      
+      if (valid) {
+        console.log('\n✅ Installation valid! c0ntextKeeper is ready to use.');
+        console.log('\nNext steps:');
+        console.log('1. Open any project in Claude Code');
+        console.log('2. Run /compact to trigger context preservation');
+        console.log('3. Check archives at: ~/.c0ntextkeeper/archive/');
+      } else {
+        console.log('\n❌ Installation incomplete. Run "c0ntextkeeper setup" to fix.');
         process.exit(1);
       }
     } catch (error) {
       logger.error('Validation error:', error);
+      process.exit(1);
+    }
+  });
+
+// Test-hook command
+program
+  .command('test-hook')
+  .description('Test the PreCompact hook with sample data')
+  .action(async () => {
+    try {
+      console.log('🧪 Testing PreCompact hook...');
+      const testScript = path.join(__dirname, '..', 'scripts', 'test-hook.js');
+      if (require('fs').existsSync(testScript)) {
+        execSync(`node ${testScript}`, { stdio: 'inherit' });
+      } else {
+        console.error('Test script not found. Please ensure the project is properly installed.');
+        process.exit(1);
+      }
+    } catch (error) {
+      logger.error('Test failed:', error);
       process.exit(1);
     }
   });
