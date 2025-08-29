@@ -3,13 +3,9 @@
  * Identifies and analyzes recurring patterns across contexts
  */
 
-import { 
-  Pattern, 
-  ExtractedContext,
-  GetPatternsInput 
-} from './types.js';
-import { FileStore } from '../storage/file-store.js';
-import { Logger } from '../utils/logger.js';
+import { Pattern, ExtractedContext, GetPatternsInput } from "./types.js";
+import { FileStore } from "../storage/file-store.js";
+import { Logger } from "../utils/logger.js";
 
 export class PatternAnalyzer {
   private storage: FileStore;
@@ -17,25 +13,22 @@ export class PatternAnalyzer {
 
   constructor(storage?: FileStore) {
     this.storage = storage || new FileStore();
-    this.logger = new Logger('PatternAnalyzer');
+    this.logger = new Logger("PatternAnalyzer");
   }
 
   /**
    * Get patterns based on input criteria
    */
   async getPatterns(input: GetPatternsInput): Promise<Pattern[]> {
-    const {
-      type = 'all',
-      minFrequency = 2,
-      projectPath,
-      limit = 10
-    } = input;
+    const { type = "all", minFrequency = 2, projectPath, limit = 10 } = input;
 
-    this.logger.info(`Getting patterns: type=${type}, minFrequency=${minFrequency}`);
+    this.logger.info(
+      `Getting patterns: type=${type}, minFrequency=${minFrequency}`,
+    );
 
     // Get contexts to analyze
     let contexts: ExtractedContext[];
-    
+
     if (projectPath) {
       contexts = await this.storage.getProjectContexts(projectPath);
     } else {
@@ -44,10 +37,10 @@ export class PatternAnalyzer {
 
     // Aggregate patterns across contexts
     const patternMap = new Map<string, Pattern>();
-    
+
     for (const context of contexts) {
       for (const pattern of context.patterns) {
-        if (type !== 'all' && pattern.type !== type) {
+        if (type !== "all" && pattern.type !== type) {
           continue;
         }
 
@@ -57,14 +50,15 @@ export class PatternAnalyzer {
         if (existing) {
           // Merge pattern occurrences
           existing.frequency += pattern.frequency;
-          existing.lastSeen = pattern.lastSeen > existing.lastSeen 
-            ? pattern.lastSeen 
-            : existing.lastSeen;
-          
+          existing.lastSeen =
+            pattern.lastSeen > existing.lastSeen
+              ? pattern.lastSeen
+              : existing.lastSeen;
+
           // Merge examples (unique)
           const uniqueExamples = new Set([
             ...existing.examples,
-            ...pattern.examples
+            ...pattern.examples,
           ]);
           existing.examples = Array.from(uniqueExamples).slice(0, 10);
         } else {
@@ -75,12 +69,12 @@ export class PatternAnalyzer {
 
     // Filter by minimum frequency and sort
     const patterns = Array.from(patternMap.values())
-      .filter(p => p.frequency >= minFrequency)
+      .filter((p) => p.frequency >= minFrequency)
       .sort((a, b) => b.frequency - a.frequency)
       .slice(0, limit);
 
     this.logger.info(`Found ${patterns.length} patterns`);
-    
+
     return patterns;
   }
 
@@ -93,24 +87,24 @@ export class PatternAnalyzer {
     recommendations: string[];
   }> {
     const contexts = await this.storage.getProjectContexts(projectPath);
-    
+
     // Get all patterns
     const patterns = await this.getPatterns({
-      type: 'all',
+      type: "all",
       minFrequency: 2,
-      projectPath
+      projectPath,
     });
 
     // Generate insights
     const insights = this.generateInsights(patterns, contexts);
-    
+
     // Generate recommendations
     const recommendations = this.generateRecommendations(patterns, insights);
 
     return {
       patterns,
       insights,
-      recommendations
+      recommendations,
     };
   }
 
@@ -120,12 +114,11 @@ export class PatternAnalyzer {
   async findSimilarPatterns(pattern: Pattern): Promise<Pattern[]> {
     const allPatterns = await this.getPatterns({
       type: pattern.type,
-      minFrequency: 1
+      minFrequency: 1,
     });
 
-    return allPatterns.filter(p => 
-      p.id !== pattern.id && 
-      this.calculateSimilarity(pattern, p) > 0.7
+    return allPatterns.filter(
+      (p) => p.id !== pattern.id && this.calculateSimilarity(pattern, p) > 0.7,
     );
   }
 
@@ -134,37 +127,40 @@ export class PatternAnalyzer {
    */
   async getPatternEvolution(
     patternValue: string,
-    type: Pattern['type']
+    type: Pattern["type"],
   ): Promise<{
     occurrences: Array<{
       timestamp: string;
       frequency: number;
       context: string;
     }>;
-    trend: 'increasing' | 'stable' | 'decreasing';
+    trend: "increasing" | "stable" | "decreasing";
   }> {
-    const contexts = await this.storage.searchAll(ctx => 
-      ctx.patterns.some(p => p.type === type && p.value === patternValue)
+    const contexts = await this.storage.searchAll((ctx) =>
+      ctx.patterns.some((p) => p.type === type && p.value === patternValue),
     );
 
-    const occurrences = contexts.map(ctx => {
-      const pattern = ctx.patterns.find(p => 
-        p.type === type && p.value === patternValue
+    const occurrences = contexts
+      .map((ctx) => {
+        const pattern = ctx.patterns.find(
+          (p) => p.type === type && p.value === patternValue,
+        );
+        return {
+          timestamp: ctx.timestamp,
+          frequency: pattern?.frequency || 0,
+          context: ctx.sessionId,
+        };
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
       );
-      return {
-        timestamp: ctx.timestamp,
-        frequency: pattern?.frequency || 0,
-        context: ctx.sessionId
-      };
-    }).sort((a, b) => 
-      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    );
 
-    const trend = this.calculateTrend(occurrences.map(o => o.frequency));
+    const trend = this.calculateTrend(occurrences.map((o) => o.frequency));
 
     return {
       occurrences,
-      trend
+      trend,
     };
   }
 
@@ -175,19 +171,19 @@ export class PatternAnalyzer {
    */
   private generateInsights(
     patterns: Pattern[],
-    contexts: ExtractedContext[]
+    contexts: ExtractedContext[],
   ): PatternInsight[] {
     const insights: PatternInsight[] = [];
 
     // Most common error patterns
-    const errorPatterns = patterns.filter(p => p.type === 'error-handling');
+    const errorPatterns = patterns.filter((p) => p.type === "error-handling");
     if (errorPatterns.length > 0) {
       insights.push({
-        type: 'error-pattern',
-        title: 'Recurring Errors',
+        type: "error-pattern",
+        title: "Recurring Errors",
         description: `Found ${errorPatterns.length} recurring error patterns`,
         patterns: errorPatterns.slice(0, 3),
-        severity: 'medium'
+        severity: "medium",
       });
     }
 
@@ -198,30 +194,30 @@ export class PatternAnalyzer {
         filePatterns.set(file, (filePatterns.get(file) || 0) + 1);
       }
     }
-    
+
     const hotspots = Array.from(filePatterns.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5);
-    
+
     if (hotspots.length > 0) {
       insights.push({
-        type: 'hotspot',
-        title: 'Frequently Modified Files',
+        type: "hotspot",
+        title: "Frequently Modified Files",
         description: `These files are modified most often and may need refactoring`,
         data: hotspots,
-        severity: 'low'
+        severity: "low",
       });
     }
 
     // Command patterns
-    const commandPatterns = patterns.filter(p => p.type === 'command');
+    const commandPatterns = patterns.filter((p) => p.type === "command");
     if (commandPatterns.length > 3) {
       insights.push({
-        type: 'workflow',
-        title: 'Common Workflows',
+        type: "workflow",
+        title: "Common Workflows",
         description: `Identified ${commandPatterns.length} recurring command patterns`,
         patterns: commandPatterns.slice(0, 5),
-        severity: 'info'
+        severity: "info",
       });
     }
 
@@ -233,43 +229,46 @@ export class PatternAnalyzer {
    */
   private generateRecommendations(
     patterns: Pattern[],
-    insights: PatternInsight[]
+    insights: PatternInsight[],
   ): string[] {
     const recommendations: string[] = [];
 
     // Check for error patterns
-    const errorPatterns = patterns.filter(p => p.type === 'error-handling');
+    const errorPatterns = patterns.filter((p) => p.type === "error-handling");
     if (errorPatterns.length > 5) {
       recommendations.push(
-        'Consider implementing better error handling strategies - multiple recurring errors detected'
+        "Consider implementing better error handling strategies - multiple recurring errors detected",
       );
     }
 
     // Check for command patterns that could be automated
-    const commandPatterns = patterns.filter(p => 
-      p.type === 'command' && p.frequency > 5
+    const commandPatterns = patterns.filter(
+      (p) => p.type === "command" && p.frequency > 5,
     );
     if (commandPatterns.length > 0) {
       recommendations.push(
-        `Automate frequent commands: ${commandPatterns.slice(0, 3).map(p => p.value).join(', ')}`
+        `Automate frequent commands: ${commandPatterns
+          .slice(0, 3)
+          .map((p) => p.value)
+          .join(", ")}`,
       );
     }
 
     // Check for code patterns
-    const codePatterns = patterns.filter(p => p.type === 'code');
-    if (codePatterns.some(p => p.frequency > 10)) {
+    const codePatterns = patterns.filter((p) => p.type === "code");
+    if (codePatterns.some((p) => p.frequency > 10)) {
       recommendations.push(
-        'Extract common code patterns into reusable functions or utilities'
+        "Extract common code patterns into reusable functions or utilities",
       );
     }
 
     // Check hotspots
-    const hotspotInsight = insights.find(i => i.type === 'hotspot');
+    const hotspotInsight = insights.find((i) => i.type === "hotspot");
     if (hotspotInsight && hotspotInsight.data) {
       const topFile = hotspotInsight.data[0];
       if (topFile && topFile[1] > 10) {
         recommendations.push(
-          `Consider refactoring ${topFile[0]} - modified ${topFile[1]} times`
+          `Consider refactoring ${topFile[0]} - modified ${topFile[1]} times`,
         );
       }
     }
@@ -286,9 +285,9 @@ export class PatternAnalyzer {
     // Simple string similarity for pattern values
     const value1 = p1.value.toLowerCase();
     const value2 = p2.value.toLowerCase();
-    
+
     if (value1 === value2) return 1;
-    
+
     // Check for substring matches
     if (value1.includes(value2) || value2.includes(value1)) {
       return 0.8;
@@ -297,22 +296,24 @@ export class PatternAnalyzer {
     // Check for common words
     const words1 = new Set(value1.split(/\W+/));
     const words2 = new Set(value2.split(/\W+/));
-    const intersection = new Set([...words1].filter(w => words2.has(w)));
+    const intersection = new Set([...words1].filter((w) => words2.has(w)));
     const union = new Set([...words1, ...words2]);
-    
+
     return intersection.size / union.size;
   }
 
   /**
    * Calculate trend from a series of values
    */
-  private calculateTrend(values: number[]): 'increasing' | 'stable' | 'decreasing' {
-    if (values.length < 2) return 'stable';
+  private calculateTrend(
+    values: number[],
+  ): "increasing" | "stable" | "decreasing" {
+    if (values.length < 2) return "stable";
 
     // Simple linear regression
     const n = values.length;
     const indices = Array.from({ length: n }, (_, i) => i);
-    
+
     const sumX = indices.reduce((a, b) => a + b, 0);
     const sumY = values.reduce((a, b) => a + b, 0);
     const sumXY = indices.reduce((sum, x, i) => sum + x * values[i], 0);
@@ -320,17 +321,17 @@ export class PatternAnalyzer {
 
     const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
 
-    if (Math.abs(slope) < 0.1) return 'stable';
-    return slope > 0 ? 'increasing' : 'decreasing';
+    if (Math.abs(slope) < 0.1) return "stable";
+    return slope > 0 ? "increasing" : "decreasing";
   }
 }
 
 // Type for pattern insights
 interface PatternInsight {
-  type: 'error-pattern' | 'hotspot' | 'workflow' | 'optimization';
+  type: "error-pattern" | "hotspot" | "workflow" | "optimization";
   title: string;
   description: string;
   patterns?: Pattern[];
   data?: any;
-  severity: 'high' | 'medium' | 'low' | 'info';
+  severity: "high" | "medium" | "low" | "info";
 }

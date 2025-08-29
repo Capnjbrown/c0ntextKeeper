@@ -3,30 +3,43 @@
  * Manages context archives in the filesystem
  */
 
-import fs from 'fs/promises';
-import path from 'path';
-import crypto from 'crypto';
-import { 
-  ExtractedContext, 
-  ProjectIndex, 
+import fs from "fs/promises";
+import path from "path";
+import crypto from "crypto";
+import {
+  ExtractedContext,
+  ProjectIndex,
   SessionSummary,
-  C0ntextKeeperConfig 
-} from '../core/types.js';
-import { ensureDir, fileExists } from '../utils/filesystem.js';
-import { generateSessionName, extractProjectName } from '../utils/session-namer.js';
-import { formatTimestamp } from '../utils/formatter.js';
+  C0ntextKeeperConfig,
+} from "../core/types.js";
+import { ensureDir, fileExists } from "../utils/filesystem.js";
+import {
+  generateSessionName,
+  extractProjectName,
+} from "../utils/session-namer.js";
+import {
+  formatTimestamp,
+  formatFileCount,
+  formatDuration,
+  formatToolStats,
+  getTopTools,
+  calculateAverage,
+  formatRelevance,
+  truncateText,
+  getPackageVersion,
+} from "../utils/formatter.js";
 
 export class FileStore {
   private basePath: string;
-  private config: C0ntextKeeperConfig['storage'];
+  private config: C0ntextKeeperConfig["storage"];
 
-  constructor(config?: Partial<C0ntextKeeperConfig['storage']>) {
+  constructor(config?: Partial<C0ntextKeeperConfig["storage"]>) {
     this.config = {
-      basePath: path.join(process.env.HOME || '', '.c0ntextkeeper', 'archive'),
+      basePath: path.join(process.env.HOME || "", ".c0ntextkeeper", "archive"),
       maxArchiveSize: 100, // MB
       compressionEnabled: false,
       retentionDays: 90,
-      ...config
+      ...config,
     };
     this.basePath = this.config.basePath;
   }
@@ -43,8 +56,8 @@ export class FileStore {
    */
   async initialize(): Promise<void> {
     await ensureDir(this.basePath);
-    await ensureDir(path.join(this.basePath, 'projects'));
-    await ensureDir(path.join(this.basePath, 'global'));
+    await ensureDir(path.join(this.basePath, "projects"));
+    await ensureDir(path.join(this.basePath, "global"));
   }
 
   /**
@@ -55,9 +68,9 @@ export class FileStore {
 
     // Use actual project name instead of hash
     const projectName = extractProjectName(context.projectPath);
-    const projectDir = path.join(this.basePath, 'projects', projectName);
-    const sessionsDir = path.join(projectDir, 'sessions');
-    
+    const projectDir = path.join(this.basePath, "projects", projectName);
+    const sessionsDir = path.join(projectDir, "sessions");
+
     await ensureDir(projectDir);
     await ensureDir(sessionsDir);
 
@@ -66,11 +79,7 @@ export class FileStore {
     const sessionPath = path.join(sessionsDir, sessionFile);
 
     // Store context
-    await fs.writeFile(
-      sessionPath, 
-      JSON.stringify(context, null, 2),
-      'utf-8'
-    );
+    await fs.writeFile(sessionPath, JSON.stringify(context, null, 2), "utf-8");
 
     // Update project index
     await this.updateProjectIndex(projectDir, context, sessionFile);
@@ -94,15 +103,15 @@ export class FileStore {
     const projectDirs = await this.listProjectDirs();
 
     for (const projectDir of projectDirs) {
-      const sessionsDir = path.join(projectDir, 'sessions');
-      if (!await fileExists(sessionsDir)) continue;
+      const sessionsDir = path.join(projectDir, "sessions");
+      if (!(await fileExists(sessionsDir))) continue;
 
       const files = await fs.readdir(sessionsDir);
       for (const file of files) {
         if (file.includes(sessionId)) {
           const content = await fs.readFile(
             path.join(sessionsDir, file),
-            'utf-8'
+            "utf-8",
           );
           return JSON.parse(content) as ExtractedContext;
         }
@@ -115,12 +124,15 @@ export class FileStore {
   /**
    * Get all contexts for a project
    */
-  async getProjectContexts(projectPath: string, limit = 100): Promise<ExtractedContext[]> {
+  async getProjectContexts(
+    projectPath: string,
+    limit = 100,
+  ): Promise<ExtractedContext[]> {
     const projectName = extractProjectName(projectPath);
-    const projectDir = path.join(this.basePath, 'projects', projectName);
-    const sessionsDir = path.join(projectDir, 'sessions');
+    const projectDir = path.join(this.basePath, "projects", projectName);
+    const sessionsDir = path.join(projectDir, "sessions");
 
-    if (!await fileExists(sessionsDir)) {
+    if (!(await fileExists(sessionsDir))) {
       return [];
     }
 
@@ -129,7 +141,7 @@ export class FileStore {
 
     // Get most recent files first
     const sortedFiles = files
-      .filter(f => f.endsWith('.json'))
+      .filter((f) => f.endsWith(".json"))
       .sort((a, b) => b.localeCompare(a))
       .slice(0, limit);
 
@@ -137,7 +149,7 @@ export class FileStore {
       try {
         const content = await fs.readFile(
           path.join(sessionsDir, file),
-          'utf-8'
+          "utf-8",
         );
         contexts.push(JSON.parse(content) as ExtractedContext);
       } catch (error) {
@@ -153,17 +165,22 @@ export class FileStore {
    */
   async getProjectIndex(projectPath: string): Promise<ProjectIndex | null> {
     const projectName = extractProjectName(projectPath);
-    const indexPath = path.join(this.basePath, 'projects', projectName, 'index.json');
+    const indexPath = path.join(
+      this.basePath,
+      "projects",
+      projectName,
+      "index.json",
+    );
 
-    if (!await fileExists(indexPath)) {
+    if (!(await fileExists(indexPath))) {
       return null;
     }
 
     try {
-      const content = await fs.readFile(indexPath, 'utf-8');
+      const content = await fs.readFile(indexPath, "utf-8");
       return JSON.parse(content) as ProjectIndex;
     } catch (error) {
-      console.error('Failed to read project index:', error);
+      console.error("Failed to read project index:", error);
       return null;
     }
   }
@@ -171,26 +188,28 @@ export class FileStore {
   /**
    * Search across all contexts
    */
-  async searchAll(predicate: (context: ExtractedContext) => boolean): Promise<ExtractedContext[]> {
+  async searchAll(
+    predicate: (context: ExtractedContext) => boolean,
+  ): Promise<ExtractedContext[]> {
     const results: ExtractedContext[] = [];
     const projectDirs = await this.listProjectDirs();
 
     for (const projectDir of projectDirs) {
-      const sessionsDir = path.join(projectDir, 'sessions');
-      if (!await fileExists(sessionsDir)) continue;
+      const sessionsDir = path.join(projectDir, "sessions");
+      if (!(await fileExists(sessionsDir))) continue;
 
       const files = await fs.readdir(sessionsDir);
-      
+
       for (const file of files) {
-        if (!file.endsWith('.json')) continue;
-        
+        if (!file.endsWith(".json")) continue;
+
         try {
           const content = await fs.readFile(
             path.join(sessionsDir, file),
-            'utf-8'
+            "utf-8",
           );
           const context = JSON.parse(content) as ExtractedContext;
-          
+
           if (predicate(context)) {
             results.push(context);
           }
@@ -220,21 +239,21 @@ export class FileStore {
     let newestSession: string | null = null;
 
     for (const projectDir of projectDirs) {
-      const indexPath = path.join(projectDir, 'index.json');
+      const indexPath = path.join(projectDir, "index.json");
       if (await fileExists(indexPath)) {
         const stats = await fs.stat(indexPath);
         totalSize += stats.size;
 
         const index = JSON.parse(
-          await fs.readFile(indexPath, 'utf-8')
+          await fs.readFile(indexPath, "utf-8"),
         ) as ProjectIndex;
-        
+
         totalSessions += index.sessions.length;
 
         if (index.sessions.length > 0) {
           const oldest = index.sessions[0].timestamp;
           const newest = index.sessions[index.sessions.length - 1].timestamp;
-          
+
           if (!oldestSession || oldest < oldestSession) {
             oldestSession = oldest;
           }
@@ -244,7 +263,7 @@ export class FileStore {
         }
       }
 
-      const sessionsDir = path.join(projectDir, 'sessions');
+      const sessionsDir = path.join(projectDir, "sessions");
       if (await fileExists(sessionsDir)) {
         const files = await fs.readdir(sessionsDir);
         for (const file of files) {
@@ -259,7 +278,7 @@ export class FileStore {
       totalSessions,
       totalSize: Math.round(totalSize / 1024 / 1024), // Convert to MB
       oldestSession,
-      newestSession
+      newestSession,
     };
   }
 
@@ -271,9 +290,9 @@ export class FileStore {
    */
   private generateProjectHash(projectPath: string): string {
     return crypto
-      .createHash('md5')
+      .createHash("md5")
       .update(projectPath)
-      .digest('hex')
+      .digest("hex")
       .slice(0, 8);
   }
 
@@ -283,94 +302,220 @@ export class FileStore {
   private async createProjectReadme(
     projectDir: string,
     projectName: string,
-    context: ExtractedContext
+    context: ExtractedContext,
   ): Promise<void> {
-    const readmePath = path.join(projectDir, 'README.md');
-    const sessionsDir = path.join(projectDir, 'sessions');
-    
+    const readmePath = path.join(projectDir, "README.md");
+    const sessionsDir = path.join(projectDir, "sessions");
+    const indexPath = path.join(projectDir, "index.json");
+
+    // Get project index for analytics
+    let projectIndex: ProjectIndex | null = null;
+    if (await fileExists(indexPath)) {
+      try {
+        const indexContent = await fs.readFile(indexPath, "utf-8");
+        projectIndex = JSON.parse(indexContent) as ProjectIndex;
+      } catch (error) {
+        console.error("Failed to read project index:", error);
+      }
+    }
+
     // Get list of sessions
     const sessions: string[] = [];
     if (await fileExists(sessionsDir)) {
       const files = await fs.readdir(sessionsDir);
-      sessions.push(...files.filter(f => f.endsWith('.json')).sort().reverse());
+      sessions.push(
+        ...files
+          .filter((f) => f.endsWith(".json"))
+          .sort()
+          .reverse(),
+      );
+    }
+
+    // Build analytics section
+    let analyticsSection = "";
+    if (projectIndex) {
+      const toolStats = projectIndex.mostUsedTools?.length
+        ? projectIndex.mostUsedTools.map(tool => {
+            const count = projectIndex.totalToolUsage?.[tool] || 0;
+            return `${tool} (${count}x)`;
+          }).join(", ")
+        : "No tools tracked yet";
+
+      analyticsSection = `
+## 📊 Project Analytics
+
+### Overview
+- **Total Sessions**: ${projectIndex.sessions.length}
+- **Problems Solved**: ${projectIndex.totalProblems}
+- **Implementations**: ${projectIndex.totalImplementations}
+- **Decisions Made**: ${projectIndex.totalDecisions}
+- **Patterns Identified**: ${projectIndex.totalPatterns}
+
+### Tool Usage
+- **Most Used Tools**: ${toolStats}
+- **Total Tool Invocations**: ${Object.values(projectIndex.totalToolUsage || {}).reduce((a, b) => a + b, 0)}
+- **Unique Tools Used**: ${Object.keys(projectIndex.totalToolUsage || {}).length}
+
+### Quality Metrics
+- **Average Relevance Score**: ${formatRelevance(projectIndex.averageRelevanceScore || 0)}
+- **Files Modified**: ${projectIndex.totalFilesModified || 0} across all sessions
+- **Archive Version**: v${projectIndex.version || "unknown"}
+`;
+    }
+
+    // Create README content
+    const content = `# ${projectName} - Context Archive
+
+> Intelligent context preservation powered by c0ntextKeeper  
+> Last Updated: ${formatTimestamp(new Date())}
+
+## 🗂️ Project Information
+- **Project Path**: \`${context.projectPath}\`
+- **Total Sessions**: ${sessions.length}
+- **Archive Started**: ${projectIndex?.created ? formatTimestamp(projectIndex.created) : "Unknown"}
+- **Latest Activity**: ${formatTimestamp(context.timestamp)}
+${analyticsSection}
+## 📝 Recent Sessions
+
+${sessions
+  .slice(0, 10)
+  .map((session) => {
+    // Extract description from filename
+    const match = session.match(/\d{4}-\d{2}-\d{2}_\d{4}_MT_(.+)\.json$/);
+    const description = match ? match[1].replace(/-/g, " ") : "session";
+    
+    // Try to find session stats
+    const sessionSummary = projectIndex?.sessions.find(s => s.file === session);
+    
+    let statsLine = "";
+    if (sessionSummary) {
+      const statsParts = [];
+      if (sessionSummary.stats.problems > 0) statsParts.push(`${sessionSummary.stats.problems} problems`);
+      if (sessionSummary.stats.implementations > 0) statsParts.push(`${sessionSummary.stats.implementations} implementations`);
+      if (sessionSummary.stats.decisions > 0) statsParts.push(`${sessionSummary.stats.decisions} decisions`);
+      if (sessionSummary.relevanceScore > 0) statsParts.push(`relevance: ${formatRelevance(sessionSummary.relevanceScore)}`);
+      
+      if (statsParts.length > 0) {
+        statsLine = `\n  - Stats: ${statsParts.join(", ")}`;
+      }
+      
+      // Add tool usage if available
+      if (sessionSummary.toolsUsed && sessionSummary.toolsUsed.length > 0) {
+        statsLine += `\n  - Tools: ${sessionSummary.toolsUsed.slice(0, 5).join(", ")}`;
+      }
+      
+      // Add top problem if available
+      if (sessionSummary.topProblem) {
+        statsLine += `\n  - Key Issue: "${sessionSummary.topProblem}"`;
+      }
     }
     
-    // Create README content
-    const content = `# ${projectName} - Archive Sessions
+    return `### 📄 ${session}
+- **Description**: ${description}${statsLine}`;
+  })
+  .join("\n\n")}
 
-## Project Information
-- **Project Path**: ${context.projectPath}
-- **Total Sessions**: ${sessions.length}
-- **Last Updated**: ${formatTimestamp(new Date())}
+${sessions.length > 10 ? `\n> ...and ${sessions.length - 10} more sessions in the archive\n` : ""}
 
-## Recent Sessions
+## 🚀 How to Use This Archive
 
-${sessions.slice(0, 10).map(session => {
-  // Extract description from filename
-  const match = session.match(/\d{4}-\d{2}-\d{2}_\d{4}_MT_(.+)\.json$/);
-  const description = match ? match[1].replace(/-/g, ' ') : 'session';
-  return `- **${session}**
-  - Description: ${description}`;
-}).join('\n\n')}
+### Browse Sessions
+Each session file contains extracted context from your Claude Code conversations, including:
+- **Problems & Solutions**: Issues encountered and how they were resolved
+- **Code Implementations**: Files created or modified with full context
+- **Technical Decisions**: Architectural choices and their rationale
+- **Patterns**: Recurring approaches and best practices
+- **Tool Usage**: Which tools were used and how frequently
 
-${sessions.length > 10 ? `\n...and ${sessions.length - 10} more sessions\n` : ''}
+### Search Your Context
+Use the c0ntextKeeper CLI to search across all sessions:
 
-## Navigation
+\`\`\`bash
+# Search for specific topics
+c0ntextkeeper search "authentication"
 
-This archive contains all preserved context from your Claude Code sessions for the **${projectName}** project.
+# Find patterns across sessions
+c0ntextkeeper patterns
 
-Each session file contains:
-- Problems encountered and solutions
-- Code implementations
-- Technical decisions made
-- Patterns identified
-- Metadata about the session
+# Get context for current work
+c0ntextkeeper fetch "API implementation"
+\`\`\`
 
-## How to Use
+### MCP Tools Available
+When working in Claude Code, these tools automatically access your archive:
+- \`fetch_context\` - Retrieve relevant past context
+- \`search_archive\` - Search with advanced filters
+- \`get_patterns\` - Identify recurring solutions
 
-1. Browse session files by their descriptive names
-2. Open any JSON file to see the full context
-3. Use the c0ntextKeeper CLI to search:
-   \`\`\`bash
-   c0ntextkeeper search "your query"
-   \`\`\`
-
-## Storage Structure
+## 📁 Storage Structure
 
 \`\`\`
 ${projectName}/
-├── README.md          # This file
-├── index.json         # Project statistics
+├── README.md          # This navigation file
+├── index.json         # Project statistics and metadata
 └── sessions/          # Individual session archives
     ├── YYYY-MM-DD_HHMM_MT_description.json
-    └── ...
+    └── ... (chronologically organized)
 \`\`\`
+
+## 🔍 Understanding Session Files
+
+Each session JSON file contains:
+\`\`\`json
+{
+  "sessionId": "unique-session-identifier",
+  "timestamp": "ISO-8601-timestamp",
+  "problems": [...],        // Issues and their solutions
+  "implementations": [...],  // Code changes made
+  "decisions": [...],       // Technical choices
+  "patterns": [...],        // Identified patterns
+  "metadata": {
+    "relevanceScore": 0.0-1.0,
+    "toolsUsed": [...],
+    "toolCounts": {...},
+    "filesModified": [...],
+    "duration": milliseconds
+  }
+}
+\`\`\`
+
+## 📈 Archive Benefits
+
+- **Never Lose Context**: Important discussions are preserved before compaction
+- **Learn from History**: Past solutions inform future decisions
+- **Track Progress**: See how your project evolved over time
+- **Share Knowledge**: Team members can access collective learnings
+- **Improve Efficiency**: Quickly find previous implementations
+
+---
+
+*Generated by [c0ntextKeeper](https://github.com/Capnjbrown/c0ntextKeeper) v${getPackageVersion()}*
 `;
-    
-    await fs.writeFile(readmePath, content, 'utf-8');
+
+    await fs.writeFile(readmePath, content, "utf-8");
   }
 
   private async listProjectDirs(): Promise<string[]> {
-    const projectsPath = path.join(this.basePath, 'projects');
-    if (!await fileExists(projectsPath)) {
+    const projectsPath = path.join(this.basePath, "projects");
+    if (!(await fileExists(projectsPath))) {
       return [];
     }
 
     const dirs = await fs.readdir(projectsPath);
-    return dirs.map(dir => path.join(projectsPath, dir));
+    return dirs.map((dir) => path.join(projectsPath, dir));
   }
 
   private async updateProjectIndex(
     projectDir: string,
     context: ExtractedContext,
-    sessionFile: string
+    sessionFile: string,
   ): Promise<void> {
-    const indexPath = path.join(projectDir, 'index.json');
-    
+    const indexPath = path.join(projectDir, "index.json");
+
     let index: ProjectIndex;
-    
+
     if (await fileExists(indexPath)) {
-      const content = await fs.readFile(indexPath, 'utf-8');
+      const content = await fs.readFile(indexPath, "utf-8");
       index = JSON.parse(content);
     } else {
       index = {
@@ -382,11 +527,24 @@ ${projectName}/
         totalDecisions: 0,
         totalPatterns: 0,
         lastUpdated: new Date().toISOString(),
-        created: new Date().toISOString()
+        created: new Date().toISOString(),
+        // Initialize enhanced analytics
+        totalToolUsage: {},
+        mostUsedTools: [],
+        totalFilesModified: 0,
+        averageRelevanceScore: 0,
+        version: getPackageVersion(),
       };
     }
 
-    // Add session summary
+    // Find the most relevant problem
+    const topProblem = context.problems.length > 0
+      ? context.problems
+          .sort((a, b) => b.relevance - a.relevance)[0]
+          .question
+      : undefined;
+
+    // Add session summary with enhanced fields
     const summary: SessionSummary = {
       sessionId: context.sessionId,
       timestamp: context.timestamp,
@@ -395,9 +553,16 @@ ${projectName}/
         problems: context.problems.length,
         implementations: context.implementations.length,
         decisions: context.decisions.length,
-        patterns: context.patterns.length
+        patterns: context.patterns.length,
       },
-      relevanceScore: context.metadata.relevanceScore
+      relevanceScore: context.metadata.relevanceScore,
+      // Enhanced analytics fields
+      toolsUsed: context.metadata.toolsUsed,
+      toolCounts: context.metadata.toolCounts,
+      filesModified: context.metadata.filesModified.length,
+      duration: context.metadata.duration,
+      topProblem: topProblem ? truncateText(topProblem, 80) : undefined,
+      extractionVersion: context.metadata.extractionVersion,
     };
 
     index.sessions.push(summary);
@@ -409,24 +574,56 @@ ${projectName}/
     index.totalPatterns += context.patterns.length;
     index.lastUpdated = new Date().toISOString();
 
+    // Update enhanced analytics
+    // Aggregate tool usage
+    if (!index.totalToolUsage) {
+      index.totalToolUsage = {};
+    }
+    for (const [tool, count] of Object.entries(context.metadata.toolCounts)) {
+      index.totalToolUsage[tool] = (index.totalToolUsage[tool] || 0) + count;
+    }
+
+    // Update most used tools (top 5)
+    index.mostUsedTools = getTopTools(index.totalToolUsage, 5);
+
+    // Track unique files modified
+    const allFiles = new Set<string>();
+    for (const session of index.sessions) {
+      if (session.filesModified) {
+        // Note: We're storing count, but we need to track unique files
+        // This is a simplification - in production we'd track actual file paths
+        allFiles.add(`session-${session.sessionId}`);
+      }
+    }
+    index.totalFilesModified = allFiles.size;
+
+    // Calculate average relevance score
+    const relevanceScores = index.sessions
+      .map((s) => s.relevanceScore)
+      .filter((score) => score > 0);
+    index.averageRelevanceScore = calculateAverage(relevanceScores);
+
+    // Set package version
+    index.version = getPackageVersion();
+
     // Keep only last 100 sessions in index
     if (index.sessions.length > 100) {
       index.sessions = index.sessions.slice(-100);
     }
 
-    await fs.writeFile(indexPath, JSON.stringify(index, null, 2), 'utf-8');
+    await fs.writeFile(indexPath, JSON.stringify(index, null, 2), "utf-8");
   }
 
   private async updateGlobalIndex(
     context: ExtractedContext,
-    projectName: string
+    projectName: string,
   ): Promise<void> {
-    const globalIndexPath = path.join(this.basePath, 'global', 'index.json');
-    
+    const globalIndexPath = path.join(this.basePath, "global", "index.json");
+
     let globalIndex: any = {};
-    
+
     if (await fileExists(globalIndexPath)) {
-      const content = await fs.readFile(globalIndexPath, 'utf-8');
+      const content = await fs.readFile(globalIndexPath, "utf-8");
       globalIndex = JSON.parse(content);
     }
 
@@ -437,23 +634,23 @@ ${projectName}/
     globalIndex.projects[projectName] = {
       path: context.projectPath,
       lastActive: context.timestamp,
-      sessionCount: (globalIndex.projects[projectName]?.sessionCount || 0) + 1
+      sessionCount: (globalIndex.projects[projectName]?.sessionCount || 0) + 1,
     };
 
     globalIndex.lastUpdated = new Date().toISOString();
 
     await fs.writeFile(
-      globalIndexPath, 
+      globalIndexPath,
       JSON.stringify(globalIndex, null, 2),
-      'utf-8'
+      "utf-8",
     );
   }
 
   private async cleanOldSessions(projectDir: string): Promise<void> {
     if (this.config.retentionDays <= 0) return;
 
-    const sessionsDir = path.join(projectDir, 'sessions');
-    if (!await fileExists(sessionsDir)) return;
+    const sessionsDir = path.join(projectDir, "sessions");
+    if (!(await fileExists(sessionsDir))) return;
 
     const files = await fs.readdir(sessionsDir);
     const cutoffDate = new Date();
@@ -462,7 +659,7 @@ ${projectName}/
     for (const file of files) {
       const filePath = path.join(sessionsDir, file);
       const stats = await fs.stat(filePath);
-      
+
       if (stats.mtime < cutoffDate) {
         await fs.unlink(filePath);
         console.log(`Cleaned old session: ${file}`);

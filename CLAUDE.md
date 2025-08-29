@@ -57,7 +57,7 @@ c0ntextKeeper addresses the context loss problem in Claude Code by:
 - [x] Updated all documentation for consistency
 - [x] Emphasized automatic compaction support
 
-### Phase 7: Critical Bug Fixes & v0.2.0 Release ✅ (2025-08-29)
+### Phase 7: Critical Bug Fixes & v0.2.0 Release ✅ (2025-08-29 AM)
 - [x] Fixed TypeError "content.toLowerCase is not a function" throughout extraction pipeline
 - [x] Added comprehensive type guards for non-string content (arrays, objects)
 - [x] Resolved 504 timeout errors with 55-second timeout protection
@@ -67,6 +67,20 @@ c0ntextKeeper addresses the context loss problem in Claude Code by:
 - [x] Created test-extraction.js validation script
 - [x] Ensured archives created even with minimal content
 - [x] Bumped version to 0.2.0 with CHANGELOG.md
+
+### Phase 8: Analytics & Enhanced Archives - v0.3.0 ✅ (2025-08-29 PM)
+- [x] Added comprehensive tool usage tracking (toolCounts)
+- [x] Enhanced SessionSummary with 6 new analytics fields
+- [x] Extended ProjectIndex with aggregate metrics
+- [x] Implemented analytics dashboard in archive README.md
+- [x] Added 8 new formatting utilities for display
+- [x] Fixed project name extraction for complex paths
+- [x] Added version tracking to archives
+- [x] Created modern GitHub-style README format with emojis
+- [x] Implemented aggregate statistics calculation
+- [x] Added quality metrics and relevance scoring
+- [x] Updated all documentation to reflect v0.3.0
+- [x] Bumped version to 0.3.0
 
 ## Implementation Summary
 
@@ -92,6 +106,15 @@ Successfully implemented the complete c0ntextKeeper system with fully automatic 
 - `index.ts` - MCP server entry point
 - `cli.ts` - Enhanced CLI with hook commands
 - `types.ts` - Comprehensive TypeScript definitions
+
+**Key Achievements (v0.3.0):**
+- ✅ **Analytics Dashboard** - Beautiful statistics in every archive README
+- ✅ **Tool Usage Tracking** - Comprehensive counts and frequency analysis
+- ✅ **Aggregate Metrics** - Project-wide statistics and trends
+- ✅ **Enhanced Metadata** - Session duration, files modified, top problems
+- ✅ **Quality Scoring** - Average relevance across all sessions
+- ✅ **8 New Formatters** - Professional display utilities
+- ✅ **Modern GitHub README** - Emojis, sections, and analytics
 
 **Key Achievements (v0.2.0):**
 - ✅ **Fully automatic operation** - Works reliably with both manual and automatic compaction

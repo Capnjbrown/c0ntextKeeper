@@ -3,17 +3,17 @@
  * Retrieves and searches archived context
  */
 
-import { 
-  ExtractedContext, 
-  FetchContextInput, 
+import {
+  ExtractedContext,
+  FetchContextInput,
   SearchArchiveInput,
   SearchResult,
   Match,
-  ProjectIndex
-} from './types.js';
-import { FileStore } from '../storage/file-store.js';
-import { RelevanceScorer } from './scorer.js';
-import { Logger } from '../utils/logger.js';
+  ProjectIndex,
+} from "./types.js";
+import { FileStore } from "../storage/file-store.js";
+import { RelevanceScorer } from "./scorer.js";
+import { Logger } from "../utils/logger.js";
 
 export class ContextRetriever {
   private storage: FileStore;
@@ -23,26 +23,30 @@ export class ContextRetriever {
   constructor(storage?: FileStore) {
     this.storage = storage || new FileStore();
     this.scorer = new RelevanceScorer();
-    this.logger = new Logger('ContextRetriever');
+    this.logger = new Logger("ContextRetriever");
   }
 
   /**
    * Fetch relevant context based on query
    */
-  async fetchRelevantContext(input: FetchContextInput): Promise<ExtractedContext[]> {
+  async fetchRelevantContext(
+    input: FetchContextInput,
+  ): Promise<ExtractedContext[]> {
     const {
-      query = '',
+      query = "",
       limit = 5,
-      scope = 'project',
-      minRelevance = 0.5
+      scope = "project",
+      minRelevance = 0.5,
     } = input;
 
-    this.logger.info(`Fetching context: query="${query}", scope=${scope}, limit=${limit}`);
+    this.logger.info(
+      `Fetching context: query="${query}", scope=${scope}, limit=${limit}`,
+    );
 
     let contexts: ExtractedContext[] = [];
 
     // Get contexts based on scope
-    if (scope === 'project') {
+    if (scope === "project") {
       // For project scope, we need the current project path
       // This would typically come from the MCP server context
       const projectPath = process.cwd(); // Default to current directory
@@ -53,25 +57,25 @@ export class ContextRetriever {
     }
 
     // Score and filter contexts
-    const scoredContexts = contexts.map(context => ({
+    const scoredContexts = contexts.map((context) => ({
       context,
-      relevance: this.calculateRelevance(context, query)
+      relevance: this.calculateRelevance(context, query),
     }));
 
     // Filter by minimum relevance and sort
     const filtered = scoredContexts
-      .filter(sc => sc.relevance >= minRelevance)
+      .filter((sc) => sc.relevance >= minRelevance)
       .sort((a, b) => b.relevance - a.relevance)
       .slice(0, limit);
 
     this.logger.info(`Found ${filtered.length} relevant contexts`);
-    
-    return filtered.map(sc => ({
+
+    return filtered.map((sc) => ({
       ...sc.context,
       metadata: {
         ...sc.context.metadata,
-        relevanceScore: sc.relevance
-      }
+        relevanceScore: sc.relevance,
+      },
     }));
   }
 
@@ -85,7 +89,7 @@ export class ContextRetriever {
       dateRange,
       projectPath,
       limit = 10,
-      sortBy = 'relevance'
+      sortBy = "relevance",
     } = input;
 
     this.logger.info(`Searching archive: query="${query}", sortBy=${sortBy}`);
@@ -97,7 +101,7 @@ export class ContextRetriever {
         const contextDate = new Date(context.timestamp);
         const fromDate = new Date(dateRange.from);
         const toDate = new Date(dateRange.to);
-        
+
         if (contextDate < fromDate || contextDate > toDate) {
           return false;
         }
@@ -110,8 +114,8 @@ export class ContextRetriever {
 
       // File pattern filter
       if (filePattern) {
-        const hasMatchingFile = context.metadata.filesModified.some(file =>
-          this.matchesPattern(file, filePattern)
+        const hasMatchingFile = context.metadata.filesModified.some((file) =>
+          this.matchesPattern(file, filePattern),
         );
         if (!hasMatchingFile) {
           return false;
@@ -126,32 +130,33 @@ export class ContextRetriever {
 
     // Find matches within each context
     const results: SearchResult[] = [];
-    
+
     for (const context of contexts) {
       const matches = this.findMatches(context, query);
-      
+
       if (matches.length > 0) {
         const relevance = this.calculateSearchRelevance(matches);
         results.push({
           context,
           matches,
-          relevance
+          relevance,
         });
       }
     }
 
     // Sort results
     switch (sortBy) {
-      case 'date':
-        results.sort((a, b) => 
-          new Date(b.context.timestamp).getTime() - 
-          new Date(a.context.timestamp).getTime()
+      case "date":
+        results.sort(
+          (a, b) =>
+            new Date(b.context.timestamp).getTime() -
+            new Date(a.context.timestamp).getTime(),
         );
         break;
-      case 'frequency':
+      case "frequency":
         results.sort((a, b) => b.matches.length - a.matches.length);
         break;
-      case 'relevance':
+      case "relevance":
       default:
         results.sort((a, b) => b.relevance - a.relevance);
     }
@@ -178,11 +183,11 @@ export class ContextRetriever {
    */
   async getRecentContexts(limit = 10): Promise<ExtractedContext[]> {
     const contexts = await this.storage.searchAll(() => true);
-    
+
     return contexts
-      .sort((a, b) => 
-        new Date(b.timestamp).getTime() - 
-        new Date(a.timestamp).getTime()
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
       )
       .slice(0, limit);
   }
@@ -254,7 +259,7 @@ export class ContextRetriever {
     // Combine scores
     const baseScore = Math.min(score, 1);
     const frequencyBoost = Math.min(matchCount * 0.05, 0.3);
-    
+
     return (baseScore + frequencyBoost) * temporalFactor;
   }
 
@@ -269,16 +274,16 @@ export class ContextRetriever {
     for (const problem of context.problems) {
       if (problem.question.toLowerCase().includes(queryLower)) {
         matches.push({
-          field: 'problem.question',
+          field: "problem.question",
           snippet: this.extractSnippet(problem.question, queryLower),
-          score: 0.8
+          score: 0.8,
         });
       }
       if (problem.solution?.approach.toLowerCase().includes(queryLower)) {
         matches.push({
-          field: 'problem.solution',
+          field: "problem.solution",
           snippet: this.extractSnippet(problem.solution.approach, queryLower),
-          score: 0.7
+          score: 0.7,
         });
       }
     }
@@ -287,9 +292,9 @@ export class ContextRetriever {
     for (const impl of context.implementations) {
       if (impl.description.toLowerCase().includes(queryLower)) {
         matches.push({
-          field: 'implementation.description',
+          field: "implementation.description",
           snippet: this.extractSnippet(impl.description, queryLower),
-          score: 0.6
+          score: 0.6,
         });
       }
     }
@@ -298,9 +303,9 @@ export class ContextRetriever {
     for (const decision of context.decisions) {
       if (decision.decision.toLowerCase().includes(queryLower)) {
         matches.push({
-          field: 'decision',
+          field: "decision",
           snippet: this.extractSnippet(decision.decision, queryLower),
-          score: 0.7
+          score: 0.7,
         });
       }
     }
@@ -309,9 +314,9 @@ export class ContextRetriever {
     for (const pattern of context.patterns) {
       if (pattern.value.toLowerCase().includes(queryLower)) {
         matches.push({
-          field: 'pattern',
+          field: "pattern",
           snippet: this.extractSnippet(pattern.value, queryLower),
-          score: 0.5
+          score: 0.5,
         });
       }
     }
@@ -328,11 +333,11 @@ export class ContextRetriever {
 
     const start = Math.max(0, index - 50);
     const end = Math.min(text.length, index + query.length + 50);
-    
+
     let snippet = text.slice(start, end);
-    if (start > 0) snippet = '...' + snippet;
-    if (end < text.length) snippet = snippet + '...';
-    
+    if (start > 0) snippet = "..." + snippet;
+    if (end < text.length) snippet = snippet + "...";
+
     return snippet;
   }
 
@@ -341,11 +346,11 @@ export class ContextRetriever {
    */
   private calculateSearchRelevance(matches: Match[]): number {
     if (matches.length === 0) return 0;
-    
+
     const totalScore = matches.reduce((sum, match) => sum + match.score, 0);
     const avgScore = totalScore / matches.length;
     const frequencyBoost = Math.min(matches.length * 0.1, 0.3);
-    
+
     return Math.min(avgScore + frequencyBoost, 1);
   }
 
@@ -355,11 +360,11 @@ export class ContextRetriever {
   private matchesPattern(file: string, pattern: string): boolean {
     // Simple glob pattern matching
     const regexPattern = pattern
-      .replace(/\*/g, '.*')
-      .replace(/\?/g, '.')
-      .replace(/\//g, '\\/');
-    
-    const regex = new RegExp(regexPattern, 'i');
+      .replace(/\*/g, ".*")
+      .replace(/\?/g, ".")
+      .replace(/\//g, "\\/");
+
+    const regex = new RegExp(regexPattern, "i");
     return regex.test(file);
   }
 }

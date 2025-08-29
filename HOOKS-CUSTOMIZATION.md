@@ -4,7 +4,15 @@
 
 c0ntextKeeper uses multiple Claude Code hooks to capture context at different points in your workflow. The primary PreCompact hook works **completely automatically** - capturing context both when you manually run `/compact` and when Claude Code automatically compacts due to context size limits. This guide explains how to customize which hooks are active and what they capture.
 
-### 🎆 v0.2.0 PreCompact Improvements
+### 🎆 v0.3.0 Analytics Enhancements
+- **📊 Analytics Dashboard** in every archive README
+- **🔧 Tool Usage Tracking** with comprehensive counts
+- **📈 Aggregate Metrics** across all sessions
+- **⏱️ Session Duration** tracking
+- **📁 Files Modified** tracking per session
+- **🎯 Quality Scoring** with average relevance
+
+### v0.2.0 PreCompact Improvements
 - **55-second timeout protection** prevents 504 errors
 - **Type-safe extraction** handles all content types
 - **Relaxed patterns** capture more context (questions, all tools)
@@ -20,8 +28,19 @@ c0ntextKeeper uses multiple Claude Code hooks to capture context at different po
 - **When**: 
   - Before manual `/compact` command
   - Before automatic compaction by Claude Code (no action required!)
-- **Captures**: Entire session transcript
-- **Use Case**: Preserve everything before context is lost
+- **Captures**: 
+  - Entire session transcript
+  - Tool usage statistics (counts per tool)
+  - Session duration in milliseconds
+  - Files modified during session
+  - Most relevant problems
+  - Decisions and patterns
+- **Analytics Generated**:
+  - Project-wide tool usage trends
+  - Average relevance scores
+  - Session quality metrics
+  - Beautiful README dashboard
+- **Use Case**: Preserve everything before context is lost with rich analytics
 - **Storage**: ~5-50KB per session
 - **Status**: Enabled by default, works automatically
 

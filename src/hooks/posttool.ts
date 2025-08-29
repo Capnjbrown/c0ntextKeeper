@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 /**
  * PostToolUse Hook Handler for c0ntextKeeper
- * 
+ *
  * Captures tool results to track successful patterns and common errors
  * Especially useful for tracking file modifications and command executions
  */
 
-import { SecurityFilter } from '../utils/security-filter';
-import { FileStore } from '../storage/file-store';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as crypto from 'crypto';
+import { SecurityFilter } from "../utils/security-filter";
+import { FileStore } from "../storage/file-store";
+import * as fs from "fs";
+import * as path from "path";
+import * as crypto from "crypto";
 
 interface PostToolHookInput {
-  hook_event_name: 'PostToolUse' | 'postToolUse';
+  hook_event_name: "PostToolUse" | "postToolUse";
   session_id: string;
   tool: string;
   input: any;
@@ -36,14 +36,14 @@ interface ToolPattern {
 async function processToolUse(input: PostToolHookInput): Promise<void> {
   const securityFilter = new SecurityFilter();
   const storage = new FileStore();
-  
+
   try {
     // Determine success/failure
     const success = !input.result?.error && input.result?.success !== false;
-    
+
     // Extract pattern based on tool type
     const pattern = extractToolPattern(input);
-    
+
     // Build tool pattern record
     const toolPattern: ToolPattern = {
       tool: input.tool,
@@ -51,65 +51,71 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
       error: input.result?.error,
       pattern,
       timestamp: input.timestamp || new Date().toISOString(),
-      sessionId: input.session_id
+      sessionId: input.session_id,
     };
-    
+
     // Add specific metadata based on tool
     switch (input.tool) {
-      case 'Write':
-      case 'Edit':
-      case 'MultiEdit':
+      case "Write":
+      case "Edit":
+      case "MultiEdit":
         toolPattern.fileModified = input.input?.file_path;
         break;
-      case 'Bash':
-        toolPattern.commandExecuted = securityFilter.filterText(input.input?.command || '');
+      case "Bash":
+        toolPattern.commandExecuted = securityFilter.filterText(
+          input.input?.command || "",
+        );
         break;
     }
-    
+
     // Store patterns for analysis
-    const projectHash = crypto.createHash('md5')
+    const projectHash = crypto
+      .createHash("md5")
       .update(input.project_path || process.cwd())
-      .digest('hex')
+      .digest("hex")
       .substring(0, 8);
-    
+
     const storagePath = path.join(
       storage.getBasePath(),
-      'patterns',
+      "patterns",
       projectHash,
-      `${new Date().toISOString().split('T')[0]}-tools.jsonl`
+      `${new Date().toISOString().split("T")[0]}-tools.jsonl`,
     );
-    
+
     // Ensure directory exists
     const dir = path.dirname(storagePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    
+
     // Append to JSONL file
-    const entry = JSON.stringify(toolPattern) + '\n';
+    const entry = JSON.stringify(toolPattern) + "\n";
     fs.appendFileSync(storagePath, entry);
-    
+
     // Track error patterns for learning
     if (!success && toolPattern.error) {
       await trackErrorPattern(toolPattern, storage);
     }
-    
-    console.log(JSON.stringify({
-      status: 'success',
-      message: `Tool use captured: ${input.tool} (${success ? 'success' : 'failed'})`,
-      stats: {
-        tool: input.tool,
-        success,
-        pattern: pattern.substring(0, 50)
-      }
-    }));
-    
+
+    console.log(
+      JSON.stringify({
+        status: "success",
+        message: `Tool use captured: ${input.tool} (${success ? "success" : "failed"})`,
+        stats: {
+          tool: input.tool,
+          success,
+          pattern: pattern.substring(0, 50),
+        },
+      }),
+    );
   } catch (error) {
-    console.error(JSON.stringify({
-      status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    }));
+    console.error(
+      JSON.stringify({
+        status: "error",
+        message: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
+      }),
+    );
     // Non-blocking error
     process.exit(0);
   }
@@ -117,114 +123,128 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
 
 function extractToolPattern(input: PostToolHookInput): string {
   const { tool, input: toolInput, result } = input;
-  
+
   switch (tool) {
-    case 'Write':
-    case 'Edit':
-    case 'MultiEdit':
-      return `${tool}: ${toolInput?.file_path || 'unknown'} - ${result?.success ? 'modified' : 'failed'}`;
-    
-    case 'Bash':
-      const cmd = (toolInput?.command || '').split(' ')[0];
-      return `Bash: ${cmd} - ${result?.exit_code === 0 ? 'success' : `exit ${result?.exit_code}`}`;
-    
-    case 'Read':
-      return `Read: ${toolInput?.file_path || 'unknown'}`;
-    
-    case 'Grep':
-    case 'Glob':
-      return `${tool}: ${toolInput?.pattern || 'unknown'} - ${result?.matches?.length || 0} matches`;
-    
+    case "Write":
+    case "Edit":
+    case "MultiEdit":
+      return `${tool}: ${toolInput?.file_path || "unknown"} - ${result?.success ? "modified" : "failed"}`;
+
+    case "Bash":
+      const cmd = (toolInput?.command || "").split(" ")[0];
+      return `Bash: ${cmd} - ${result?.exit_code === 0 ? "success" : `exit ${result?.exit_code}`}`;
+
+    case "Read":
+      return `Read: ${toolInput?.file_path || "unknown"}`;
+
+    case "Grep":
+    case "Glob":
+      return `${tool}: ${toolInput?.pattern || "unknown"} - ${result?.matches?.length || 0} matches`;
+
     default:
-      return `${tool}: ${result?.success ? 'success' : 'failed'}`;
+      return `${tool}: ${result?.success ? "success" : "failed"}`;
   }
 }
 
-async function trackErrorPattern(pattern: ToolPattern, storage: FileStore): Promise<void> {
+async function trackErrorPattern(
+  pattern: ToolPattern,
+  storage: FileStore,
+): Promise<void> {
   // Store common errors for pattern recognition
   const errorPath = path.join(
     storage.getBasePath(),
-    'errors',
-    'error-patterns.jsonl'
+    "errors",
+    "error-patterns.jsonl",
   );
-  
+
   const dir = path.dirname(errorPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
-  
+
   const errorEntry = {
     tool: pattern.tool,
     error: pattern.error,
     pattern: pattern.pattern,
     timestamp: pattern.timestamp,
     file: pattern.fileModified,
-    command: pattern.commandExecuted
+    command: pattern.commandExecuted,
   };
-  
-  fs.appendFileSync(errorPath, JSON.stringify(errorEntry) + '\n');
+
+  fs.appendFileSync(errorPath, JSON.stringify(errorEntry) + "\n");
 }
 
 // Main execution
 async function main() {
-  let input = '';
-  
+  let input = "";
+
   // Read from stdin
-  process.stdin.on('data', (chunk) => {
+  process.stdin.on("data", (chunk) => {
     input += chunk;
   });
-  
-  process.stdin.on('end', async () => {
+
+  process.stdin.on("end", async () => {
     if (!input) {
-      console.log(JSON.stringify({
-        status: 'skipped',
-        message: 'No input provided'
-      }));
+      console.log(
+        JSON.stringify({
+          status: "skipped",
+          message: "No input provided",
+        }),
+      );
       process.exit(0);
     }
-    
+
     try {
       const hookData = JSON.parse(input) as PostToolHookInput;
-      
+
       // Validate hook event
-      if (hookData.hook_event_name !== 'PostToolUse' && 
-          hookData.hook_event_name !== 'postToolUse') {
-        console.log(JSON.stringify({
-          status: 'skipped',
-          message: 'Not a PostToolUse event'
-        }));
+      if (
+        hookData.hook_event_name !== "PostToolUse" &&
+        hookData.hook_event_name !== "postToolUse"
+      ) {
+        console.log(
+          JSON.stringify({
+            status: "skipped",
+            message: "Not a PostToolUse event",
+          }),
+        );
         process.exit(0);
       }
-      
+
       await processToolUse(hookData);
       process.exit(0);
-      
     } catch (error) {
-      console.error(JSON.stringify({
-        status: 'error',
-        message: `Failed to parse input: ${error instanceof Error ? error.message : 'Unknown error'}`
-      }));
+      console.error(
+        JSON.stringify({
+          status: "error",
+          message: `Failed to parse input: ${error instanceof Error ? error.message : "Unknown error"}`,
+        }),
+      );
       process.exit(0);
     }
   });
-  
+
   // Handle timeout
   setTimeout(() => {
-    console.error(JSON.stringify({
-      status: 'error',
-      message: 'Hook timeout after 5 seconds'
-    }));
+    console.error(
+      JSON.stringify({
+        status: "error",
+        message: "Hook timeout after 5 seconds",
+      }),
+    );
     process.exit(0);
   }, 5000);
 }
 
 // Run if executed directly
 if (require.main === module) {
-  main().catch(error => {
-    console.error(JSON.stringify({
-      status: 'error',
-      message: error.message
-    }));
+  main().catch((error) => {
+    console.error(
+      JSON.stringify({
+        status: "error",
+        message: error.message,
+      }),
+    );
     process.exit(0);
   });
 }

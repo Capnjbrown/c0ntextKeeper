@@ -5,7 +5,7 @@
 > Last Updated: 2025-08-29
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/badge/version-0.2.0-blue)](https://www.npmjs.com/package/c0ntextkeeper)
+[![npm version](https://img.shields.io/badge/version-0.3.0-blue)](https://www.npmjs.com/package/c0ntextkeeper)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
@@ -13,15 +13,20 @@
 [![🤖 Fully Automatic](https://img.shields.io/badge/🤖-Fully%20Automatic-success)](https://github.com/Capnjbrown/c0ntextKeeper#-how-it-works-automatically)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-## 🚀 What's New in v0.2.0
+## 🚀 What's New in v0.3.0
 
-### Critical Bug Fixes & Enhancements
-- 🛡️ **Type Safety** - Fixed "content.toLowerCase is not a function" errors with comprehensive type guards
-- ⚡ **Timeout Protection** - 55-second limit prevents 504 errors during auto-compact
-- 📁 **Smart Naming** - Archive folders now show actual project names, not generic labels
-- 🎯 **Better Extraction** - Relaxed patterns capture more context (questions, requests, all tools)
-- 🔍 **Debug Logging** - Detailed diagnostics show exactly what's being extracted
-- ✅ **Guaranteed Archives** - Files created even with minimal content
+### 📊 Analytics Dashboard & Enhanced Tracking
+- **📈 Analytics Dashboard** - Beautiful statistics in every archive README
+- **🔧 Tool Usage Tracking** - See which tools you use most (Read, Write, Edit, etc.)
+- **📊 Aggregate Metrics** - Project-wide statistics across all sessions
+- **⏱️ Session Insights** - Duration, files modified, and key problems per session
+- **🎯 Quality Metrics** - Average relevance scores and pattern identification
+- **📁 Smart Archive Organization** - Modern GitHub-style README with emojis and sections
+
+### Previous v0.2.0 Improvements
+- 🛡️ **Type Safety** - Fixed "content.toLowerCase is not a function" errors
+- ⚡ **Timeout Protection** - 55-second limit prevents 504 errors
+- 📁 **Smart Naming** - Archive folders show actual project names
 
 [See CHANGELOG.md for complete details](CHANGELOG.md)
 
@@ -50,11 +55,14 @@ Every time Claude Code runs `/compact` (manually OR automatically), valuable con
 ### Key Features
 
 - 🤖 **Fully Automatic** - Works with both manual `/compact` and automatic compaction
+- 📊 **Analytics Dashboard** - Rich statistics and insights in every archive
 - 🎣 **4 Hook System** - PreCompact, UserPromptSubmit, PostToolUse, and Stop hooks
 - 🧠 **Intelligent Extraction** - Identifies problems, solutions, decisions, and patterns
+- 🔧 **Tool Usage Tracking** - Monitor which tools you use and how often
 - 📊 **Relevance Scoring** - Multi-factor scoring ensures only valuable context is preserved
 - 🔍 **Smart Retrieval** - MCP tools provide instant access to relevant historical context
 - 📈 **Pattern Recognition** - Identifies recurring solutions and approaches
+- 📊 **Aggregate Metrics** - Project-wide statistics and trends
 - ⚙️ **CLI Management** - Complete control over hook configuration and settings
 - 📝 **Configuration System** - Centralized config.json for all preferences
 - 🔒 **Security First** - Automatic filtering of sensitive data (API keys, passwords, PII)
@@ -161,6 +169,31 @@ Once installed, c0ntextKeeper works **completely automatically**!
 3. **c0ntextKeeper captures everything** - Archives created automatically
 4. **Manual `/compact` also supported** - Works both ways
 5. **Retrieve context anytime** - Use MCP tools to access preserved knowledge
+
+### 📊 Analytics Dashboard
+
+Every project archive includes a comprehensive analytics dashboard that shows:
+
+- **📈 Tool Usage Statistics** - See your most-used tools (Read, Write, Edit, Bash, etc.)
+- **📁 Project Activity** - Total sessions, problems solved, implementations made
+- **⏱️ Session Metrics** - Duration, files modified, relevance scores
+- **🎯 Quality Insights** - Average relevance across sessions
+- **🔍 Problem Tracking** - Key issues from each session
+- **📝 Detailed Summaries** - Per-session statistics with inline insights
+
+Example from your archive README:
+```markdown
+## 📊 Project Analytics
+
+### Tool Usage
+- **Most Used Tools**: Read (245x), Edit (189x), Write (67x), Bash (134x)
+- **Total Tool Invocations**: 635
+- **Unique Tools Used**: 12
+
+### Quality Metrics
+- **Average Relevance Score**: 68%
+- **Files Modified**: 47 across all sessions
+```
 
 ### Check Automation Status
 

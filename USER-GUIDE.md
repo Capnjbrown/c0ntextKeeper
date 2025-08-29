@@ -19,8 +19,8 @@ c0ntextKeeper stores all data locally on your Mac in hidden directories within y
     │   │   └── index.json              # Master index of all archives
     │   └── projects/                   # Per-project archives
     │       ├── c0ntextKeeper/          # Project by actual name
-    │       │   ├── README.md           # Navigation guide
-    │       │   ├── index.json          # Project-specific index
+    │       │   ├── README.md           # 📊 Analytics dashboard & navigation
+    │       │   ├── index.json          # Project stats with tool usage
     │       │   └── sessions/           # Individual work sessions
     │       │       └── 2025-08-28_1430_MT_feature-implementation.json
     │       └── [other-project-name]/
@@ -43,6 +43,57 @@ c0ntextKeeper stores all data locally on your Mac in hidden directories within y
 ```
 
 **Note:** Folders starting with `.` (dot) are hidden by default on macOS.
+
+## 📊 Understanding Your Analytics Dashboard
+
+Starting with v0.3.0, every project archive includes a comprehensive analytics dashboard in its README.md file. Here's what you'll find:
+
+### Project Analytics Section
+- **Total Sessions**: Number of times context was preserved
+- **Problems Solved**: Issues identified and resolved
+- **Implementations**: Code changes and files created
+- **Decisions Made**: Architectural and design choices
+- **Patterns Identified**: Recurring approaches and solutions
+
+### Tool Usage Analytics
+- **Most Used Tools**: Your top 5 tools by frequency
+- **Total Tool Invocations**: Sum of all tool uses
+- **Unique Tools Used**: Different tools accessed
+- **Tool Distribution**: Which tools you rely on most (Read, Write, Edit, Bash, etc.)
+
+### Quality Metrics
+- **Average Relevance Score**: How valuable your preserved context is (0-100%)
+- **Files Modified**: Total unique files changed across sessions
+- **Archive Version**: Version of c0ntextKeeper that created the archive
+
+### Session Details
+Each session entry in the README shows:
+- **Description**: What you were working on
+- **Stats**: Problems, implementations, decisions count
+- **Tools Used**: Which tools were employed
+- **Key Issue**: The main problem addressed
+- **Relevance**: How important this session was
+
+### Example Dashboard View
+```markdown
+## 📊 Project Analytics
+
+### Overview
+- **Total Sessions**: 47
+- **Problems Solved**: 234
+- **Implementations**: 189
+- **Decisions Made**: 56
+
+### Tool Usage
+- **Most Used Tools**: Read (892x), Edit (645x), Write (234x), Bash (456x), Grep (123x)
+- **Total Tool Invocations**: 2,350
+- **Unique Tools Used**: 15
+
+### Quality Metrics
+- **Average Relevance Score**: 72%
+- **Files Modified**: 89 across all sessions
+- **Archive Version**: v0.3.0
+```
 
 ## How to Access Your Archives
 

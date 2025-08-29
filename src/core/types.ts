@@ -4,7 +4,7 @@
 
 // Transcript-related types
 export interface TranscriptEntry {
-  type: 'user' | 'assistant' | 'tool_use' | 'system';
+  type: "user" | "assistant" | "tool_use" | "system";
   timestamp: string;
   sessionId: string;
   cwd?: string;
@@ -27,7 +27,7 @@ export interface ExtractedContext {
   sessionId: string;
   projectPath: string;
   timestamp: string;
-  extractedAt: 'preCompact' | 'manual' | 'scheduled';
+  extractedAt: "preCompact" | "manual" | "scheduled";
   problems: Problem[];
   implementations: Implementation[];
   decisions: Decision[];
@@ -62,7 +62,7 @@ export interface Implementation {
 }
 
 export interface CodeChange {
-  type: 'addition' | 'deletion' | 'modification';
+  type: "addition" | "deletion" | "modification";
   lineStart: number;
   lineEnd: number;
   content: string;
@@ -74,13 +74,13 @@ export interface Decision {
   context: string;
   rationale?: string;
   timestamp: string;
-  impact: 'high' | 'medium' | 'low';
+  impact: "high" | "medium" | "low";
   tags: string[];
 }
 
 export interface Pattern {
   id: string;
-  type: 'code' | 'command' | 'architecture' | 'error-handling';
+  type: "code" | "command" | "architecture" | "error-handling";
   value: string;
   frequency: number;
   lastSeen: string;
@@ -92,6 +92,7 @@ export interface ContextMetadata {
   entryCount: number;
   duration: number; // in milliseconds
   toolsUsed: string[];
+  toolCounts: Record<string, number>; // Count of each tool usage
   filesModified: string[];
   relevanceScore: number;
   extractionVersion: string;
@@ -108,6 +109,12 @@ export interface ProjectIndex {
   totalPatterns: number;
   lastUpdated: string;
   created: string;
+  // Enhanced analytics fields
+  totalToolUsage?: Record<string, number>; // Aggregate tool usage counts
+  mostUsedTools?: string[]; // Top 5 most frequently used tools
+  totalFilesModified?: number; // Total unique files modified
+  averageRelevanceScore?: number; // Average relevance across all sessions
+  version?: string; // c0ntextKeeper version
 }
 
 export interface SessionSummary {
@@ -121,13 +128,20 @@ export interface SessionSummary {
     patterns: number;
   };
   relevanceScore: number;
+  // Enhanced fields for better analytics
+  toolsUsed?: string[]; // List of tools used in session
+  toolCounts?: Record<string, number>; // Tool usage counts
+  filesModified?: number; // Count of files modified
+  duration?: number; // Session duration in milliseconds
+  topProblem?: string; // Most relevant problem excerpt
+  extractionVersion?: string; // Version that created this archive
 }
 
 // MCP Tool types
 export interface FetchContextInput {
   query?: string;
   limit?: number;
-  scope?: 'session' | 'project' | 'global';
+  scope?: "session" | "project" | "global";
   timeRange?: DateRange;
   minRelevance?: number;
 }
@@ -138,11 +152,11 @@ export interface SearchArchiveInput {
   dateRange?: DateRange;
   projectPath?: string;
   limit?: number;
-  sortBy?: 'relevance' | 'date' | 'frequency';
+  sortBy?: "relevance" | "date" | "frequency";
 }
 
 export interface GetPatternsInput {
-  type?: 'code' | 'command' | 'architecture' | 'error-handling' | 'all';
+  type?: "code" | "command" | "architecture" | "error-handling" | "all";
   minFrequency?: number;
   projectPath?: string;
   limit?: number;
@@ -197,17 +211,17 @@ export interface C0ntextKeeperConfig {
 
 // Hook types
 export interface HookInput {
-  hook_event_name: 'PreCompact' | 'preCompact' | string;  // Accept both capitalizations
+  hook_event_name: "PreCompact" | "preCompact" | string; // Accept both capitalizations
   session_id: string;
   transcript_path: string;
-  trigger?: 'manual' | 'auto';  // How compaction was triggered
-  custom_instructions?: string;  // User instructions for manual compaction
-  project_path?: string;  // Optional project directory path
-  timestamp?: string;  // Optional ISO 8601 timestamp
+  trigger?: "manual" | "auto"; // How compaction was triggered
+  custom_instructions?: string; // User instructions for manual compaction
+  project_path?: string; // Optional project directory path
+  timestamp?: string; // Optional ISO 8601 timestamp
 }
 
 export interface HookOutput {
-  status: 'success' | 'error' | 'skipped';
+  status: "success" | "error" | "skipped";
   message?: string;
   archiveLocation?: string;
   stats?: {

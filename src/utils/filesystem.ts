@@ -2,8 +2,8 @@
  * Filesystem utilities
  */
 
-import fs from 'fs/promises';
-import path from 'path';
+import fs from "fs/promises";
+import path from "path";
 
 /**
  * Ensure a directory exists, creating it if necessary
@@ -13,7 +13,7 @@ export async function ensureDir(dirPath: string): Promise<void> {
     await fs.mkdir(dirPath, { recursive: true });
   } catch (error) {
     // Directory might already exist, which is fine
-    if ((error as any).code !== 'EEXIST') {
+    if ((error as any).code !== "EEXIST") {
       throw error;
     }
   }
@@ -43,15 +43,18 @@ export async function getFileSize(filePath: string): Promise<number> {
  * Read JSON file
  */
 export async function readJsonFile<T = any>(filePath: string): Promise<T> {
-  const content = await fs.readFile(filePath, 'utf-8');
+  const content = await fs.readFile(filePath, "utf-8");
   return JSON.parse(content) as T;
 }
 
 /**
  * Write JSON file
  */
-export async function writeJsonFile(filePath: string, data: any): Promise<void> {
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+export async function writeJsonFile(
+  filePath: string,
+  data: any,
+): Promise<void> {
+  await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
 }
 
 /**
@@ -59,13 +62,13 @@ export async function writeJsonFile(filePath: string, data: any): Promise<void> 
  */
 export async function getFilesRecursively(dirPath: string): Promise<string[]> {
   const files: string[] = [];
-  
+
   async function traverse(currentPath: string): Promise<void> {
     const entries = await fs.readdir(currentPath, { withFileTypes: true });
-    
+
     for (const entry of entries) {
       const fullPath = path.join(currentPath, entry.name);
-      
+
       if (entry.isDirectory()) {
         await traverse(fullPath);
       } else {
@@ -73,7 +76,7 @@ export async function getFilesRecursively(dirPath: string): Promise<string[]> {
       }
     }
   }
-  
+
   await traverse(dirPath);
   return files;
 }
@@ -81,7 +84,10 @@ export async function getFilesRecursively(dirPath: string): Promise<string[]> {
 /**
  * Copy file
  */
-export async function copyFile(source: string, destination: string): Promise<void> {
+export async function copyFile(
+  source: string,
+  destination: string,
+): Promise<void> {
   await fs.copyFile(source, destination);
 }
 
@@ -97,7 +103,7 @@ export async function deleteFile(filePath: string): Promise<void> {
       await fs.unlink(filePath);
     }
   } catch (error) {
-    if ((error as any).code !== 'ENOENT') {
+    if ((error as any).code !== "ENOENT") {
       throw error;
     }
   }
@@ -108,13 +114,13 @@ export async function deleteFile(filePath: string): Promise<void> {
  */
 export async function getDirectorySize(dirPath: string): Promise<number> {
   let totalSize = 0;
-  
+
   async function calculateSize(currentPath: string): Promise<void> {
     const entries = await fs.readdir(currentPath, { withFileTypes: true });
-    
+
     for (const entry of entries) {
       const fullPath = path.join(currentPath, entry.name);
-      
+
       if (entry.isDirectory()) {
         await calculateSize(fullPath);
       } else {
@@ -123,7 +129,7 @@ export async function getDirectorySize(dirPath: string): Promise<number> {
       }
     }
   }
-  
+
   await calculateSize(dirPath);
   return totalSize;
 }

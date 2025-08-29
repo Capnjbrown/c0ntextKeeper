@@ -1,0 +1,118 @@
+{
+  "sessionId": "claude-20250829-091245",
+  "projectPath": "/Users/developer/express-api",
+  "timestamp": "2025-08-29T09:12:45Z",
+  "extractedAt": "preCompact",
+  "problems": [
+    {
+      "question": "How do I implement JWT authentication with refresh tokens?",
+      "solution": "Implemented dual-token system with short-lived access tokens (15min) and long-lived refresh tokens (7days) stored in httpOnly cookies.",
+      "implementation": {
+        "tool": "Write",
+        "files": ["src/middleware/auth.ts", "src/controllers/auth.controller.ts"],
+        "changes": [
+          "Created JWT middleware with token validation",
+          "Implemented refresh token rotation",
+          "Added secure cookie configuration"
+        ]
+      },
+      "relevance": 0.96
+    },
+    {
+      "question": "Getting CORS errors from frontend. How to fix?",
+      "solution": "Configured CORS middleware with specific origins, credentials support, and proper preflight handling.",
+      "implementation": {
+        "tool": "Edit",
+        "files": ["src/app.ts"],
+        "changes": [
+          "Added cors middleware with whitelist",
+          "Enabled credentials for cookies",
+          "Configured allowed headers and methods"
+        ]
+      },
+      "relevance": 0.85
+    },
+    {
+      "question": "How to properly validate request body with TypeScript?",
+      "solution": "Integrated zod for runtime validation with TypeScript type inference, creating reusable schemas.",
+      "implementation": {
+        "tool": "MultiEdit",
+        "files": ["src/schemas/user.schema.ts", "src/middleware/validate.ts"],
+        "changes": [
+          "Created zod schemas for all endpoints",
+          "Built validation middleware",
+          "Added type inference from schemas"
+        ]
+      },
+      "relevance": 0.91
+    }
+  ],
+  "implementations": [
+    {
+      "description": "JWT authentication middleware with refresh token rotation",
+      "language": "typescript",
+      "code": "export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {\n  const token = req.cookies.accessToken;\n  \n  if (!token) {\n    return res.status(401).json({ error: 'Access token required' });\n  }\n  \n  try {\n    const payload = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;\n    req.user = await User.findById(payload.userId).select('-password');\n    \n    if (!req.user) {\n      return res.status(401).json({ error: 'User not found' });\n    }\n    \n    next();\n  } catch (error) {\n    if (error instanceof jwt.TokenExpiredError) {\n      return res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });\n    }\n    return res.status(403).json({ error: 'Invalid token' });\n  }\n};",
+      "relevance": 0.93
+    },
+    {
+      "description": "Zod validation middleware with TypeScript inference",
+      "language": "typescript",
+      "code": "export function validate<T extends z.ZodType>(\n  schema: T,\n  source: 'body' | 'query' | 'params' = 'body'\n) {\n  return (req: Request, res: Response, next: NextFunction) => {\n    try {\n      const data = schema.parse(req[source]);\n      req[source] = data;\n      next();\n    } catch (error) {\n      if (error instanceof z.ZodError) {\n        return res.status(400).json({\n          error: 'Validation failed',\n          details: error.errors.map(err => ({\n            field: err.path.join('.'),\n            message: err.message\n          }))\n        });\n      }\n      next(error);\n    }\n  };\n}",
+      "relevance": 0.89
+    }
+  ],
+  "decisions": [
+    {
+      "question": "Should we use Passport.js or implement custom JWT auth?",
+      "choice": "Custom JWT implementation",
+      "reasoning": "Passport adds complexity for simple JWT auth. Custom implementation gives us full control over token handling, refresh logic, and error responses. Easier to debug and maintain.",
+      "alternatives": ["Passport.js", "Auth0", "Firebase Auth"],
+      "relevance": 0.84
+    },
+    {
+      "question": "Where should we store refresh tokens?",
+      "choice": "Redis with httpOnly cookies",
+      "reasoning": "Redis provides fast lookups and automatic expiration. HttpOnly cookies prevent XSS attacks. Combination provides security and performance.",
+      "alternatives": ["Database", "In-memory", "localStorage"],
+      "relevance": 0.88
+    }
+  ],
+  "patterns": [
+    {
+      "name": "Error handling wrapper",
+      "frequency": 12,
+      "description": "Async wrapper to catch errors and pass to error middleware",
+      "example": "const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);"
+    },
+    {
+      "name": "Schema-first validation",
+      "frequency": 8,
+      "description": "Define zod schemas and derive TypeScript types",
+      "example": "const UserSchema = z.object({...}); type User = z.infer<typeof UserSchema>;"
+    }
+  ],
+  "metadata": {
+    "entryCount": 412,
+    "duration": 2744000,
+    "toolsUsed": ["Read", "Write", "Edit", "MultiEdit", "Bash", "Grep", "WebSearch"],
+    "toolCounts": {
+      "Read": 45,
+      "Write": 6,
+      "Edit": 12,
+      "MultiEdit": 4,
+      "Bash": 28,
+      "Grep": 8,
+      "WebSearch": 3
+    },
+    "filesModified": [
+      "src/app.ts",
+      "src/middleware/auth.ts",
+      "src/middleware/validate.ts",
+      "src/controllers/auth.controller.ts",
+      "src/schemas/user.schema.ts",
+      "src/routes/auth.routes.ts"
+    ],
+    "relevanceScore": 0.91,
+    "extractionVersion": "0.2.0"
+  }
+}

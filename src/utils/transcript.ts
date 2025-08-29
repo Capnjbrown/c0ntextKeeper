@@ -2,30 +2,30 @@
  * Transcript parsing utilities
  */
 
-import { createReadStream } from 'fs';
-import readline from 'readline';
-import { TranscriptEntry } from '../core/types.js';
+import { createReadStream } from "fs";
+import readline from "readline";
+import { TranscriptEntry } from "../core/types.js";
 
 /**
  * Parse a JSONL transcript file line by line with limits for large files
  */
 export async function parseTranscript(
   transcriptPath: string,
-  options: { 
-    maxEntries?: number; 
+  options: {
+    maxEntries?: number;
     maxTimeMs?: number;
     prioritizeRecent?: boolean;
-  } = {}
+  } = {},
 ): Promise<TranscriptEntry[]> {
   const maxEntries = options.maxEntries || 10000; // Default: limit to 10k entries
   const maxTimeMs = options.maxTimeMs || 45000; // Default: 45 seconds max
   const prioritizeRecent = options.prioritizeRecent !== false; // Default: true
   const startTime = Date.now();
-  
+
   const fileStream = createReadStream(transcriptPath);
   const rl = readline.createInterface({
     input: fileStream,
-    crlfDelay: Infinity
+    crlfDelay: Infinity,
   });
 
   let lineCount = 0;
@@ -33,29 +33,37 @@ export async function parseTranscript(
 
   for await (const line of rl) {
     lineCount++;
-    
+
     // Check time limit
     if (Date.now() - startTime > maxTimeMs) {
-      console.warn(`Transcript parsing timeout after ${lineCount} lines, ${allEntries.length} valid entries`);
+      console.warn(
+        `Transcript parsing timeout after ${lineCount} lines, ${allEntries.length} valid entries`,
+      );
       rl.close();
       break;
     }
-    
+
     if (line.trim()) {
       try {
         const entry = JSON.parse(line);
         allEntries.push(normalizeEntry(entry));
-        
+
         // Stop if we have enough entries
-        if (allEntries.length >= maxEntries * 2) { // Read extra to allow for prioritization
-          console.warn(`Transcript parsing stopped after ${maxEntries * 2} entries`);
+        if (allEntries.length >= maxEntries * 2) {
+          // Read extra to allow for prioritization
+          console.warn(
+            `Transcript parsing stopped after ${maxEntries * 2} entries`,
+          );
           rl.close();
           break;
         }
       } catch (error) {
         // Skip invalid JSON lines silently to avoid log spam
-        if (lineCount <= 10) { // Only log first few errors
-          console.error(`Failed to parse transcript line ${lineCount}: ${error}`);
+        if (lineCount <= 10) {
+          // Only log first few errors
+          console.error(
+            `Failed to parse transcript line ${lineCount}: ${error}`,
+          );
         }
       }
     }
@@ -68,9 +76,11 @@ export async function parseTranscript(
     const lastPart = maxEntries - firstPart;
     const result = [
       ...allEntries.slice(0, firstPart),
-      ...allEntries.slice(-lastPart)
+      ...allEntries.slice(-lastPart),
     ];
-    console.log(`Prioritized ${result.length} entries from ${allEntries.length} total (kept first ${firstPart} and last ${lastPart})`);
+    console.log(
+      `Prioritized ${result.length} entries from ${allEntries.length} total (kept first ${firstPart} and last ${lastPart})`,
+    );
     return result;
   }
 
@@ -82,7 +92,7 @@ export async function parseTranscript(
  */
 export function parseTranscriptContent(content: string): TranscriptEntry[] {
   const entries: TranscriptEntry[] = [];
-  const lines = content.split('\n');
+  const lines = content.split("\n");
 
   for (const line of lines) {
     if (line.trim()) {
@@ -104,9 +114,9 @@ export function parseTranscriptContent(content: string): TranscriptEntry[] {
 function normalizeEntry(entry: any): TranscriptEntry {
   // Handle different entry formats that might exist
   const normalized: TranscriptEntry = {
-    type: entry.type || 'unknown',
+    type: entry.type || "unknown",
     timestamp: entry.timestamp || new Date().toISOString(),
-    sessionId: entry.sessionId || entry.session_id || 'unknown'
+    sessionId: entry.sessionId || entry.session_id || "unknown",
   };
 
   // Add optional fields if present
@@ -116,16 +126,16 @@ function normalizeEntry(entry: any): TranscriptEntry {
 
   if (entry.message) {
     normalized.message = {
-      role: entry.message.role || 'unknown',
-      content: entry.message.content || ''
+      role: entry.message.role || "unknown",
+      content: entry.message.content || "",
     };
   }
 
   if (entry.toolUse || entry.tool_use) {
     const toolUse = entry.toolUse || entry.tool_use;
     normalized.toolUse = {
-      name: toolUse.name || '',
-      input: toolUse.input || {}
+      name: toolUse.name || "",
+      input: toolUse.input || {},
     };
   }
 
@@ -133,7 +143,7 @@ function normalizeEntry(entry: any): TranscriptEntry {
     const toolResult = entry.toolResult || entry.tool_result;
     normalized.toolResult = {
       output: toolResult.output,
-      error: toolResult.error
+      error: toolResult.error,
     };
   }
 
@@ -150,7 +160,7 @@ export function validateTranscriptEntries(entries: TranscriptEntry[]): {
   const errors: string[] = [];
 
   if (!entries || entries.length === 0) {
-    errors.push('No entries found in transcript');
+    errors.push("No entries found in transcript");
     return { valid: false, errors };
   }
 
@@ -168,14 +178,16 @@ export function validateTranscriptEntries(entries: TranscriptEntry[]): {
   });
 
   // Check for logical consistency
-  const sessionIds = new Set(entries.map(e => e.sessionId));
+  const sessionIds = new Set(entries.map((e) => e.sessionId));
   if (sessionIds.size > 1) {
-    errors.push(`Multiple session IDs found: ${Array.from(sessionIds).join(', ')}`);
+    errors.push(
+      `Multiple session IDs found: ${Array.from(sessionIds).join(", ")}`,
+    );
   }
 
   return {
     valid: errors.length === 0,
-    errors
+    errors,
   };
 }
 
@@ -192,21 +204,21 @@ export function extractSessionMetadata(entries: TranscriptEntry[]): {
   toolsUsed: string[];
 } {
   if (entries.length === 0) {
-    throw new Error('No entries to extract metadata from');
+    throw new Error("No entries to extract metadata from");
   }
 
   const firstEntry = entries[0];
   const lastEntry = entries[entries.length - 1];
-  
+
   const startTime = firstEntry.timestamp;
   const endTime = lastEntry.timestamp;
   const duration = new Date(endTime).getTime() - new Date(startTime).getTime();
 
   const toolsUsed = new Set<string>();
-  let projectPath = 'unknown';
+  let projectPath = "unknown";
 
   for (const entry of entries) {
-    if (entry.cwd && projectPath === 'unknown') {
+    if (entry.cwd && projectPath === "unknown") {
       projectPath = entry.cwd;
     }
     if (entry.toolUse?.name) {
@@ -221,7 +233,7 @@ export function extractSessionMetadata(entries: TranscriptEntry[]): {
     duration,
     projectPath,
     entryCount: entries.length,
-    toolsUsed: Array.from(toolsUsed)
+    toolsUsed: Array.from(toolsUsed),
   };
 }
 
@@ -230,9 +242,9 @@ export function extractSessionMetadata(entries: TranscriptEntry[]): {
  */
 export function filterEntriesByType(
   entries: TranscriptEntry[],
-  types: TranscriptEntry['type'][]
+  types: TranscriptEntry["type"][],
 ): TranscriptEntry[] {
-  return entries.filter(entry => types.includes(entry.type));
+  return entries.filter((entry) => types.includes(entry.type));
 }
 
 /**
@@ -250,18 +262,18 @@ export function getTranscriptSummary(entries: TranscriptEntry[]): {
     userMessages: 0,
     assistantMessages: 0,
     toolUses: 0,
-    errors: 0
+    errors: 0,
   };
 
   for (const entry of entries) {
     switch (entry.type) {
-      case 'user':
+      case "user":
         summary.userMessages++;
         break;
-      case 'assistant':
+      case "assistant":
         summary.assistantMessages++;
         break;
-      case 'tool_use':
+      case "tool_use":
         summary.toolUses++;
         if (entry.toolResult?.error) {
           summary.errors++;

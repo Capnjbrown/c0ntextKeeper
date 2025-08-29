@@ -2,14 +2,14 @@
  * Simple logger utility with file logging support
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 
 export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
   WARN = 2,
-  ERROR = 3
+  ERROR = 3,
 }
 
 export class Logger {
@@ -18,15 +18,22 @@ export class Logger {
   private useStderr: boolean;
   private static logFile: string | null = null;
   private static logStream: fs.WriteStream | null = null;
-  private static logDir: string = path.join(process.env.HOME || '', '.c0ntextkeeper', 'logs');
+  private static logDir: string = path.join(
+    process.env.HOME || "",
+    ".c0ntextkeeper",
+    "logs",
+  );
 
   constructor(name: string, level?: LogLevel, useStderr = true) {
     this.name = name;
     this.level = level ?? this.getLogLevelFromEnv();
     this.useStderr = useStderr;
-    
+
     // Initialize file logging if enabled
-    if (process.env.C0NTEXTKEEPER_FILE_LOGGING === 'true' && !Logger.logStream) {
+    if (
+      process.env.C0NTEXTKEEPER_FILE_LOGGING === "true" &&
+      !Logger.logStream
+    ) {
       this.initializeFileLogging();
     }
   }
@@ -39,24 +46,29 @@ export class Logger {
       }
 
       // Create daily log file
-      const date = new Date().toISOString().split('T')[0];
+      const date = new Date().toISOString().split("T")[0];
       Logger.logFile = path.join(Logger.logDir, `${date}-hook.log`);
-      
+
       // Open stream in append mode
-      Logger.logStream = fs.createWriteStream(Logger.logFile, { flags: 'a' });
-      
+      Logger.logStream = fs.createWriteStream(Logger.logFile, { flags: "a" });
+
       // Log initialization
-      this.writeToFile('INFO', 'Logger', 'File logging initialized');
+      this.writeToFile("INFO", "Logger", "File logging initialized");
     } catch {
       // Silently fail if we can't create log file
       Logger.logStream = null;
     }
   }
 
-  private writeToFile(level: string, name: string, message: string, ...args: any[]): void {
+  private writeToFile(
+    level: string,
+    name: string,
+    message: string,
+    ...args: any[]
+  ): void {
     if (Logger.logStream) {
       const timestamp = new Date().toISOString();
-      const logEntry = `[${timestamp}] [${level}] [${name}] ${message} ${args.length > 0 ? JSON.stringify(args) : ''}\n`;
+      const logEntry = `[${timestamp}] [${level}] [${name}] ${message} ${args.length > 0 ? JSON.stringify(args) : ""}\n`;
       Logger.logStream.write(logEntry);
     }
   }
@@ -64,13 +76,13 @@ export class Logger {
   private getLogLevelFromEnv(): LogLevel {
     const envLevel = process.env.LOG_LEVEL?.toUpperCase();
     switch (envLevel) {
-      case 'DEBUG':
+      case "DEBUG":
         return LogLevel.DEBUG;
-      case 'INFO':
+      case "INFO":
         return LogLevel.INFO;
-      case 'WARN':
+      case "WARN":
         return LogLevel.WARN;
-      case 'ERROR':
+      case "ERROR":
         return LogLevel.ERROR;
       default:
         return LogLevel.INFO;
@@ -121,7 +133,7 @@ export class Logger {
 }
 
 // Global logger instance
-export const globalLogger = new Logger('c0ntextKeeper');
+export const globalLogger = new Logger("c0ntextKeeper");
 
 /**
  * Create a child logger with a specific name

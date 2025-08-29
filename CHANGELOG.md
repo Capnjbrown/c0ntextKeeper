@@ -5,6 +5,43 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-08-29
+
+### Added
+- **Analytics Dashboard** in auto-generated archive README files
+- **Tool Usage Tracking** with counts and unique tool lists per session
+- **Aggregate Statistics** across all sessions in project index
+- **Session Metrics** including duration, files modified, and top problems
+- **8 New Formatting Utilities** for enhanced display:
+  - `formatFileCount()` - Proper pluralization for file counts
+  - `formatDuration()` - Human-readable time display
+  - `formatToolStats()` - Tool usage visualization
+  - `getTopTools()` - Extract most-used tools
+  - `calculateAverage()` - Relevance score averaging
+  - `formatRelevance()` - Percentage formatting
+  - `truncateText()` - Smart text truncation
+  - `getPackageVersion()` - Version tracking
+- **Version Tracking** in project index files
+- **Quality Metrics** including average relevance scores
+
+### Enhanced
+- **SessionSummary** interface with 6 new analytics fields
+- **ProjectIndex** interface with aggregate metrics and version tracking
+- **Archive README** format with modern GitHub styling and emojis
+- **Metadata** capture with comprehensive tool usage data
+- **Index Generation** with real-time analytics calculation
+
+### Fixed
+- Project name extraction for complex directory paths
+- Tool tracking with proper type safety for non-string content
+- Archive folder naming (no more "Users-project" folders)
+
+### Improved
+- Archive readability with structured analytics sections
+- Session insights with inline statistics
+- Tool usage visibility across project history
+- Context quality tracking with relevance metrics
+
 ## [0.2.0] - 2025-08-29
 
 ### Fixed
