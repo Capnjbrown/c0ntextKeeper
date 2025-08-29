@@ -7,10 +7,20 @@ import readline from 'readline';
 import { TranscriptEntry } from '../core/types.js';
 
 /**
- * Parse a JSONL transcript file line by line
+ * Parse a JSONL transcript file line by line with limits for large files
  */
-export async function parseTranscript(transcriptPath: string): Promise<TranscriptEntry[]> {
-  const entries: TranscriptEntry[] = [];
+export async function parseTranscript(
+  transcriptPath: string,
+  options: { 
+    maxEntries?: number; 
+    maxTimeMs?: number;
+    prioritizeRecent?: boolean;
+  } = {}
+): Promise<TranscriptEntry[]> {
+  const maxEntries = options.maxEntries || 10000; // Default: limit to 10k entries
+  const maxTimeMs = options.maxTimeMs || 45000; // Default: 45 seconds max
+  const prioritizeRecent = options.prioritizeRecent !== false; // Default: true
+  const startTime = Date.now();
   
   const fileStream = createReadStream(transcriptPath);
   const rl = readline.createInterface({
@@ -18,19 +28,53 @@ export async function parseTranscript(transcriptPath: string): Promise<Transcrip
     crlfDelay: Infinity
   });
 
+  let lineCount = 0;
+  const allEntries: TranscriptEntry[] = [];
+
   for await (const line of rl) {
+    lineCount++;
+    
+    // Check time limit
+    if (Date.now() - startTime > maxTimeMs) {
+      console.warn(`Transcript parsing timeout after ${lineCount} lines, ${allEntries.length} valid entries`);
+      rl.close();
+      break;
+    }
+    
     if (line.trim()) {
       try {
         const entry = JSON.parse(line);
-        entries.push(normalizeEntry(entry));
+        allEntries.push(normalizeEntry(entry));
+        
+        // Stop if we have enough entries
+        if (allEntries.length >= maxEntries * 2) { // Read extra to allow for prioritization
+          console.warn(`Transcript parsing stopped after ${maxEntries * 2} entries`);
+          rl.close();
+          break;
+        }
       } catch (error) {
-        console.error(`Failed to parse transcript line: ${error}`);
-        // Continue parsing other lines
+        // Skip invalid JSON lines silently to avoid log spam
+        if (lineCount <= 10) { // Only log first few errors
+          console.error(`Failed to parse transcript line ${lineCount}: ${error}`);
+        }
       }
     }
   }
 
-  return entries;
+  // If we have too many entries and prioritizeRecent is true, keep the most recent ones
+  if (prioritizeRecent && allEntries.length > maxEntries) {
+    // Keep first 20% and last 80% to preserve context and recent work
+    const firstPart = Math.floor(maxEntries * 0.2);
+    const lastPart = maxEntries - firstPart;
+    const result = [
+      ...allEntries.slice(0, firstPart),
+      ...allEntries.slice(-lastPart)
+    ];
+    console.log(`Prioritized ${result.length} entries from ${allEntries.length} total (kept first ${firstPart} and last ${lastPart})`);
+    return result;
+  }
+
+  return allEntries.slice(0, maxEntries);
 }
 
 /**

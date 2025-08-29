@@ -11,6 +11,7 @@ import { ContextRetriever } from './core/retriever.js';
 import { PatternAnalyzer } from './core/patterns.js';
 import { FileStore } from './storage/file-store.js';
 import { Logger } from './utils/logger.js';
+import { formatTimestamp, formatFileSize } from './utils/formatter.js';
 import { execSync } from 'child_process';
 import path from 'path';
 
@@ -163,13 +164,13 @@ program
       console.log('📊 c0ntextKeeper Statistics\n');
       console.log(`Total Projects: ${stats.totalProjects}`);
       console.log(`Total Sessions: ${stats.totalSessions}`);
-      console.log(`Storage Size: ${stats.totalSize} MB`);
+      console.log(`Storage Size: ${formatFileSize(stats.totalSize * 1024 * 1024)}`);
       
       if (stats.oldestSession) {
-        console.log(`Oldest Session: ${stats.oldestSession}`);
+        console.log(`Oldest Session: ${formatTimestamp(stats.oldestSession)}`);
       }
       if (stats.newestSession) {
-        console.log(`Newest Session: ${stats.newestSession}`);
+        console.log(`Newest Session: ${formatTimestamp(stats.newestSession)}`);
       }
     } catch (error) {
       logger.error('Stats error:', error);
@@ -427,6 +428,65 @@ program
       }
     } catch (error) {
       logger.error('Test failed:', error);
+      process.exit(1);
+    }
+  });
+
+// Migrate command
+program
+  .command('migrate')
+  .description('Migrate old hash-based archives to new human-readable structure')
+  .option('--dry-run', 'Preview changes without modifying files')
+  .action(async (options: any) => {
+    try {
+      const { ArchiveMigrator } = await import('./cli/migrate.js');
+      const migrator = new ArchiveMigrator();
+      
+      console.log('🔄 Starting archive migration...\n');
+      
+      const result = await migrator.migrate(options.dryRun);
+      
+      if (result.changes.length > 0) {
+        console.log('📋 Changes:');
+        result.changes.forEach(change => {
+          console.log(`  ${change.from} → ${change.to}`);
+        });
+        console.log();
+      }
+      
+      if (result.success) {
+        console.log(`✅ Migration ${options.dryRun ? 'preview' : 'complete'}!`);
+        console.log(`   Projects migrated: ${result.migrated}`);
+        if (options.dryRun) {
+          console.log('\n💡 Run without --dry-run to apply changes');
+        }
+      } else {
+        console.log('❌ Migration failed with errors:');
+        result.errors.forEach(error => {
+          console.log(`  - ${error}`);
+        });
+        process.exit(1);
+      }
+    } catch (error) {
+      logger.error('Migration error:', error);
+      process.exit(1);
+    }
+  });
+
+// Migrate restore command
+program
+  .command('migrate:restore')
+  .description('Restore archives from backup after failed migration')
+  .action(async () => {
+    try {
+      const { ArchiveMigrator } = await import('./cli/migrate.js');
+      const migrator = new ArchiveMigrator();
+      
+      console.log('🔄 Restoring from backup...');
+      await migrator.restore();
+      console.log('✅ Restore complete!');
+    } catch (error) {
+      logger.error('Restore error:', error);
       process.exit(1);
     }
   });

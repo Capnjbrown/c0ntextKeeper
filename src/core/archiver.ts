@@ -35,8 +35,12 @@ export class ContextArchiver {
     try {
       this.logger.info(`Processing transcript: ${transcriptPath}`);
 
-      // Parse the transcript
-      const entries = await parseTranscript(transcriptPath);
+      // Parse the transcript with timeout and size limits
+      const entries = await parseTranscript(transcriptPath, {
+        maxEntries: 10000,  // Limit to 10k entries for performance
+        maxTimeMs: 40000,   // 40 seconds max for parsing (leaves time for processing)
+        prioritizeRecent: true  // Keep recent entries if we hit limits
+      });
       this.logger.info(`Parsed ${entries.length} entries from transcript`);
 
       if (entries.length === 0) {
@@ -154,8 +158,8 @@ export class ContextArchiver {
       
       // Test with a dummy context
       const testContext: ExtractedContext = {
-        sessionId: 'test-' + Date.now(),
-        projectPath: '/test/validation',
+        sessionId: 'validation-' + Date.now(),
+        projectPath: process.cwd(), // Use current working directory instead of test path
         timestamp: new Date().toISOString(),
         extractedAt: 'manual',
         problems: [],

@@ -334,10 +334,55 @@ export class ContextExtractor {
   }
 
   private extractProjectPath(entries: TranscriptEntry[]): string {
+    // Try to find the most common cwd or the first non-generic one
+    const cwdCounts = new Map<string, number>();
+    let firstCwd = '';
+    
     for (const entry of entries) {
-      if (entry.cwd) return entry.cwd;
+      if (entry.cwd) {
+        if (!firstCwd) firstCwd = entry.cwd;
+        cwdCounts.set(entry.cwd, (cwdCounts.get(entry.cwd) || 0) + 1);
+      }
     }
-    return 'unknown';
+    
+    // If no cwd found at all
+    if (cwdCounts.size === 0) {
+      // Try to infer from tool uses (Write/Edit commands often have paths)
+      for (const entry of entries) {
+        if (entry.toolUse?.name === 'Write' || entry.toolUse?.name === 'Edit') {
+          const input = entry.toolUse.input as any;
+          if (input?.file_path) {
+            // Extract project root from file path
+            const filePath = input.file_path as string;
+            if (filePath.includes('/')) {
+              const parts = filePath.split('/');
+              // Look for common project indicators
+              const projectIndicators = ['src', 'lib', 'app', 'components', 'pages', 'api'];
+              for (let i = 0; i < parts.length; i++) {
+                if (projectIndicators.includes(parts[i]) && i > 0) {
+                  // Return path up to the project indicator
+                  return '/' + parts.slice(0, i).join('/');
+                }
+              }
+            }
+          }
+        }
+      }
+      return 'unknown';
+    }
+    
+    // Find the most frequently used cwd
+    let mostCommon = firstCwd;
+    let maxCount = 0;
+    
+    for (const [cwd, count] of cwdCounts) {
+      if (count > maxCount) {
+        maxCount = count;
+        mostCommon = cwd;
+      }
+    }
+    
+    return mostCommon;
   }
 
   private getUniqueTools(entries: TranscriptEntry[]): string[] {

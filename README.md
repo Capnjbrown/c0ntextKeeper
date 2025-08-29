@@ -209,6 +209,24 @@ const safeContext = securityFilter.filterObject(extractedContext);
 // 192.168.1.100 → 192.168.***.***
 ```
 
+## 🔄 Migrating Existing Archives
+
+If you have existing archives with hash-based names, migrate them to the new human-readable structure:
+
+```bash
+# Preview changes
+c0ntextkeeper migrate --dry-run
+
+# Apply migration
+c0ntextkeeper migrate
+```
+
+The migration tool:
+- Converts hash directories (e.g., `c77d2fa7`) to project names (e.g., `c0ntextKeeper`)
+- Renames session files with descriptive names
+- Adds README files for easy navigation
+- Creates automatic backup before changes
+
 ## 📖 Examples
 
 ### Example 1: Retrieving Previous Solutions
@@ -256,6 +274,7 @@ c0ntextkeeper search <query> # Search archived contexts
 c0ntextkeeper patterns       # Analyze recurring patterns
 c0ntextkeeper stats          # Show storage statistics
 c0ntextkeeper validate       # Verify installation
+c0ntextkeeper migrate        # Migrate old hash-based archives to readable names
 
 # Options
 c0ntextkeeper --help         # Show all commands
@@ -353,11 +372,15 @@ RELEVANCE_THRESHOLD=0.5  # Minimum relevance score (0-1)
 ```
 ~/.c0ntextkeeper/archive/
 ├── projects/
-│   ├── [project-hash]/         # Unique hash per project
+│   ├── c0ntextKeeper/          # Project by actual name
+│   │   ├── README.md           # Navigation guide
 │   │   ├── sessions/           # Individual work sessions
-│   │   │   └── YYYY-MM-DD-[session-id].json
+│   │   │   └── 2025-08-28_1430_MT_feature-implementation.json
 │   │   └── index.json          # Project index
-│   └── ...
+│   └── web-scraper/            # Another project
+│       ├── README.md
+│       ├── sessions/
+│       └── index.json
 └── global/
     └── index.json              # Master index
 ```

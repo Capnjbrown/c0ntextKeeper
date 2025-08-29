@@ -315,7 +315,7 @@ export class HooksManager {
   }
   
   private createTestInput(hookName: string): any {
-    const sessionId = 'test-session-' + Date.now();
+    const sessionId = 'session-' + Date.now();
     const timestamp = new Date().toISOString();
     
     switch (hookName) {

@@ -8,6 +8,7 @@
 
 import { SecurityFilter } from '../utils/security-filter';
 import { FileStore } from '../storage/file-store';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ContextExtractor } from '../core/extractor';
 import { RelevanceScorer } from '../core/scorer';
 import * as fs from 'fs';
@@ -43,7 +44,7 @@ interface QAPair {
 async function processExchange(input: StopHookInput): Promise<void> {
   const securityFilter = new SecurityFilter();
   const storage = new FileStore();
-  const extractor = new ContextExtractor();
+  // const extractor = new ContextExtractor();
   const scorer = new RelevanceScorer();
   
   try {

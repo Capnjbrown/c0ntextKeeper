@@ -69,16 +69,21 @@ export class SecurityFilter {
             return `${parts[0]}.${parts[1]}.***.***`;
           });
         } else {
-          // Generic redaction
-          filtered = filtered.replace(pattern, (match) => {
-            // Preserve the key/label part but redact the value
-            const separatorMatch = match.match(/[:=]/);
-            if (separatorMatch) {
-              const [before] = match.split(separatorMatch[0]);
-              return `${before}${separatorMatch[0]}[REDACTED]`;
-            }
-            return '[REDACTED]';
-          });
+          // Check if this is a custom pattern that should replace entire match
+          if (name.startsWith('_custom_full_')) {
+            filtered = filtered.replace(pattern, '[REDACTED]');
+          } else {
+            // Generic redaction - preserve key/label part
+            filtered = filtered.replace(pattern, (match) => {
+              // Preserve the key/label part but redact the value
+              const separatorMatch = match.match(/[:=]/);
+              if (separatorMatch) {
+                const [before] = match.split(separatorMatch[0]);
+                return `${before}${separatorMatch[0]}[REDACTED]`;
+              }
+              return '[REDACTED]';
+            });
+          }
         }
       }
     }
@@ -92,8 +97,22 @@ export class SecurityFilter {
   filterObject<T extends Record<string, any>>(obj: T): T {
     const filtered = { ...obj };
     
+    // List of sensitive key names to redact
+    const sensitiveKeys = ['password', 'passwd', 'pwd', 'secret', 'api_key', 'apikey', 
+                          'token', 'auth', 'credentials', 'private_key', 'client_secret'];
+    
     for (const key in filtered) {
-      if (typeof filtered[key] === 'string') {
+      // Check if the key itself is sensitive
+      const isKeySensitive = sensitiveKeys.some(sensitive => 
+        key.toLowerCase().includes(sensitive.toLowerCase())
+      );
+      
+      if (isKeySensitive && typeof filtered[key] === 'string') {
+        // Redact values for sensitive keys
+        filtered[key] = '[REDACTED]' as any;
+        this.redactedCount++;
+      } else if (typeof filtered[key] === 'string') {
+        // Filter the string value normally
         filtered[key] = this.filterText(filtered[key]) as any;
       } else if (typeof filtered[key] === 'object' && filtered[key] !== null) {
         if (Array.isArray(filtered[key])) {
@@ -136,8 +155,10 @@ export class SecurityFilter {
   /**
    * Add custom pattern for filtering
    */
-  addCustomPattern(name: string, pattern: RegExp) {
-    this.patterns.set(name, pattern);
+  addCustomPattern(name: string, pattern: RegExp, replaceEntireMatch = true) {
+    // Store with a special prefix to identify custom patterns that replace entire match
+    const patternName = replaceEntireMatch ? `_custom_full_${name}` : name;
+    this.patterns.set(patternName, pattern);
   }
 
   /**

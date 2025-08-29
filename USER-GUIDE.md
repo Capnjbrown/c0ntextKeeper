@@ -18,11 +18,12 @@ c0ntextKeeper stores all data locally on your Mac in hidden directories within y
     │   ├── global/                     
     │   │   └── index.json              # Master index of all archives
     │   └── projects/                   # Per-project archives
-    │       ├── c77d2fa7/               # Project identified by hash
+    │       ├── c0ntextKeeper/          # Project by actual name
+    │       │   ├── README.md           # Navigation guide
     │       │   ├── index.json          # Project-specific index
     │       │   └── sessions/           # Individual work sessions
-    │       │       └── 2025-08-28-*.json
-    │       └── [other-project-hash]/
+    │       │       └── 2025-08-28_1430_MT_feature-implementation.json
+    │       └── [other-project-name]/
     │           └── sessions/
     ├── prompts/                        # UserPromptSubmit hook data
     │   └── [project-hash]/
@@ -58,7 +59,7 @@ c0ntextKeeper stores all data locally on your Mac in hidden directories within y
 ### Method 2: Using Terminal (Command Line)
 
 ```bash
-# Open archive folder in Finder
+# Open archive folder in Finder via terminal command
 open ~/.c0ntextkeeper/archive
 
 # List all archived sessions
@@ -144,7 +145,7 @@ c0ntextkeeper hooks stats
 
 ### What's in Each Archive File?
 
-Each `.json` file in `sessions/` contains:
+Each descriptively-named `.json` file in `sessions/` contains:
 
 ```json
 {
@@ -173,10 +174,11 @@ Each `.json` file in `sessions/` contains:
 
 ### How Projects are Organized
 
-- Each project gets a unique hash (like `c77d2fa7`)
-- The hash is based on your project path
+- Each project uses its actual directory name (like `c0ntextKeeper`, `web-scraper`)
+- Sessions have descriptive names showing what you worked on
 - All sessions from the same project are grouped together
-- This keeps your contexts organized by project
+- Each project has a README.md for easy navigation
+- This makes your archives intuitive and self-documenting
 
 ## Quick Reference Commands
 
@@ -224,6 +226,28 @@ find ~/.c0ntextkeeper/archive -name "*.json" -mtime +30
 # Backup your archives
 cp -r ~/.c0ntextkeeper/archive ~/Desktop/c0ntextkeeper-backup
 ```
+
+## Migrating Old Archives
+
+If you have existing archives with hash-based names (like `c77d2fa7`), you can migrate them to the new human-readable structure:
+
+```bash
+# Preview the migration (dry run)
+c0ntextkeeper migrate --dry-run
+
+# Apply the migration
+c0ntextkeeper migrate
+
+# If something goes wrong, restore from backup
+c0ntextkeeper migrate:restore
+```
+
+The migration tool will:
+- Convert hash directories to project names
+- Rename session files with descriptive names
+- Add README files for navigation
+- Create a backup before making changes
+- Preserve all your data integrity
 
 ## Frequently Asked Questions
 

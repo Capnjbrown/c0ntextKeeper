@@ -13,6 +13,8 @@ import {
   C0ntextKeeperConfig 
 } from '../core/types.js';
 import { ensureDir, fileExists } from '../utils/filesystem.js';
+import { generateSessionName, extractProjectName } from '../utils/session-namer.js';
+import { formatTimestamp } from '../utils/formatter.js';
 
 export class FileStore {
   private basePath: string;
@@ -51,17 +53,16 @@ export class FileStore {
   async store(context: ExtractedContext): Promise<string> {
     await this.initialize();
 
-    // Generate project hash from path
-    const projectHash = this.generateProjectHash(context.projectPath);
-    const projectDir = path.join(this.basePath, 'projects', projectHash);
+    // Use actual project name instead of hash
+    const projectName = extractProjectName(context.projectPath);
+    const projectDir = path.join(this.basePath, 'projects', projectName);
     const sessionsDir = path.join(projectDir, 'sessions');
     
     await ensureDir(projectDir);
     await ensureDir(sessionsDir);
 
-    // Create session filename
-    const dateStr = new Date().toISOString().split('T')[0];
-    const sessionFile = `${dateStr}-${context.sessionId}.json`;
+    // Create descriptive session filename
+    const sessionFile = generateSessionName(context);
     const sessionPath = path.join(sessionsDir, sessionFile);
 
     // Store context
@@ -74,8 +75,11 @@ export class FileStore {
     // Update project index
     await this.updateProjectIndex(projectDir, context, sessionFile);
 
+    // Create/Update project README for navigation
+    await this.createProjectReadme(projectDir, projectName, context);
+
     // Update global index
-    await this.updateGlobalIndex(context, projectHash);
+    await this.updateGlobalIndex(context, projectName);
 
     // Clean old sessions if needed
     await this.cleanOldSessions(projectDir);
@@ -112,8 +116,8 @@ export class FileStore {
    * Get all contexts for a project
    */
   async getProjectContexts(projectPath: string, limit = 100): Promise<ExtractedContext[]> {
-    const projectHash = this.generateProjectHash(projectPath);
-    const projectDir = path.join(this.basePath, 'projects', projectHash);
+    const projectName = extractProjectName(projectPath);
+    const projectDir = path.join(this.basePath, 'projects', projectName);
     const sessionsDir = path.join(projectDir, 'sessions');
 
     if (!await fileExists(sessionsDir)) {
@@ -148,8 +152,8 @@ export class FileStore {
    * Get project index
    */
   async getProjectIndex(projectPath: string): Promise<ProjectIndex | null> {
-    const projectHash = this.generateProjectHash(projectPath);
-    const indexPath = path.join(this.basePath, 'projects', projectHash, 'index.json');
+    const projectName = extractProjectName(projectPath);
+    const indexPath = path.join(this.basePath, 'projects', projectName, 'index.json');
 
     if (!await fileExists(indexPath)) {
       return null;
@@ -261,12 +265,89 @@ export class FileStore {
 
   // Private helper methods
 
+  /**
+   * Generate project hash - kept for backward compatibility
+   * @deprecated Use extractProjectName instead
+   */
   private generateProjectHash(projectPath: string): string {
     return crypto
       .createHash('md5')
       .update(projectPath)
       .digest('hex')
       .slice(0, 8);
+  }
+
+  /**
+   * Create or update README file for project navigation
+   */
+  private async createProjectReadme(
+    projectDir: string,
+    projectName: string,
+    context: ExtractedContext
+  ): Promise<void> {
+    const readmePath = path.join(projectDir, 'README.md');
+    const sessionsDir = path.join(projectDir, 'sessions');
+    
+    // Get list of sessions
+    const sessions: string[] = [];
+    if (await fileExists(sessionsDir)) {
+      const files = await fs.readdir(sessionsDir);
+      sessions.push(...files.filter(f => f.endsWith('.json')).sort().reverse());
+    }
+    
+    // Create README content
+    const content = `# ${projectName} - Archive Sessions
+
+## Project Information
+- **Project Path**: ${context.projectPath}
+- **Total Sessions**: ${sessions.length}
+- **Last Updated**: ${formatTimestamp(new Date())}
+
+## Recent Sessions
+
+${sessions.slice(0, 10).map(session => {
+  // Extract description from filename
+  const match = session.match(/\d{4}-\d{2}-\d{2}_\d{4}_MT_(.+)\.json$/);
+  const description = match ? match[1].replace(/-/g, ' ') : 'session';
+  return `- **${session}**
+  - Description: ${description}`;
+}).join('\n\n')}
+
+${sessions.length > 10 ? `\n...and ${sessions.length - 10} more sessions\n` : ''}
+
+## Navigation
+
+This archive contains all preserved context from your Claude Code sessions for the **${projectName}** project.
+
+Each session file contains:
+- Problems encountered and solutions
+- Code implementations
+- Technical decisions made
+- Patterns identified
+- Metadata about the session
+
+## How to Use
+
+1. Browse session files by their descriptive names
+2. Open any JSON file to see the full context
+3. Use the c0ntextKeeper CLI to search:
+   \`\`\`bash
+   c0ntextkeeper search "your query"
+   \`\`\`
+
+## Storage Structure
+
+\`\`\`
+${projectName}/
+├── README.md          # This file
+├── index.json         # Project statistics
+└── sessions/          # Individual session archives
+    ├── YYYY-MM-DD_HHMM_MT_description.json
+    └── ...
+\`\`\`
+`;
+    
+    await fs.writeFile(readmePath, content, 'utf-8');
   }
 
   private async listProjectDirs(): Promise<string[]> {
@@ -294,7 +375,7 @@ export class FileStore {
     } else {
       index = {
         projectPath: context.projectPath,
-        projectHash: this.generateProjectHash(context.projectPath),
+        projectHash: extractProjectName(context.projectPath), // Now stores project name, not hash
         sessions: [],
         totalProblems: 0,
         totalImplementations: 0,
@@ -338,7 +419,7 @@ export class FileStore {
 
   private async updateGlobalIndex(
     context: ExtractedContext,
-    projectHash: string
+    projectName: string
   ): Promise<void> {
     const globalIndexPath = path.join(this.basePath, 'global', 'index.json');
     
@@ -353,10 +434,10 @@ export class FileStore {
       globalIndex.projects = {};
     }
 
-    globalIndex.projects[projectHash] = {
+    globalIndex.projects[projectName] = {
       path: context.projectPath,
       lastActive: context.timestamp,
-      sessionCount: (globalIndex.projects[projectHash]?.sessionCount || 0) + 1
+      sessionCount: (globalIndex.projects[projectName]?.sessionCount || 0) + 1
     };
 
     globalIndex.lastUpdated = new Date().toISOString();

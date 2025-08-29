@@ -1,6 +1,9 @@
 /**
- * Simple logger utility
+ * Simple logger utility with file logging support
  */
+
+import * as fs from 'fs';
+import * as path from 'path';
 
 export enum LogLevel {
   DEBUG = 0,
@@ -13,11 +16,49 @@ export class Logger {
   private name: string;
   private level: LogLevel;
   private useStderr: boolean;
+  private static logFile: string | null = null;
+  private static logStream: fs.WriteStream | null = null;
+  private static logDir: string = path.join(process.env.HOME || '', '.c0ntextkeeper', 'logs');
 
   constructor(name: string, level?: LogLevel, useStderr = true) {
     this.name = name;
     this.level = level ?? this.getLogLevelFromEnv();
     this.useStderr = useStderr;
+    
+    // Initialize file logging if enabled
+    if (process.env.C0NTEXTKEEPER_FILE_LOGGING === 'true' && !Logger.logStream) {
+      this.initializeFileLogging();
+    }
+  }
+
+  private initializeFileLogging(): void {
+    try {
+      // Create logs directory if it doesn't exist
+      if (!fs.existsSync(Logger.logDir)) {
+        fs.mkdirSync(Logger.logDir, { recursive: true });
+      }
+
+      // Create daily log file
+      const date = new Date().toISOString().split('T')[0];
+      Logger.logFile = path.join(Logger.logDir, `${date}-hook.log`);
+      
+      // Open stream in append mode
+      Logger.logStream = fs.createWriteStream(Logger.logFile, { flags: 'a' });
+      
+      // Log initialization
+      this.writeToFile('INFO', 'Logger', 'File logging initialized');
+    } catch {
+      // Silently fail if we can't create log file
+      Logger.logStream = null;
+    }
+  }
+
+  private writeToFile(level: string, name: string, message: string, ...args: any[]): void {
+    if (Logger.logStream) {
+      const timestamp = new Date().toISOString();
+      const logEntry = `[${timestamp}] [${level}] [${name}] ${message} ${args.length > 0 ? JSON.stringify(args) : ''}\n`;
+      Logger.logStream.write(logEntry);
+    }
   }
 
   private getLogLevelFromEnv(): LogLevel {
@@ -42,6 +83,9 @@ export class Logger {
     const timestamp = new Date().toISOString();
     const levelStr = LogLevel[level];
     const formattedMessage = `[${timestamp}] [${levelStr}] [${this.name}] ${message}`;
+
+    // Write to file if enabled
+    this.writeToFile(levelStr, this.name, message, ...args);
 
     // For MCP servers, we need to use stderr to avoid interfering with stdout protocol
     if (this.useStderr) {

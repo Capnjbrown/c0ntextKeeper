@@ -19,10 +19,17 @@ import * as fs from 'fs';
  */
 async function handlePreCompact(): Promise<void> {
   const logger = new Logger('PreCompactHook');
+  const startTime = Date.now();
+  const TIMEOUT_MS = 55000; // 55 seconds (5 seconds buffer before Claude's 60s timeout)
   
   try {
-    // Parse hook input from stdin
-    const input = await readStdin();
+    // Parse hook input from stdin with timeout
+    const input = await Promise.race([
+      readStdin(),
+      new Promise<string>((_, reject) => 
+        setTimeout(() => reject(new Error('Stdin read timeout')), 5000)
+      )
+    ]);
     const hookData = JSON.parse(input) as HookInput;
 
     logger.info(`Received hook event: ${hookData.hook_event_name}`);
@@ -71,9 +78,39 @@ async function handlePreCompact(): Promise<void> {
     logger.info(`Processing transcript: ${transcriptPath}`);
     logger.info(`Session ID: ${hookData.session_id || 'unknown'}`);
 
-    // Archive the context
+    // Check if we have enough time left
+    const elapsedTime = Date.now() - startTime;
+    const remainingTime = TIMEOUT_MS - elapsedTime;
+    
+    if (remainingTime < 10000) { // Less than 10 seconds left
+      logger.warn('Insufficient time remaining for processing');
+      const output: HookOutput = {
+        status: 'error',
+        message: 'Hook timeout - insufficient time for processing'
+      };
+      console.log(JSON.stringify(output));
+      process.exit(1); // Non-blocking error
+    }
+
+    // Archive the context with timeout
     const archiver = new ContextArchiver();
-    const result = await archiver.archiveFromTranscript(transcriptPath);
+    const archivePromise = archiver.archiveFromTranscript(transcriptPath);
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('Archive timeout')), remainingTime - 5000)
+    );
+    
+    const result: {
+      success: boolean;
+      archivePath?: string;
+      stats?: any;
+      error?: string;
+    } = await Promise.race([
+      archivePromise,
+      timeoutPromise.catch(_err => ({
+        success: false,
+        error: 'Archive operation timed out - transcript too large'
+      }))
+    ]);
     
     // Store trigger type in metadata
     if (result.success && result.archivePath) {
