@@ -50,11 +50,27 @@ export class ContextArchiver {
         };
       }
 
-      // Extract context
+      // Extract context with detailed logging
+      this.logger.info(`Starting extraction from ${entries.length} transcript entries`);
       const context = this.extractor.extract(entries);
-      this.logger.info(`Extracted context with relevance score: ${context.metadata.relevanceScore}`);
-
-      // Store the context
+      
+      // Log detailed extraction results
+      this.logger.info('=== EXTRACTION RESULTS ===');
+      this.logger.info(`Problems extracted: ${context.problems.length}`);
+      this.logger.info(`Implementations extracted: ${context.implementations.length}`);
+      this.logger.info(`Decisions extracted: ${context.decisions.length}`);
+      this.logger.info(`Patterns extracted: ${context.patterns.length}`);
+      this.logger.info(`Relevance score: ${context.metadata.relevanceScore}`);
+      
+      // Log samples if any
+      if (context.problems.length > 0) {
+        this.logger.info(`Sample problem: ${context.problems[0].question.slice(0, 100)}...`);
+      }
+      if (context.implementations.length > 0) {
+        this.logger.info(`Sample implementation: ${context.implementations[0].description.slice(0, 100)}...`);
+      }
+      
+      // Always store context, even if empty
       const archivePath = await this.storage.store(context);
       this.logger.info(`Context archived to: ${archivePath}`);
 

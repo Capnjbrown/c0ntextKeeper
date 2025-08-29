@@ -114,9 +114,10 @@ export class ContextExtractor {
       if (entry.type === 'user' && entry.message?.content) {
         const content = entry.message.content;
         if (this.isProblemIndicator(content)) {
+          const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
           currentProblem = {
             id: this.generateId(),
-            question: content.slice(0, 500),
+            question: contentStr.slice(0, 500),
             timestamp: entry.timestamp,
             tags: this.extractTags(content),
             relevance: relevance
@@ -124,20 +125,20 @@ export class ContextExtractor {
         }
       }
 
-      // Look for tool usage that might be solving the problem
-      if (currentProblem && entry.type === 'tool_use') {
-        const toolName = entry.toolUse?.name || '';
-        if (['Write', 'Edit', 'MultiEdit', 'Bash'].includes(toolName)) {
-          const file = entry.toolUse?.input?.file_path || 
-                      entry.toolUse?.input?.path || 
-                      'unknown';
-          
-          potentialSolution = {
-            approach: `Used ${toolName} tool`,
-            files: [file],
-            successful: true
-          };
-        }
+      // Look for ANY tool usage as a potential solution
+      if (currentProblem && entry.type === 'tool_use' && entry.toolUse) {
+        const toolName = entry.toolUse.name || 'unknown';
+        const file = entry.toolUse.input?.file_path || 
+                    entry.toolUse.input?.path || 
+                    entry.toolUse.input?.uri ||
+                    entry.toolUse.input?.notebook_path ||
+                    '';
+        
+        potentialSolution = {
+          approach: `Used ${toolName} tool`,
+          files: file ? [file] : [],
+          successful: true
+        };
       }
 
       // Check tool results for success/failure
@@ -150,14 +151,15 @@ export class ContextExtractor {
       // Look for assistant explanations as solutions
       if (currentProblem && entry.type === 'assistant' && entry.message?.content) {
         const content = entry.message.content;
+        const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
         
         // If we have a potential solution from tool use, enhance it
         if (potentialSolution) {
-          potentialSolution.approach = content.slice(0, 200);
+          potentialSolution.approach = contentStr.slice(0, 200);
           currentProblem.solution = potentialSolution;
         } else if (this.isSolutionIndicator(content)) {
           currentProblem.solution = {
-            approach: content.slice(0, 500),
+            approach: contentStr.slice(0, 500),
             files: [],
             successful: true
           };
@@ -191,8 +193,8 @@ export class ContextExtractor {
       if (entry.type === 'tool_use' && entry.toolUse) {
         const toolName = entry.toolUse.name;
         
-        // Focus on code-modifying tools
-        if (['Write', 'Edit', 'MultiEdit', 'NotebookEdit'].includes(toolName)) {
+        // Track ALL tools as potential implementations
+        {
           const file = entry.toolUse.input?.file_path || 
                       entry.toolUse.input?.path || 
                       entry.toolUse.input?.notebook_path ||
@@ -202,7 +204,8 @@ export class ContextExtractor {
           let description = '';
           if (i > 0 && entries[i - 1].type === 'assistant') {
             const prevContent = entries[i - 1].message?.content || '';
-            description = prevContent.slice(0, 200);
+            const prevContentStr = typeof prevContent === 'string' ? prevContent : JSON.stringify(prevContent);
+            description = prevContentStr.slice(0, 200);
           }
 
           const implementation: Implementation = {
@@ -241,18 +244,19 @@ export class ContextExtractor {
     for (const entry of entries) {
       if (entry.type === 'assistant' && entry.message?.content) {
         const content = entry.message.content;
+        const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
 
         for (const pattern of decisionPatterns) {
-          const matches = content.matchAll(pattern);
+          const matches = contentStr.matchAll(pattern);
           for (const match of matches) {
             const contextStart = Math.max(0, match.index! - 100);
-            const contextEnd = Math.min(content.length, match.index! + match[0].length + 100);
+            const contextEnd = Math.min(contentStr.length, match.index! + match[0].length + 100);
             
             decisions.push({
               id: this.generateId(),
               decision: match[0],
-              context: content.slice(contextStart, contextEnd),
-              rationale: this.extractRationale(content, match.index!),
+              context: contentStr.slice(contextStart, contextEnd),
+              rationale: this.extractRationale(contentStr, match.index!),
               timestamp: entry.timestamp,
               impact: this.assessImpact(match[0]),
               tags: this.extractTags(match[0])
@@ -304,29 +308,56 @@ export class ContextExtractor {
   // Helper methods
 
   private isProblemIndicator(content: string): boolean {
-    const indicators = [
+    // Much more flexible - any user question or request is a potential problem
+    const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
+    const lowerContent = contentStr.toLowerCase();
+    
+    // Explicit problem indicators
+    const problemIndicators = [
       'error', 'issue', 'problem', 'fix', 'debug', 
       'why', 'how to', 'not working', 'failed', 'wrong',
-      'help', 'stuck', 'confused', 'unclear'
+      'help', 'stuck', 'confused', 'unclear', 'bug',
+      'crash', 'exception', 'undefined', 'null'
     ];
-    const lowerContent = content.toLowerCase();
-    return indicators.some(ind => lowerContent.includes(ind));
+    
+    // Request indicators
+    const requestIndicators = [
+      'can you', 'could you', 'please', 'need', 'want',
+      'should', 'would', 'help me', 'show me', 'explain'
+    ];
+    
+    // Questions always indicate problems to solve
+    if (contentStr.includes('?')) return true;
+    
+    // Check for problem or request indicators
+    return problemIndicators.some(ind => lowerContent.includes(ind)) ||
+           requestIndicators.some(ind => lowerContent.includes(ind));
   }
 
   private isSolutionIndicator(content: string): boolean {
+    // More flexible - any assistant response with action words is a potential solution
+    const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
+    const lowerContent = contentStr.toLowerCase();
+    
     const indicators = [
       'here\'s how', 'the solution', 'to fix this',
       'this works', 'resolved', 'solved', 'the answer',
-      'you can', 'let me'
+      'you can', 'let me', 'i\'ll', 'i will', 'i\'m going to',
+      'let\'s', 'we can', 'we should', 'try', 'use',
+      'add', 'change', 'update', 'modify', 'create', 'implement'
     ];
-    const lowerContent = content.toLowerCase();
+    
+    // Any response with code blocks is likely a solution
+    if (contentStr.includes('```')) return true;
+    
     return indicators.some(ind => lowerContent.includes(ind));
   }
 
-  private extractTags(content: string): string[] {
+  private extractTags(content: string | any): string[] {
     const tags: string[] = [];
+    const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
     const techPatterns = /\b(react|typescript|javascript|node|python|api|database|css|html|json|yaml|docker|kubernetes|aws|git)\b/gi;
-    const matches = content.match(techPatterns);
+    const matches = contentStr.match(techPatterns);
     if (matches) {
       tags.push(...matches.map(m => m.toLowerCase()));
     }

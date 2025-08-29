@@ -396,7 +396,40 @@ Three ways:
 
 ## Troubleshooting
 
-### "Permission denied" errors
+### v0.2.0 Fixes
+
+Many common issues have been fixed in v0.2.0:
+
+#### 504 Timeout Errors (FIXED)
+**Previous Issue**: Hook would timeout during auto-compact with large transcripts
+**v0.2.0 Solution**: Implemented 55-second timeout protection
+```bash
+# Verify you have v0.2.0
+c0ntextkeeper --version
+# Should show: 0.2.0 or later
+```
+
+#### "content.toLowerCase is not a function" (FIXED)
+**Previous Issue**: Extraction failed with non-string content
+**v0.2.0 Solution**: Added comprehensive type guards
+```bash
+# Test extraction works
+node scripts/test-extraction.js
+# Should show: ✅ Extraction successful!
+```
+
+#### Generic Folder Names like "project" (FIXED)
+**Previous Issue**: Archives used hash names or generic labels
+**v0.2.0 Solution**: Archives now use actual project names
+```bash
+# Your archives now show:
+~/.c0ntextkeeper/archive/projects/c0ntextKeeper/  # Not "project"
+~/.c0ntextkeeper/archive/projects/web-scraper/    # Not "validation"
+```
+
+### Common Issues
+
+#### "Permission denied" errors
 
 ```bash
 # Fix permissions
@@ -423,16 +456,79 @@ chmod 644 ~/.c0ntextkeeper/archive/projects/*/sessions/*.json
 
 ### Archives not being created
 
-Enable debug mode:
+1. **Enable file logging for debugging**:
 ```bash
-export C0NTEXTKEEPER_DEBUG=true
-# Then restart Claude Code and try /compact again
+export C0NTEXTKEEPER_FILE_LOGGING=true
+```
+
+2. **Check if extraction is working**:
+```bash
+# Run test extraction
+node /Users/jasonbrown/Projects/c0ntextKeeper/scripts/test-extraction.js
+
+# Should see:
+# ✅ Extraction successful!
+# Archive created: [path]
+# Extraction statistics:
+# - Problems: [number]
+# - Implementations: [number]
+```
+
+3. **Monitor hook execution**:
+```bash
+# Watch logs in real-time during /compact
+tail -f ~/.c0ntextkeeper/logs/hook.log
+```
+
+4. **Check for extraction issues**:
+If archives are created but empty (0 problems, 0 implementations):
+- This is fixed in v0.2.0 with relaxed extraction patterns
+- Any user question (with "?") is now captured
+- All tool uses are tracked, not just Write/Edit
+
+### Path Case Sensitivity Issues
+
+If you see "path not found" errors:
+```bash
+# Check your actual path case
+ls -la ~/Projects  # Capital P?
+ls -la ~/projects  # Lowercase p?
+
+# Update settings.json with correct case
+cat ~/.claude/settings.json | grep -i project
+```
+
+### Verifying Your Installation
+
+Run these commands to ensure everything is working:
+
+```bash
+# 1. Check version (should be 0.2.0 or later)
+c0ntextkeeper --version
+
+# 2. Validate installation
+c0ntextkeeper validate
+# Should show all green checkmarks
+
+# 3. Test extraction
+node scripts/test-extraction.js
+# Should create a test archive
+
+# 4. Check automation status
+c0ntextkeeper status
+# Should show: ✅ Automatic capture enabled
+
+# 5. List your archives
+ls -la ~/.c0ntextkeeper/archive/projects/
+# Should show your project folders
 ```
 
 ## Support
 
 - **Documentation**: See `README.md` and `HOOK-INTEGRATION.md`
+- **Troubleshooting**: See the comprehensive troubleshooting section above
 - **Issues**: https://github.com/Capnjbrown/c0ntextKeeper/issues
 - **Logs**: Check `~/.c0ntextkeeper/logs/hook.log`
+- **Version**: Ensure you have v0.2.0 or later for all fixes
 
 Remember: Everything is stored locally on your Mac in hidden directories. Use the commands above to access and manage your preserved context!

@@ -63,7 +63,10 @@ export class RelevanceScorer {
     }
     
     // Check content for valuable patterns
-    const content = item.content.toLowerCase();
+    const contentStr = typeof item.content === 'string' 
+      ? item.content 
+      : JSON.stringify(item.content);
+    const content = contentStr.toLowerCase();
     if (this.containsProblemIndicators(content)) score += 0.2;
     if (this.containsDecisionIndicators(content)) score += 0.1;
     
@@ -108,7 +111,10 @@ export class RelevanceScorer {
 
     // Check user messages for engagement signals
     if (entry.type === 'user' && entry.message?.content) {
-      const content = entry.message.content.toLowerCase();
+      const contentStr = typeof entry.message.content === 'string'
+        ? entry.message.content
+        : JSON.stringify(entry.message.content);
+      const content = contentStr.toLowerCase();
       factors.userEngagement = this.calculateUserEngagement(content);
       
       // Problem indicators
@@ -124,15 +130,17 @@ export class RelevanceScorer {
 
     // Check assistant messages for valuable content
     if (entry.type === 'assistant' && entry.message?.content) {
-      const content = entry.message.content;
+      const contentStr = typeof entry.message.content === 'string'
+        ? entry.message.content
+        : JSON.stringify(entry.message.content);
       
       // Code blocks are valuable
-      if (content.includes('```')) {
+      if (contentStr.includes('```')) {
         factors.hasCodeChanges = true;
       }
       
       // Explanations and reasoning
-      if (this.containsExplanationIndicators(content)) {
+      if (this.containsExplanationIndicators(contentStr)) {
         factors.hasDecision = true;
       }
     }

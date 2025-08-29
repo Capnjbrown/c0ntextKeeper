@@ -4,6 +4,12 @@
 
 c0ntextKeeper uses Claude Code's hook system to automatically capture and preserve valuable context at multiple points in your workflow. The primary PreCompact hook works **completely automatically** - capturing context both when you manually run `/compact` and when Claude Code automatically compacts context due to size limits.
 
+### 🎆 v0.2.0 Improvements
+- **Timeout Protection**: 55-second limit prevents 504 errors during auto-compact
+- **Type Safety**: Handles all content types (strings, arrays, objects) without errors
+- **Smart Extraction**: Relaxed patterns capture more valuable context
+- **Debug Logging**: Detailed diagnostics for troubleshooting
+
 ## Table of Contents
 - [Understanding Claude Code Hooks](#understanding-claude-code-hooks)
 - [Installation Methods](#installation-methods)
@@ -235,6 +241,46 @@ tail -f ~/.c0ntextkeeper/hook.log
 
 ## Troubleshooting
 
+### Issue: 504 Timeout Errors (FIXED in v0.2.0)
+
+**Previous Symptoms:**
+- Hook would timeout after 60 seconds
+- Multiple 504 errors during auto-compact
+- Context not preserved
+
+**v0.2.0 Solution:**
+- Implemented 55-second timeout protection
+- Smart transcript prioritization (first 20% + last 80%)
+- Graceful handling of large transcripts
+
+**Verification:**
+```bash
+# Check version
+c0ntextkeeper --version  # Should be 0.2.0+
+
+# Test with large transcript
+export C0NTEXTKEEPER_FILE_LOGGING=true
+# Trigger /compact and check logs
+tail -f ~/.c0ntextkeeper/logs/hook.log
+```
+
+### Issue: "content.toLowerCase is not a function" (FIXED in v0.2.0)
+
+**Previous Symptoms:**
+- Extraction failed with TypeError
+- Archives created but empty
+
+**v0.2.0 Solution:**
+- Added comprehensive type guards
+- Handles arrays, objects, and strings
+- Safe string conversion for all content
+
+**Test extraction:**
+```bash
+node scripts/test-extraction.js
+# Should show: ✅ Extraction successful!
+```
+
 ### Issue: Hook Not Triggering
 
 **Symptoms:**
@@ -368,16 +414,45 @@ interface HookOutput {
 - **Environment Variables**: 
   - Inherits from Claude Code process
   - `CLAUDE_PROJECT_DIR`: Absolute path to project root
-- **Timeout**: 60 seconds by default (configurable)
+  - `C0NTEXTKEEPER_FILE_LOGGING`: Enable file logging (optional)
+- **Timeout Protection** (v0.2.0+):
+  - Internal: 55 seconds (5-second buffer)
+  - Claude Code: 60 seconds (hard limit)
+  - Graceful degradation for large transcripts
 - **Input**: JSON via stdin
 - **Output**: JSON via stdout
 - **Exit Codes**:
   - 0: Success
+  - 1: Non-blocking error (continues compaction)
   - 2: Blocking error (prevents compaction)
-  - Other: Non-blocking error
 - **Errors**: stderr is captured in Claude Code logs
 - **Parallel Execution**: All matching hooks run in parallel
 - **Deduplication**: Multiple identical hook commands are automatically deduplicated
+
+### Timeout Protection Details (v0.2.0)
+
+The PreCompact hook now includes sophisticated timeout protection:
+
+```typescript
+const TIMEOUT_MS = 55000; // 55 seconds (5 seconds buffer before Claude's 60s timeout)
+
+// Smart prioritization for large transcripts
+if (entries.length > maxEntries) {
+  // Keep first 20% (context setup) and last 80% (recent work)
+  const firstCount = Math.floor(maxEntries * 0.2);
+  const lastCount = maxEntries - firstCount;
+  entries = [
+    ...entries.slice(0, firstCount),
+    ...entries.slice(-lastCount)
+  ];
+}
+```
+
+This ensures:
+- Hook completes before Claude's timeout
+- Most recent context is prioritized
+- No 504 errors during auto-compact
+- Graceful handling of massive transcripts
 
 ### Archive Storage Structure
 

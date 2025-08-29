@@ -2,16 +2,28 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-08-28
+> Last Updated: 2025-08-29
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
+[![npm version](https://img.shields.io/badge/version-0.2.0-blue)](https://www.npmjs.com/package/c0ntextkeeper)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple)](https://modelcontextprotocol.io)
 [![🤖 Fully Automatic](https://img.shields.io/badge/🤖-Fully%20Automatic-success)](https://github.com/Capnjbrown/c0ntextKeeper#-how-it-works-automatically)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+## 🚀 What's New in v0.2.0
+
+### Critical Bug Fixes & Enhancements
+- 🛡️ **Type Safety** - Fixed "content.toLowerCase is not a function" errors with comprehensive type guards
+- ⚡ **Timeout Protection** - 55-second limit prevents 504 errors during auto-compact
+- 📁 **Smart Naming** - Archive folders now show actual project names, not generic labels
+- 🎯 **Better Extraction** - Relaxed patterns capture more context (questions, requests, all tools)
+- 🔍 **Debug Logging** - Detailed diagnostics show exactly what's being extracted
+- ✅ **Guaranteed Archives** - Files created even with minimal content
+
+[See CHANGELOG.md for complete details](CHANGELOG.md)
 
 ## 🎯 The Problem
 
@@ -440,30 +452,6 @@ src/
     └── transcript.ts      # JSONL parsing
 ```
 
-## 🧪 Testing
-
-c0ntextKeeper uses Jest for comprehensive testing:
-
-```bash
-# Run all tests
-npm test
-
-# Watch mode for development
-npm run test:watch
-
-# Generate coverage report
-npm run test:coverage
-```
-
-### CI/CD Pipeline
-
-Our GitHub Actions pipeline runs on every push and PR:
-- **Multi-version testing**: Node.js 18.x, 20.x, 22.x
-- **Code quality**: ESLint, TypeScript, Prettier
-- **Security audits**: npm audit for vulnerabilities
-- **Coverage reporting**: Automated Codecov integration
-- **Automated releases**: Semantic versioning on main branch
-
 ## 🤝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
@@ -499,10 +487,87 @@ Special thanks to:
 - The MCP community for protocol development and support
 - All contributors who help make c0ntextKeeper better
 
+## 🧪 Testing
+
+c0ntextKeeper uses Jest for comprehensive testing:
+
+```bash
+# Run all tests
+npm test
+
+# Watch mode for development
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+
+# Test extraction with various content types
+node scripts/test-extraction.js
+```
+
+### CI/CD Pipeline
+
+Our GitHub Actions pipeline runs on every push and PR:
+- **Multi-version testing**: Node.js 18.x, 20.x, 22.x
+- **Code quality**: ESLint, TypeScript, Prettier
+- **Security audits**: npm audit for vulnerabilities
+- **Coverage reporting**: Automated Codecov integration
+- **Automated releases**: Semantic versioning on main branch
+
+## 🚦 Troubleshooting
+
+### Common Issues and Solutions
+
+#### 504 Timeout Errors During Auto-Compact
+**Fixed in v0.2.0** - Now includes 55-second timeout protection
+```bash
+# Verify you have v0.2.0 or later
+c0ntextkeeper --version
+```
+
+#### "content.toLowerCase is not a function" Error
+**Fixed in v0.2.0** - Type guards handle all content types
+```bash
+# Update to latest version
+npm update -g c0ntextkeeper
+```
+
+#### Generic Archive Folder Names
+**Fixed in v0.2.0** - Projects now use actual names
+```bash
+# Migrate old archives
+c0ntextkeeper migrate
+```
+
+#### Archives Not Being Created
+```bash
+# Enable debug logging
+export C0NTEXTKEEPER_FILE_LOGGING=true
+
+# Check logs
+tail -f ~/.c0ntextkeeper/logs/hook.log
+
+# Validate installation
+c0ntextkeeper validate
+```
+
+#### Hook Not Triggering
+```bash
+# Check hook configuration
+cat ~/.claude/settings.json | jq '.hooks.PreCompact'
+
+# Reinstall hooks
+c0ntextkeeper setup
+```
+
+For more troubleshooting, see [USER-GUIDE.md](USER-GUIDE.md#troubleshooting)
+
 ## 📊 Project Status
 
-### ✅ Completed Features (v1.0.0)
-- **Fully automatic operation** with manual and auto compaction support
+### ✅ Completed Features (v0.2.0)
+- **Fully automatic operation** with reliable manual and auto compaction support
+- **Type safety** for all content types (strings, arrays, objects)
+- **Timeout protection** preventing 504 errors
 - **4 working hooks** (PreCompact, UserPromptSubmit, PostToolUse, Stop)
 - **Hook management CLI** with enable/disable/test commands
 - **Configuration system** via config.json
@@ -517,11 +582,11 @@ Special thanks to:
 - Comprehensive test suite with 18 core modules
 
 ### 🚧 Roadmap
-- SessionStart/SessionEnd hooks (Q1 2025)
+- SessionStart/SessionEnd hooks (Q3 2025)
 - PreToolUse hook implementation (Q1 2025)
-- Vector search for semantic queries (Q2 2025)
+- Vector search for semantic queries (Q4 2025)
 - Team sharing and collaboration (Q3 2025)
-- VS Code extension (Q4 2025)
+- VS Code extension (Q1 2026)
 - Web dashboard for analytics (Q1 2026)
 - Cloud sync across devices (Q2 2026)
 
