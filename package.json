@@ -1,6 +1,6 @@
 {
   "name": "c0ntextkeeper",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Intelligent context preservation and retrieval for Claude Code with analytics dashboard",
   "main": "dist/index.js",
   "bin": {
@@ -18,8 +18,8 @@
     "format": "prettier --write 'src/**/*.ts'",
     "format:check": "prettier --check 'src/**/*.ts'",
     "typecheck": "tsc --noEmit",
-    "preinstall": "node scripts/setup-hooks.js 2>/dev/null || true",
-    "postinstall": "node scripts/setup-hooks.js 2>/dev/null || true"
+    "prepublishOnly": "npm run build",
+    "postinstall": "node scripts/post-install.js 2>/dev/null || true"
   },
   "keywords": ["claude", "mcp", "context", "ai", "development", "claude-code"],
   "author": "Jason Brown",

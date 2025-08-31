@@ -114,7 +114,7 @@ If automated setup fails, follow these manual steps:
 #### Step 1: Build the Hook Script
 
 ```bash
-cd /Users/jasonbrown/Projects/c0ntextKeeper
+cd ~/Projects/c0ntextKeeper
 npm run build
 ```
 
@@ -131,7 +131,7 @@ Add the following to `~/.claude/settings.json`:
   },
   "statusLine": {
     "type": "command",
-    "command": "/Users/jasonbrown/.claude/statusline_final.sh"
+    "command": "~/.claude/statusline_final.sh"
   },
   "hooks": {
     "PreCompact": [
@@ -140,7 +140,7 @@ Add the following to `~/.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "node /Users/jasonbrown/Projects/c0ntextKeeper/dist/hooks/precompact.js"
+            "command": "node ~/Projects/c0ntextKeeper/dist/hooks/precompact.js"
           }
         ]
       }
@@ -173,7 +173,7 @@ cat > ~/.claude/hooks/c0ntextkeeper-hook.sh << 'EOF'
 echo "[$(date)] Hook triggered" >> ~/.c0ntextkeeper/hook.log
 
 # Execute the actual hook
-node /Users/jasonbrown/Projects/c0ntextKeeper/dist/hooks/precompact.js
+node ~/Projects/c0ntextKeeper/dist/hooks/precompact.js
 
 # Capture exit code
 EXIT_CODE=$?
@@ -193,7 +193,7 @@ chmod +x ~/.claude/hooks/c0ntextkeeper-hook.sh
 
 Then update settings.json to use the wrapper:
 ```json
-"command": "/Users/jasonbrown/.claude/hooks/c0ntextkeeper-hook.sh"
+"command": "~/.claude/hooks/c0ntextkeeper-hook.sh"
 ```
 
 ## Verification Steps
@@ -313,7 +313,7 @@ node scripts/test-extraction.js
 **Solutions:**
 ```bash
 # Make hook executable
-chmod +x /Users/jasonbrown/Projects/c0ntextKeeper/dist/hooks/precompact.js
+chmod +x ~/Projects/c0ntextKeeper/dist/hooks/precompact.js
 
 # Ensure archive directory is writable
 mkdir -p ~/.c0ntextkeeper/archive

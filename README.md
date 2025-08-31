@@ -2,18 +2,31 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-08-29
+> Last Updated: 2025-08-30
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/badge/version-0.3.0-blue)](https://www.npmjs.com/package/c0ntextkeeper)
+[![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
+[![Downloads](https://img.shields.io/npm/dt/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
+[![codecov](https://codecov.io/gh/Capnjbrown/c0ntextKeeper/branch/main/graph/badge.svg)](https://codecov.io/gh/Capnjbrown/c0ntextKeeper)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple)](https://modelcontextprotocol.io)
 [![🤖 Fully Automatic](https://img.shields.io/badge/🤖-Fully%20Automatic-success)](https://github.com/Capnjbrown/c0ntextKeeper#-how-it-works-automatically)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![GitHub Stars](https://img.shields.io/github/stars/Capnjbrown/c0ntextKeeper?style=social)](https://github.com/Capnjbrown/c0ntextKeeper/stargazers)
 
-## 🚀 What's New in v0.3.0
+## 🚀 What's New in v0.4.0
+
+### 🎯 Ready for Open Source
+- **🔒 Security Hardened** - Removed all sensitive data
+- **📝 Community Ready** - Added CODE_OF_CONDUCT, issue/PR templates
+- **🛡️ Security Policy** - Clear vulnerability reporting process
+- **📊 Enhanced Badges** - Dynamic npm, coverage, and star badges
+- **📚 Complete Documentation** - Branch strategy, repository settings
+- **✅ Validation Script** - Ensure public readiness
+
+## 📈 Previous Release - v0.3.0
 
 ### 📊 Analytics Dashboard & Enhanced Tracking
 - **📈 Analytics Dashboard** - Beautiful statistics in every archive README
@@ -90,15 +103,17 @@ Every time Claude Code runs `/compact` (manually OR automatically), valuable con
 ## 🚀 Quick Start
 
 ```bash
-# Install globally
+# Step 1: Install globally
 npm install -g c0ntextkeeper
 
-# Run setup wizard
+# Step 2: Run setup wizard (REQUIRED)
 c0ntextkeeper setup
 
-# Verify installation
-c0ntextkeeper validate
+# Step 3: Verify installation
+c0ntextkeeper status
 ```
+
+**Important:** The `c0ntextkeeper setup` command is REQUIRED after installation to configure the hooks with Claude Code.
 
 That's it! c0ntextKeeper now automatically captures context before each `/compact`.
 
@@ -131,11 +146,39 @@ c0ntextKeeper requires **zero effort** after installation:
 ### Global Installation (Recommended)
 
 ```bash
-# Install globally via npm
+# Step 1: Install globally via npm
 npm install -g c0ntextkeeper
 
-# Run the setup wizard
+# Step 2: Run the setup wizard (REQUIRED)
 c0ntextkeeper setup
+
+# The setup command will:
+# - Configure Claude Code hooks
+# - Create necessary directories
+# - Verify installation
+# - Show next steps
+```
+
+### Development Installation
+
+For developers working on c0ntextKeeper itself:
+
+```bash
+# Clone the repository
+git clone https://github.com/Capnjbrown/c0ntextKeeper.git
+cd c0ntextKeeper
+
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+
+# Link for global CLI access
+npm link
+
+# Now you can use 'c0ntextkeeper' command globally
+c0ntextkeeper status
 ```
 
 ### Project Installation
@@ -278,7 +321,7 @@ The migration tool:
 ```
 User: "How did we fix the JWT authentication error last time?"
 Claude: *Uses fetch_context tool*
-Found relevant context from 2024-01-15:
+Found relevant context from 2025-08-15:
 - Problem: JWT validation failing with 'invalid signature'
 - Solution: Updated the secret key rotation logic in auth.ts
 - Implementation: Modified validateJWT() to handle key rotation
@@ -298,7 +341,7 @@ Recurring command patterns:
 ```
 User: "Why did we choose Redis over PostgreSQL for caching?"
 Claude: *Uses search_archive tool*
-Decision from 2024-01-10:
+Decision from 2025-08-10:
 - Chose Redis for session storage
 - Rationale: Better performance for key-value operations
 - Impact: 10x faster session retrieval

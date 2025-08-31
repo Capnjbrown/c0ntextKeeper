@@ -5,6 +5,28 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-08-30
+
+### Added
+- **GitHub Templates** for issues and pull requests
+- **CODE_OF_CONDUCT.md** with Contributor Covenant
+- **SECURITY.md** with vulnerability reporting guidelines
+- **Repository Settings Guide** in .github/REPOSITORY_SETTINGS.md
+- **Branch Strategy Documentation** in .github/BRANCH_STRATEGY.md
+- **Public Readiness Validation Script** at scripts/validate-public-ready.sh
+- **Enhanced README Badges** including npm downloads, codecov, and GitHub stars
+- **Post-install script** for automatic setup after npm install
+
+### Changed
+- **README badges** updated to use dynamic shields.io badges
+- **Repository prepared for public release** with comprehensive documentation
+- **Security improvements** with removal of sensitive files
+
+### Security
+- Removed exposed GitHub token from .env file
+- Enhanced .gitignore for better security
+- Added security policy for vulnerability reporting
+
 ## [0.3.0] - 2025-08-29
 
 ### Added
