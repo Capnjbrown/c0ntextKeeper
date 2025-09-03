@@ -2,7 +2,7 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-09-02
+> Last Updated: 2025-09-03
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
@@ -546,12 +546,14 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ### Quick Contribution Guide
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`npm test`) and linting (`npm run lint`)
-5. Commit using conventional commits (`feat:`, `fix:`, etc.)
-6. Push to your branch
-7. Open a Pull Request
+2. Review [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) for technical architecture
+3. Create a feature branch (`git checkout -b feature/amazing-feature`)
+4. Make your changes
+5. Update PROJECT_CONTEXT.md if making architectural changes
+6. Run tests (`npm test`) and linting (`npm run lint`)
+7. Commit using conventional commits (`feat:`, `fix:`, etc.)
+8. Push to your branch
+9. Open a Pull Request
 
 ### Areas for Contribution
 

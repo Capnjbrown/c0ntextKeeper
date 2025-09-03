@@ -1,5 +1,7 @@
 # c0ntextKeeper - MCP Context Preservation System
 
+> **📋 NOTE**: This file contains workflow guidelines. For technical specifications and current project state, see **[PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md)** - the authoritative source of truth.
+
 ## Project Vision
 Building an MCP server that intelligently preserves valuable context from Claude Code sessions during compaction, ensuring no critical knowledge is lost between conversations.
 
@@ -9,6 +11,23 @@ c0ntextKeeper addresses the context loss problem in Claude Code by:
 - Preserving context before compaction hooks trigger
 - Providing searchable access to historical context via MCP tools
 - Building a knowledge graph of project-specific learnings
+
+## 📋 CRITICAL: PROJECT_CONTEXT.md is the Single Source of Truth
+
+**MANDATORY READING**: Before starting ANY work on this project, you MUST:
+1. Read the complete PROJECT_CONTEXT.md file
+2. Use it as your primary reference for project state
+3. Update it IMMEDIATELY when making significant changes
+
+PROJECT_CONTEXT.md contains:
+- Complete project identification and purpose
+- All technical specifications and architecture
+- Current implementation status
+- Known issues and technical debt
+- Important file references
+- Analysis metadata
+
+⚠️ **This CLAUDE.md file provides workflow guidelines, but PROJECT_CONTEXT.md is the authoritative technical reference.**
 
 ## Current Development Status
 
@@ -317,6 +336,7 @@ Always start with sequential-thinking for complex problems, then research with g
 ### 🎯 MANDATORY: Sequential-Thinking First Policy
 
 **BEFORE starting ANY task, you MUST:**
+0. Read PROJECT_CONTEXT.md for current project state
 1. Use `mcp__sequential-thinking__sequentialthinking` to analyze the task
 2. Determine the most optimal MCP server(s) for the job
 3. Plan the approach and execution strategy
@@ -529,67 +549,86 @@ npm start
 
 ## Documentation Maintenance
 
-### Proactive README Update Policy
+### 🎯 PROJECT_CONTEXT.md Update Policy (HIGHEST PRIORITY)
 
-**IMMEDIATELY update README.md when ANY of the following occur:**
+**PROJECT_CONTEXT.md is the AUTHORITATIVE SOURCE OF TRUTH and must be updated IMMEDIATELY when:**
 
-#### Triggers for Updates
-1. **Dependencies**
-   - New package added
-   - Package removed
-   - Version updates (major/minor)
-   - Security patches
+#### Mandatory Update Triggers
+1. **Version Changes**
+   - Package version updates
+   - Extraction algorithm version changes
+   - MCP server version updates
 
-2. **Features**
-   - New feature implemented
-   - Feature removed or deprecated
-   - Feature behavior changed
+2. **Architecture Changes**
+   - New modules or components added
+   - Directory structure modifications
+   - Design pattern changes
+   - Storage system updates
 
-3. **Configuration**
-   - Environment variables added/changed
-   - Config file format modified
-   - Default settings updated
+3. **Feature Implementation**
+   - New features completed
+   - Features deprecated or removed
+   - Feature behavior modifications
+   - Hook implementations
 
-4. **Architecture**
-   - Project structure changes
-   - New directories/files added
-   - Design patterns modified
+4. **Dependencies**
+   - New packages added/removed
+   - Major version updates
+   - Security patches applied
 
-5. **API/Interface**
-   - New endpoints/methods
-   - Parameter changes
-   - Response format updates
+5. **API/Interface Changes**
+   - New MCP tools added
+   - Tool parameters modified
+   - CLI commands added/changed
+   - Hook interfaces updated
 
-6. **Build/Deployment**
-   - Build process changes
-   - Deployment steps modified
-   - New scripts added
+6. **Testing & Quality**
+   - Test coverage changes
+   - New test files added
+   - Performance benchmarks documented
+   - Known issues discovered
 
-#### Update Process
-1. Detect change during development
-2. Immediately update relevant README section
-3. Ensure examples still work
-4. Update version/date if applicable
-5. Verify links and references
+7. **Configuration Changes**
+   - New environment variables
+   - Config file format updates
+   - Default settings modified
 
-#### Documentation Sync
-- Keep README.md in sync with:
-  - CLAUDE.md (project context)
-  - MCP-USAGE.md (server documentation)
-  - MCP-TESTING.md (testing procedures)
-  - package.json (dependencies)
-  - .env.example (configuration)
+#### How to Update PROJECT_CONTEXT.md
+1. **Read current version** before making changes
+2. **Update relevant sections** as you work
+3. **Keep version history** accurate
+4. **Update "Last Generated" date** at the top
+5. **Verify all technical details** are correct
+6. **Cross-reference** with other documentation
+
+#### Documentation Hierarchy
+1. **PROJECT_CONTEXT.md** - Single source of truth (UPDATE FIRST)
+2. **README.md** - User-facing documentation (UPDATE SECOND)
+3. **CLAUDE.md** - This file - workflow guidelines (UPDATE THIRD)
+4. Other documentation files as needed
+
+### README Update Policy
+
+**After updating PROJECT_CONTEXT.md, update README.md when ANY user-facing changes occur:**
+
+#### Triggers for README Updates
+1. **Dependencies** - User-visible changes
+2. **Features** - New functionality
+3. **Configuration** - Setup changes
+4. **Installation** - Process modifications
+5. **Usage** - Command changes
+6. **API** - Public interface updates
 
 ### Version Tracking
-Include last updated timestamp in README:
+Include last updated timestamp:
 ```markdown
-> Last Updated: 2025-08-30
+> Last Updated: YYYY-MM-DD
 ```
 
 ### Cross-Reference Maintenance
-When updating any documentation file:
-1. Check for references in other files
-2. Update cross-references
+When updating documentation:
+1. **Start with PROJECT_CONTEXT.md**
+2. Update other files based on changes
 3. Ensure consistency across all docs
 4. Verify all links work
 
@@ -669,6 +708,8 @@ When updating any documentation file:
 
 ### Standard Development Flow
 
+**📋 STEP 0: ALWAYS READ PROJECT_CONTEXT.md FIRST**
+
 **⚠️ IMPORTANT: Always start with Task Execution Protocol (sequential-thinking first)**
 
 1. **Analyze task** with `mcp__sequential-thinking__sequentialthinking`
@@ -697,11 +738,19 @@ When updating any documentation file:
    - Manual verification
 
 6. **Update documentation** 
-   - Update README.md immediately for any changes
-   - Sync CLAUDE.md if architecture changes
+   - Update PROJECT_CONTEXT.md FIRST for any significant changes
+   - Update README.md for user-facing changes
+   - Sync CLAUDE.md if workflow changes
    - Update MCP-USAGE.md for new patterns
 
-7. **Prepare git commit** (when requested)
+7. **Update PROJECT_CONTEXT.md** 
+   - Document any architecture changes
+   - Update feature status
+   - Add new dependencies
+   - Update known issues
+   - Modify version information
+
+8. **Prepare git commit** (when requested)
    - Run git status
    - Review changes
    - Draft conventional commit message
@@ -769,9 +818,12 @@ MIT - Open source for the community
 ## Notes
 
 ### Critical Reminders
+- **ALWAYS** read PROJECT_CONTEXT.md before starting work
+- **IMMEDIATELY** update PROJECT_CONTEXT.md for any significant changes
+- **PROJECT_CONTEXT.md** is the single source of truth - keep it current
 - **ALWAYS** use sequential-thinking BEFORE any task
 - **NEVER** execute git commits - only draft messages
-- **IMMEDIATELY** update README.md for any project changes
+- **IMMEDIATELY** update README.md for any user-facing changes
 - **ALWAYS** use current date when adding timestamps (run `date` or `node scripts/get-timestamp.js`)
 - MCP servers are configured at project level for isolation
 - Filesystem access restricted to this directory only: `/Users/jasonbrown/Projects/c0ntextKeeper`
