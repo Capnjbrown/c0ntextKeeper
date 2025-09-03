@@ -4,6 +4,14 @@
 
 c0ntextKeeper uses multiple Claude Code hooks to capture context at different points in your workflow. The primary PreCompact hook works **completely automatically** - capturing context both when you manually run `/compact` and when Claude Code automatically compacts due to context size limits. This guide explains how to customize which hooks are active and what they capture.
 
+### 🚀 v0.5.1 Session Quality Improvements
+- **📝 Better Content Preservation** - Configurable limits up to 2000 chars
+- **🏷️ Smarter Session Naming** - 100+ stopwords filter, no more "that"/"then"
+- **📂 Enhanced File Tracking** - Proper paths for Bash, TodoWrite, all tools
+- **📊 Improved Scoring** - TodoWrite (0.5), Bash (0.4), better admin tools
+- **⏱️ Fixed Duration** - No negative values in metadata
+- **⚙️ Configurable Limits** - New contentLimits in config.ts
+
 ### 🚀 v0.5.0 Claude Code Compatibility
 - **🔧 Fixed JSONL Parsing** - Handles Claude's embedded content arrays
 - **📈 Correct Relevance Scoring** - User questions now score 1.0
@@ -34,15 +42,18 @@ c0ntextKeeper uses multiple Claude Code hooks to capture context at different po
 - **When**: 
   - Before manual `/compact` command
   - Before automatic compaction by Claude Code (no action required!)
-- **Captures** (enhanced v0.5.0): 
+- **Captures** (enhanced v0.5.1): 
   - Entire session transcript with Claude format parsing
+  - Questions/solutions preserved up to 2000 chars (configurable)
+  - Implementations preserved up to 1000 chars
   - User questions with 1.0 relevance scoring
-  - Tool usage via proper tool_use/tool_result extraction
-  - Tool usage statistics (counts per tool)
-  - Session duration in milliseconds
+  - Tool usage with improved file path tracking
+  - Tool usage statistics (enhanced scoring for admin tools)
+  - Session duration (fixed calculation, no negatives)
   - Files modified during session
   - Most relevant problems (50+ semantic patterns)
   - Decisions and patterns
+  - Meaningful session names (100+ stopwords filtered)
 - **Analytics Generated**:
   - Project-wide tool usage trends
   - Average relevance scores

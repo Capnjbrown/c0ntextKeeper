@@ -100,9 +100,13 @@ export class RelevanceScorer {
         );
       }
 
-      // Other valuable tools
+      // Administrative and CLI tools
+      if (toolName === "TodoWrite") {
+        factors.toolComplexity = 0.5; // Task management is valuable
+        factors.hasDecision = true; // Todo management implies decision-making
+      }
       if (toolName === "Bash") {
-        factors.toolComplexity = 0.5;
+        factors.toolComplexity = 0.4; // Increased from 0.5 to 0.4 base
       }
       if (["Read", "View", "Grep", "Search"].includes(toolName)) {
         factors.toolComplexity = 0.3;
@@ -188,6 +192,28 @@ export class RelevanceScorer {
 
       case "NotebookEdit":
         complexity = 0.7;
+        break;
+      case "TodoWrite":
+        // Task management and planning
+        complexity = 0.5;
+        if (input?.todos && Array.isArray(input.todos)) {
+          complexity = Math.min(0.5 + input.todos.length * 0.05, 0.8);
+        }
+        break;
+      case "Bash":
+        // Command execution
+        complexity = 0.4;
+        if (input?.command && input.command.includes("git")) {
+          complexity = 0.5; // Git operations are more important
+        }
+        break;
+      case "Grep":
+      case "Search":
+        // Search operations
+        complexity = 0.3;
+        if (input?.pattern && input.pattern.length > 20) {
+          complexity = 0.4; // Complex searches are more valuable
+        }
         break;
 
       default:

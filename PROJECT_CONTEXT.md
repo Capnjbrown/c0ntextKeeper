@@ -1,6 +1,7 @@
 # Project Context Document
 <!-- Generated: 2025-09-03 -->
 <!-- Generator: Claude Code CLI Context Discovery -->
+<!-- Last Updated: 2025-09-03 for v0.5.1 -->
 
 ## Project Identification
 
@@ -8,11 +9,11 @@
 - **Project Name**: c0ntextKeeper
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
-- **Version**: 0.5.0 (Package) / 0.5.0 (Extraction Algorithm) / 0.1.0 (MCP Server - needs update)
+- **Version**: 0.5.1 (Package) / 0.5.1 (Extraction Algorithm) / 0.1.0 (MCP Server - needs update)
 - **Repository**: https://github.com/Capnjbrown/c0ntextKeeper
 
 ### Purpose Statement
-c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 50+ semantic patterns, making them instantly retrievable through MCP tools. The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. The system works fully automatically, requiring zero manual intervention after initial setup.
+c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 50+ semantic patterns, making them instantly retrievable through MCP tools. The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. The system works fully automatically, requiring zero manual intervention after initial setup.
 
 ## Discovery Findings
 
@@ -44,11 +45,11 @@ c0ntextKeeper/
 │   │   └── hooks-manager.ts   # Hook configuration management
 │   ├── core/                  # Core business logic
 │   │   ├── archiver.ts        # Context archival logic
-│   │   ├── config.ts          # Configuration management
-│   │   ├── extractor.ts       # Context extraction engine (50+ patterns)
+│   │   ├── config.ts          # Configuration management (v0.5.1: contentLimits)
+│   │   ├── extractor.ts       # Context extraction engine (v0.5.1: 2000 char limits)
 │   │   ├── patterns.ts        # Pattern recognition and analysis
 │   │   ├── retriever.ts       # Context retrieval and search
-│   │   ├── scorer.ts          # Relevance scoring algorithm
+│   │   ├── scorer.ts          # Relevance scoring (v0.5.1: enhanced admin tools)
 │   │   └── types.ts           # TypeScript type definitions
 │   ├── hooks/                 # Claude Code hook handlers
 │   │   ├── precompact.ts      # PreCompact hook (auto/manual capture)
@@ -65,7 +66,7 @@ c0ntextKeeper/
 │   │   ├── formatter.ts       # Display formatting utilities
 │   │   ├── logger.ts          # Logging infrastructure
 │   │   ├── security-filter.ts # Sensitive data filtering
-│   │   ├── session-namer.ts   # Session naming logic
+│   │   ├── session-namer.ts   # Session naming (v0.5.1: 100+ stopwords)
 │   │   └── transcript.ts      # JSONL transcript parser
 │   └── cli.ts                 # CLI entry point
 ├── scripts/                   # Utility and setup scripts
@@ -84,12 +85,12 @@ c0ntextKeeper/
 ### Entry Points & Main Components
 - **Main Entry**: `dist/cli.js` (CLI) and `dist/server/index.js` (MCP server)
 - **Core Modules**:
-  - **Extractor**: Analyzes JSONL transcripts with 50+ semantic patterns
-  - **Scorer**: Multi-factor relevance scoring (user questions score 1.0)
+  - **Extractor**: Analyzes JSONL transcripts with 50+ semantic patterns (v0.5.1: configurable content limits up to 2000 chars)
+  - **Scorer**: Multi-factor relevance scoring (v0.5.1: TodoWrite 0.5, Bash 0.4, improved admin tools)
   - **Archiver**: Manages context storage with analytics
   - **Retriever**: Fast context search and retrieval
   - **Patterns**: Identifies recurring solutions and approaches
-- **Configuration Loading**: Via `config.ts` and `~/.c0ntextkeeper/config.json`
+- **Configuration Loading**: Via `config.ts` with contentLimits (v0.5.1) and `~/.c0ntextkeeper/config.json`
 
 ## Functionality Analysis
 
@@ -102,8 +103,10 @@ c0ntextKeeper/
 | PostToolUse hook | `/src/hooks/posttool.ts` | Captures tool usage patterns | ✅ Implemented |
 | Stop hook | `/src/hooks/stop.ts` | Saves complete Q&A exchanges | ✅ Implemented |
 | JSONL transcript parsing | `/src/utils/transcript.ts` | Claude Code format with embedded arrays | ✅ Active |
-| Problem/solution extraction | `/src/core/extractor.ts` | 50+ semantic patterns (v0.5.0) | ✅ Active |
-| Relevance scoring | `/src/core/scorer.ts` | User questions score 1.0 (fixed in v0.5.0) | ✅ Active |
+| Problem/solution extraction | `/src/core/extractor.ts` | 50+ semantic patterns, configurable limits (v0.5.1) | ✅ Active |
+| Relevance scoring | `/src/core/scorer.ts` | Enhanced admin tool scoring (v0.5.1) | ✅ Active |
+| Session naming | `/src/utils/session-namer.ts` | 100+ stopwords, smart fallbacks (v0.5.1) | ✅ Active |
+| Content preservation | `/src/core/config.ts` | Configurable limits: 2000/1000 chars (v0.5.1) | ✅ Active |
 | Pattern recognition | `/src/core/patterns.ts` | Recurring pattern identification | ✅ Active |
 | Security filtering | `/src/utils/security-filter.ts` | API key and PII redaction | ✅ Active |
 | Analytics dashboard | `/src/core/archiver.ts` | Rich statistics in README.md per archive | ✅ Active |

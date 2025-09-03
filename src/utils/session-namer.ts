@@ -42,6 +42,17 @@ export function generateSessionName(context: ExtractedContext): string {
   // Extract description from context
   const description = extractDescription(context);
 
+  // Debug logging
+  if (process.env.C0NTEXTKEEPER_DEBUG === "true") {
+    console.log("[SessionNamer] Generating name for context:");
+    console.log(`  Problems: ${context.problems.length}`);
+    console.log(`  Implementations: ${context.implementations.length}`);
+    console.log(`  Decisions: ${context.decisions.length}`);
+    console.log(`  Files modified: ${context.metadata.filesModified.length}`);
+    console.log(`  Tools used: ${context.metadata.toolsUsed.join(", ")}`);
+    console.log(`  Generated description: ${description}`);
+  }
+
   // Build filename: YYYY-MM-DD_HHMM_MT_description.json
   return `${year}-${month}-${day}_${time}_MT_${description}.json`;
 }
@@ -73,9 +84,13 @@ function extractDescription(context: ExtractedContext): string {
   else if (context.metadata.toolsUsed.length > 0) {
     description = getDescriptionFromTools(context.metadata.toolsUsed);
   }
-  // Fallback to generic
+  // Better fallback: use timestamp if no meaningful content
   else {
-    description = "general-session";
+    const time = new Date(context.timestamp);
+    const hours = time.getHours().toString().padStart(2, "0");
+    const minutes = time.getMinutes().toString().padStart(2, "0");
+    const seconds = time.getSeconds().toString().padStart(2, "0");
+    description = `session-${hours}${minutes}${seconds}`;
   }
 
   // Sanitize for filesystem
@@ -87,7 +102,12 @@ function extractDescription(context: ExtractedContext): string {
  */
 function getDescriptionFromProblems(problems: Problem[]): string {
   // Look for key problem indicators
-  const keywords = extractKeywords(problems.map((p) => p.question).join(" "));
+  const problemText = problems.map((p) => p.question).join(" ");
+  const keywords = extractKeywords(problemText);
+
+  if (process.env.C0NTEXTKEEPER_DEBUG === "true") {
+    console.log("[SessionNamer] Extracted keywords from problems:", keywords.slice(0, 5));
+  }
 
   if (
     keywords.includes("error") ||
@@ -111,23 +131,53 @@ function getDescriptionFromProblems(problems: Problem[]): string {
     return "refactoring";
   }
 
-  // Use first significant keyword
+  // Common English words to exclude (stopwords)
+  const stopwords = new Set([
+    // Articles
+    "the", "a", "an",
+    // Conjunctions
+    "and", "or", "but", "nor", "for", "yet", "so",
+    // Pronouns
+    "that", "this", "these", "those", "them", "they", "their", "there",
+    "then", "than", "here", "where", "what", "which", "who", "whom",
+    "whose", "when", "why", "how", "all", "both", "each", "few", "more",
+    "most", "other", "some", "such", "any", "every",
+    // Auxiliary verbs
+    "will", "would", "could", "should", "shall", "might", "must",
+    "can", "may", "have", "has", "had", "having", "do", "does", "did",
+    "done", "doing", "been", "being", "was", "were", "are", "is", "am",
+    // Prepositions
+    "from", "with", "into", "onto", "upon", "about", "above", "across",
+    "after", "against", "along", "among", "around", "at", "before",
+    "behind", "below", "beneath", "beside", "between", "beyond", "by",
+    "down", "during", "except", "for", "inside", "like", "near", "of",
+    "off", "on", "over", "since", "through", "throughout", "till", "to",
+    "toward", "under", "until", "up", "within", "without",
+    // Common words
+    "just", "only", "also", "very", "much", "many", "now", "well",
+    "even", "back", "still", "too", "quite", "almost", "enough",
+    "though", "although", "while", "whether", "either", "neither",
+    "because", "since", "unless", "until", "while", "our", "your",
+    "its", "my", "his", "her", "use", "used", "using", "make", "made",
+    "get", "got", "getting", "give", "gave", "given", "take", "took",
+    "taken", "come", "came", "coming", "go", "went", "going", "gone",
+  ]);
+
+  // Filter out stopwords and find first significant keyword
   const significant = keywords.find(
-    (k) =>
-      ![
-        "the",
-        "and",
-        "or",
-        "but",
-        "how",
-        "what",
-        "when",
-        "where",
-        "why",
-      ].includes(k.toLowerCase()),
+    (k) => !stopwords.has(k.toLowerCase()) && k.length > 3
   );
 
-  return significant ? significant.toLowerCase() : "problem-solving";
+  // If no significant keyword found, return more specific fallback
+  if (!significant) {
+    // Try to use tags if available
+    if (problems[0]?.tags && problems[0].tags.length > 0) {
+      return problems[0].tags[0].toLowerCase();
+    }
+    return "session-work";
+  }
+
+  return significant.toLowerCase();
 }
 
 /**
@@ -232,15 +282,51 @@ function getDescriptionFromTools(tools: string[]): string {
 }
 
 /**
- * Extract keywords from text
+ * Extract keywords from text with improved filtering
  */
 function extractKeywords(text: string): string[] {
-  // Remove common words and extract meaningful keywords
+  // Comprehensive stopwords list
+  const stopwords = new Set([
+    // Articles
+    "the", "a", "an",
+    // Conjunctions  
+    "and", "or", "but", "nor", "for", "yet", "so",
+    // Pronouns
+    "that", "this", "these", "those", "them", "they", "their", "there",
+    "then", "than", "here", "where", "what", "which", "who", "whom",
+    "whose", "when", "why", "how", "all", "both", "each", "few", "more",
+    "most", "other", "some", "such", "any", "every", "another", "it", "its",
+    // Auxiliary verbs
+    "will", "would", "could", "should", "shall", "might", "must", "may",
+    "can", "have", "has", "had", "having", "do", "does", "did", "done",
+    "doing", "been", "being", "was", "were", "are", "is", "am", "be",
+    // Prepositions
+    "from", "with", "into", "onto", "upon", "about", "above", "across",
+    "after", "against", "along", "among", "around", "at", "before",
+    "behind", "below", "beneath", "beside", "between", "beyond", "by",
+    "down", "during", "except", "for", "inside", "like", "near", "of",
+    "off", "on", "over", "since", "through", "throughout", "till", "to",
+    "toward", "under", "until", "up", "within", "without",
+    // Common words
+    "just", "only", "also", "very", "much", "many", "now", "well", "even",
+    "back", "still", "too", "quite", "almost", "enough", "though", "although",
+    "while", "whether", "either", "neither", "because", "unless", "our",
+    "your", "my", "his", "her", "use", "used", "using", "make", "made",
+    "get", "got", "getting", "give", "gave", "given", "take", "took",
+    "taken", "come", "came", "coming", "go", "went", "going", "gone",
+    "need", "needs", "needed", "want", "wants", "wanted", "find", "found",
+    "know", "knows", "known", "think", "thinks", "thought", "look", "looks",
+    "looked", "let", "lets", "mean", "means", "meant", "keep", "keeps",
+    "kept", "seem", "seems", "seemed", "ask", "asks", "asked", "tell",
+    "tells", "told", "show", "shows", "shown", "say", "says", "said",
+  ]);
+
+  // Extract words, filter stopwords and short words
   const words = text
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
-    .filter((word) => word.length > 3);
+    .filter((word) => word.length > 3 && !stopwords.has(word));
 
   // Count word frequency
   const frequency: Record<string, number> = {};
@@ -249,10 +335,18 @@ function extractKeywords(text: string): string[] {
   });
 
   // Sort by frequency and return top keywords
-  return Object.entries(frequency)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
+  // Prefer longer, more specific words
+  const keywords = Object.entries(frequency)
+    .sort((a, b) => {
+      // First sort by frequency
+      if (b[1] !== a[1]) return b[1] - a[1];
+      // Then prefer longer words as they're usually more specific
+      return b[0].length - a[0].length;
+    })
+    .slice(0, 10) // Get more candidates
     .map(([word]) => word);
+
+  return keywords;
 }
 
 /**

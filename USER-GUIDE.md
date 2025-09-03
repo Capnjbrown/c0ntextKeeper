@@ -46,7 +46,7 @@ c0ntextKeeper stores all data locally on your Mac in hidden directories within y
 
 ## 📊 Understanding Your Analytics Dashboard
 
-Starting with v0.3.0 (enhanced in v0.5.0), every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy. Here's what you'll find:
+Starting with v0.3.0 (enhanced in v0.5.0, quality improvements in v0.5.1), every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy and better session naming. Here's what you'll find:
 
 ### Project Analytics Section
 - **Total Sessions**: Number of times context was preserved
@@ -64,6 +64,7 @@ Starting with v0.3.0 (enhanced in v0.5.0), every project archive includes a comp
 ### Quality Metrics
 - **Average Relevance Score**: How valuable your preserved context is (0-100%)
   - v0.5.0+: User questions now properly score 100% relevance
+  - v0.5.1+: Administrative tools (TodoWrite, Bash) have enhanced scoring
   - Improved with 50+ semantic patterns for better detection
 - **Files Modified**: Total unique files changed across sessions
 - **Archive Version**: Version of c0ntextKeeper that created the archive
@@ -72,9 +73,9 @@ Starting with v0.3.0 (enhanced in v0.5.0), every project archive includes a comp
 
 ### Session Details
 Each session entry in the README shows:
-- **Description**: What you were working on
-- **Stats**: Problems, implementations, decisions count
-- **Tools Used**: Which tools were employed
+- **Description**: What you were working on (v0.5.1: meaningful names, no more "that" or "then"!)
+- **Stats**: Problems, implementations, decisions count (v0.5.1: preserves up to 2000 chars)
+- **Tools Used**: Which tools were employed (v0.5.1: better file path tracking)
 - **Key Issue**: The main problem addressed
 - **Relevance**: How important this session was
 

@@ -36,6 +36,12 @@ export interface C0ntextKeeperConfig {
     relevanceThreshold?: number;
     maxContextItems?: number;
     enablePatternRecognition?: boolean;
+    contentLimits?: {
+      question?: number;
+      solution?: number;
+      implementation?: number;
+      decision?: number;
+    };
   };
   security: {
     filterSensitiveData?: boolean;
@@ -73,6 +79,12 @@ const DEFAULT_CONFIG: C0ntextKeeperConfig = {
     relevanceThreshold: 0.5,
     maxContextItems: 50,
     enablePatternRecognition: true,
+    contentLimits: {
+      question: 2000,
+      solution: 2000,
+      implementation: 1000,
+      decision: 500,
+    },
   },
   security: {
     filterSensitiveData: true,

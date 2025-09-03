@@ -4,6 +4,14 @@
 
 c0ntextKeeper uses Claude Code's hook system to automatically capture and preserve valuable context at multiple points in your workflow. The primary PreCompact hook works **completely automatically** - capturing context both when you manually run `/compact` and when Claude Code automatically compacts context due to size limits.
 
+### 🚀 v0.5.1 Quality Improvements
+- **Better Content Preservation**: Configurable limits up to 2000 chars for questions/solutions
+- **Smarter Session Naming**: Fixed "that"/"then" issue with 100+ stopwords filter
+- **Enhanced File Tracking**: Better path resolution for all tools (Bash, TodoWrite, etc.)
+- **Improved Relevance Scoring**: TodoWrite (0.5), Bash (0.4), better admin tool scores
+- **Fixed Duration Calculation**: No more negative durations in metadata
+- **Configurable Content Limits**: New settings in config.ts for preservation thresholds
+
 ### 🚀 v0.5.0 Critical Fixes
 - **Claude Code Compatibility**: Properly parses embedded content arrays in JSONL
 - **Fixed Relevance Scoring**: User questions now score 1.0 (was 0.06)
@@ -38,15 +46,17 @@ c0ntextKeeper implements 4 powerful hooks:
 
 1. **PreCompact** (Enabled by default)
    - Fires before context compaction (both manual `/compact` and automatic)
-   - Captures entire session transcript with v0.5.0 enhancements:
+   - Captures entire session transcript with v0.5.1 improvements:
+     - Configurable content limits (2000 chars for questions/solutions)
+     - Smarter session naming with 100+ stopwords
+     - Better file path tracking for all tools
+     - Enhanced relevance scoring for admin tools
+     - Fixed duration calculation (no negatives)
+   - v0.5.0 enhancements included:
      - Proper Claude Code JSONL format parsing
      - 50+ semantic patterns for problem detection
      - User questions score 1.0 relevance
      - Tool usage counts and frequency
-     - Session duration tracking
-     - Files modified during session
-     - Most relevant problems identified
-     - Extraction version for compatibility
    - Storage: `~/.c0ntextkeeper/archive/`
    - Generates analytics dashboard in README.md
 

@@ -5,6 +5,47 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2025-09-03
+
+### Fixed
+- **Content Truncation**: Increased limits from 200-500 chars to configurable 1000-2000 chars
+  - Questions and solutions now preserve up to 2000 characters
+  - Implementation descriptions preserve up to 1000 characters
+  - Decision descriptions preserve up to 500 characters
+- **Session Naming**: Fixed unhelpful names like "that" and "then"
+  - Added 100+ common English stopwords to filter
+  - Improved keyword extraction with length preference
+  - Better fallback strategies using timestamp when no keywords found
+- **File Path Tracking**: Improved for all tools
+  - Bash commands now show cwd or "bash_session"
+  - TodoWrite shows "todo_management"
+  - Tools without files use tool name as fallback
+- **Duration Calculation**: Fixed negative duration values
+  - Uses Math.min/max for proper timestamp ordering
+  - Returns absolute value to prevent negative durations
+
+### Added
+- **Configurable Content Limits** in `config.ts`
+  - `contentLimits.question`: 2000 (default)
+  - `contentLimits.solution`: 2000 (default)
+  - `contentLimits.implementation`: 1000 (default)
+  - `contentLimits.decision`: 500 (default)
+
+### Enhanced
+- **Relevance Scoring** for administrative tools
+  - TodoWrite: Now scores 0.5 with decision factor
+  - Bash: Base score 0.4 (0.5 for git commands)
+  - Grep/Search: 0.3-0.4 based on complexity
+- **Session Naming** with comprehensive stopword list
+  - Filters articles, pronouns, prepositions, auxiliary verbs
+  - Prefers longer, more specific technical terms
+  - Debug logging for troubleshooting naming issues
+
+### Changed
+- Extractor constructor now accepts contentLimits parameter
+- Session namer extractKeywords function rewritten for better filtering
+- Updated package version to 0.5.1
+
 ## [0.5.0] - 2025-09-02
 
 **Note**: v0.5.0 refers to both the npm package version and the internal extraction algorithm version. These are aligned in this release to ensure compatibility.

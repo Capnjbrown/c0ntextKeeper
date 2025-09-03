@@ -23,17 +23,30 @@ export class ContextExtractor {
   private relevanceThreshold: number;
   private maxContextItems: number;
   private enableSecurityFilter: boolean;
+  private contentLimits: {
+    question: number;
+    solution: number;
+    implementation: number;
+    decision: number;
+  };
 
   constructor(
     relevanceThreshold = 0.5,
     maxContextItems = 50,
     enableSecurityFilter = true,
+    contentLimits = {
+      question: 2000,
+      solution: 2000,
+      implementation: 1000,
+      decision: 500,
+    },
   ) {
     this.scorer = new RelevanceScorer();
     this.securityFilter = new SecurityFilter();
     this.relevanceThreshold = relevanceThreshold;
     this.maxContextItems = maxContextItems;
     this.enableSecurityFilter = enableSecurityFilter;
+    this.contentLimits = contentLimits;
   }
 
   /**
@@ -56,8 +69,10 @@ export class ContextExtractor {
       console.log("[Extractor] Entry types:", typeCounts);
     }
 
-    const startTime = new Date(entries[0].timestamp).getTime();
-    const endTime = new Date(entries[entries.length - 1].timestamp).getTime();
+    // Ensure proper timestamp ordering for duration calculation
+    const timestamps = entries.map(e => new Date(e.timestamp).getTime());
+    const startTime = Math.min(...timestamps);
+    const endTime = Math.max(...timestamps);
 
     let context: ExtractedContext = {
       sessionId: entries[0]?.sessionId || this.generateSessionId(),
@@ -70,7 +85,7 @@ export class ContextExtractor {
       patterns: [],
       metadata: {
         entryCount: entries.length,
-        duration: endTime - startTime,
+        duration: Math.abs(endTime - startTime),
         toolsUsed: [],
         toolCounts: {},
         filesModified: [],
@@ -170,7 +185,7 @@ export class ContextExtractor {
         if (isProblem) {
           currentProblem = {
             id: this.generateId(),
-            question: content.slice(0, 500),
+            question: content.slice(0, this.contentLimits.question),
             timestamp: entry.timestamp,
             tags: this.extractTags(content),
             relevance: relevance,
@@ -222,11 +237,11 @@ export class ContextExtractor {
 
         // If we have a potential solution from tool use, enhance it
         if (potentialSolution) {
-          potentialSolution.approach = content.slice(0, 200);
+          potentialSolution.approach = content.slice(0, this.contentLimits.solution);
           currentProblem.solution = potentialSolution;
         } else if (this.isSolutionIndicator(content)) {
           currentProblem.solution = {
-            approach: content.slice(0, 500),
+            approach: content.slice(0, this.contentLimits.solution),
             files: [],
             successful: true,
           };
@@ -262,11 +277,27 @@ export class ContextExtractor {
 
         // Track ALL tools as potential implementations
         {
-          const file =
+          // Extract file path from various tool inputs
+          let file =
             entry.toolUse.input?.file_path ||
             entry.toolUse.input?.path ||
             entry.toolUse.input?.notebook_path ||
-            "unknown";
+            "";
+          
+          // For Bash commands, try to extract cwd or use project path
+          if (toolName === "Bash" && !file) {
+            file = entry.cwd || entry.toolUse.input?.cwd || "bash_session";
+          }
+          
+          // For TodoWrite, use a descriptive placeholder
+          if (toolName === "TodoWrite" && !file) {
+            file = "todo_management";
+          }
+          
+          // Default to tool name if still no file
+          if (!file) {
+            file = toolName.toLowerCase();
+          }
 
           // Look for description in previous assistant message
           let description = "";
@@ -276,7 +307,7 @@ export class ContextExtractor {
               typeof prevContent === "string"
                 ? prevContent
                 : JSON.stringify(prevContent);
-            description = prevContentStr.slice(0, 200);
+            description = prevContentStr.slice(0, this.contentLimits.implementation);
           }
 
           const implementation: Implementation = {

@@ -16,7 +16,19 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![GitHub Stars](https://img.shields.io/github/stars/Capnjbrown/c0ntextKeeper?style=social)](https://github.com/Capnjbrown/c0ntextKeeper/stargazers)
 
-## 🚀 What's New in v0.5.0
+## 🚀 What's New in v0.5.1
+
+**Package Version**: 0.5.1 | **Extraction Algorithm**: 0.5.1
+
+### 🎯 Session Quality Improvements
+- **📝 Better Content Preservation** - Increased limits from 200-500 to 1000-2000 characters
+- **🏷️ Smarter Session Naming** - Fixed "that"/"then" issue with 100+ stopwords
+- **📂 Enhanced File Tracking** - Better path resolution for Bash, TodoWrite, and other tools
+- **⚙️ Configurable Limits** - New contentLimits in config for questions/solutions/implementations
+- **📊 Improved Scoring** - TodoWrite (0.5), Bash (0.4), better admin tool relevance
+- **⏱️ Fixed Duration Calc** - No more negative durations in metadata
+
+## 🚀 Previous Release - v0.5.0
 
 **Package Version**: 0.5.0 | **Extraction Algorithm**: 0.5.0
 
@@ -661,7 +673,7 @@ For more troubleshooting, see [USER-GUIDE.md](USER-GUIDE.md#troubleshooting)
 
 ## 📊 Project Status
 
-### ✅ Completed Features (v0.5.0)
+### ✅ Completed Features (v0.5.1)
 - **Fully automatic operation** with reliable manual and auto compaction support
 - **Claude Code compatibility** with proper JSONL parsing of embedded content arrays
 - **Type safety** for all content types (strings, arrays, objects)
