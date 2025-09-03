@@ -46,6 +46,16 @@ export class ContextExtractor {
       throw new Error("No transcript entries provided");
     }
 
+    // Debug logging
+    if (process.env.C0NTEXTKEEPER_DEBUG === "true") {
+      console.log(`[Extractor] Processing ${entries.length} entries`);
+      const typeCounts = entries.reduce((acc, e) => {
+        acc[e.type] = (acc[e.type] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      console.log("[Extractor] Entry types:", typeCounts);
+    }
+
     const startTime = new Date(entries[0].timestamp).getTime();
     const endTime = new Date(entries[entries.length - 1].timestamp).getTime();
 
@@ -65,7 +75,7 @@ export class ContextExtractor {
         toolCounts: {},
         filesModified: [],
         relevanceScore: 0,
-        extractionVersion: "0.2.0",
+        extractionVersion: "0.5.0", // Fixed Claude Code format parsing and relevance scoring
       },
     };
 
@@ -80,6 +90,17 @@ export class ContextExtractor {
     context.metadata.toolCounts = this.getToolCounts(entries);
     context.metadata.filesModified = this.getModifiedFiles(entries);
     context.metadata.relevanceScore = this.calculateOverallRelevance(context);
+
+    // Debug logging
+    if (process.env.C0NTEXTKEEPER_DEBUG === "true") {
+      console.log(`[Extractor] Extraction results:`);
+      console.log(`  - Problems: ${context.problems.length}`);
+      console.log(`  - Implementations: ${context.implementations.length}`);
+      console.log(`  - Decisions: ${context.decisions.length}`);
+      console.log(`  - Patterns: ${context.patterns.length}`);
+      console.log(`  - Tools used: ${context.metadata.toolsUsed.join(", ")}`);
+      console.log(`  - Files modified: ${context.metadata.filesModified.length}`);
+    }
 
     // Limit items to maxContextItems
     context.problems = context.problems.slice(0, this.maxContextItems);
@@ -111,25 +132,53 @@ export class ContextExtractor {
     let currentProblem: Problem | null = null;
     let potentialSolution: Solution | null = null;
 
+    if (process.env.C0NTEXTKEEPER_DEBUG === "true") {
+      console.log(`[extractProblems] Processing ${entries.length} entries`);
+    }
+
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
       const relevance = this.scorer.scoreEntry(entry);
 
-      if (relevance < this.relevanceThreshold) continue;
+      if (process.env.C0NTEXTKEEPER_DEBUG === "true" && entry.type === "user") {
+        console.log(`[extractProblems] User entry: relevance=${relevance}, threshold=${this.relevanceThreshold}`);
+      }
+
+      if (relevance < this.relevanceThreshold) {
+        if (process.env.C0NTEXTKEEPER_DEBUG === "true" && entry.type === "user") {
+          console.log(`[extractProblems] Skipping user entry due to low relevance`);
+        }
+        continue;
+      }
 
       // Detect problem indicators in user messages
       if (entry.type === "user" && entry.message?.content) {
-        const content = entry.message.content;
-        if (this.isProblemIndicator(content)) {
-          const contentStr =
-            typeof content === "string" ? content : JSON.stringify(content);
+        const rawContent = entry.message.content;
+        // Normalize content to string for processing
+        const content = typeof rawContent === "string" 
+          ? rawContent 
+          : Array.isArray(rawContent) 
+            ? rawContent.map(item => item.text || '').join(' ')
+            : JSON.stringify(rawContent);
+        const isProblem = this.isProblemIndicator(content);
+        
+        if (process.env.C0NTEXTKEEPER_DEBUG === "true") {
+          console.log(`[extractProblems] User message: "${content.substring(0, 50)}..."`);
+          console.log(`[extractProblems] isProblemIndicator: ${isProblem}`);
+        }
+        
+        if (isProblem) {
           currentProblem = {
             id: this.generateId(),
-            question: contentStr.slice(0, 500),
+            question: content.slice(0, 500),
             timestamp: entry.timestamp,
             tags: this.extractTags(content),
             relevance: relevance,
           };
+          
+          if (process.env.C0NTEXTKEEPER_DEBUG === "true") {
+            console.log(`[extractProblems] Created problem: ${currentProblem.question.substring(0, 50)}...`);
+          }
         }
       }
 
@@ -151,8 +200,8 @@ export class ContextExtractor {
       }
 
       // Check tool results for success/failure
-      if (potentialSolution && entry.toolResult) {
-        if (entry.toolResult.error) {
+      if (potentialSolution && (entry.type === "tool_result" || entry.toolResult)) {
+        if (entry.toolResult?.error) {
           potentialSolution.successful = false;
         }
       }
@@ -163,17 +212,21 @@ export class ContextExtractor {
         entry.type === "assistant" &&
         entry.message?.content
       ) {
-        const content = entry.message.content;
-        const contentStr =
-          typeof content === "string" ? content : JSON.stringify(content);
+        const rawContent = entry.message.content;
+        // Normalize content to string for processing
+        const content = typeof rawContent === "string" 
+          ? rawContent 
+          : Array.isArray(rawContent)
+            ? rawContent.map(item => item.text || '').join(' ')
+            : JSON.stringify(rawContent);
 
         // If we have a potential solution from tool use, enhance it
         if (potentialSolution) {
-          potentialSolution.approach = contentStr.slice(0, 200);
+          potentialSolution.approach = content.slice(0, 200);
           currentProblem.solution = potentialSolution;
         } else if (this.isSolutionIndicator(content)) {
           currentProblem.solution = {
-            approach: contentStr.slice(0, 500),
+            approach: content.slice(0, 500),
             files: [],
             successful: true,
           };
@@ -356,41 +409,81 @@ export class ContextExtractor {
       typeof content === "string" ? content : JSON.stringify(content);
     const lowerContent = contentStr.toLowerCase();
 
-    // Explicit problem indicators
+    // Comprehensive problem indicators for Claude Code conversations
     const problemIndicators = [
-      "error",
-      "issue",
-      "problem",
-      "fix",
-      "debug",
-      "why",
-      "how to",
-      "not working",
-      "failed",
-      "wrong",
-      "help",
-      "stuck",
-      "confused",
-      "unclear",
-      "bug",
-      "crash",
-      "exception",
-      "undefined",
-      "null",
+      // Error-related
+      "error", "issue", "problem", "bug", "crash", "exception",
+      "failed", "failing", "broken", "wrong", "incorrect",
+      "undefined", "null", "nan", "invalid", "missing",
+      "timeout", "404", "500", "503", "cors",
+      
+      // Debugging
+      "debug", "fix", "solve", "troubleshoot", "diagnose",
+      "not working", "doesn't work", "won't work", "stopped working",
+      
+      // Questions
+      "why", "how do", "how can", "how to", "how should",
+      "what is", "what are", "what should", "what would",
+      "where is", "where are", "where do", "where should",
+      "when should", "when do", "when to",
+      "which", "who", "whose",
+      
+      // Common dev tasks
+      "implement", "create", "build", "develop", "add",
+      "integrate", "setup", "configure", "install",
+      "migrate", "upgrade", "update", "refactor",
+      "optimize", "improve", "enhance", "extend",
+      
+      // Architecture & design
+      "design", "architect", "structure", "organize",
+      "pattern", "approach", "strategy", "best practice",
+      
+      // Testing & deployment
+      "test", "deploy", "publish", "release", "launch",
+      "ci/cd", "pipeline", "workflow", "automation",
+      
+      // Documentation & understanding
+      "explain", "understand", "clarify", "document",
+      "confused", "unclear", "stuck", "lost",
+      
+      // Security & performance
+      "secure", "vulnerability", "authentication", "authorization",
+      "performance", "slow", "optimize", "memory leak",
+      
+      // Data & API
+      "database", "api", "endpoint", "query", "fetch",
+      "store", "retrieve", "parse", "transform",
+      
+      // UI/UX
+      "display", "render", "style", "layout", "responsive",
+      "accessibility", "user experience", "interface"
     ];
 
-    // Request indicators
+    // Request indicators (user is asking for help)
     const requestIndicators = [
-      "can you",
-      "could you",
-      "please",
-      "need",
-      "want",
-      "should",
-      "would",
-      "help me",
-      "show me",
-      "explain",
+      // Polite requests
+      "can you", "could you", "would you", "will you",
+      "please", "kindly", "help me", "assist me",
+      
+      // Direct requests
+      "i need", "i want", "i'd like", "i would like",
+      "i'm trying", "i'm attempting", "i'm looking",
+      
+      // Imperative requests
+      "show me", "tell me", "teach me", "guide me",
+      "walk me through", "explain to me",
+      
+      // Planning requests
+      "let's", "we should", "we need to", "we must",
+      "shall we", "should we",
+      
+      // Seeking advice
+      "recommend", "suggest", "advise", "propose",
+      "what's the best", "which is better",
+      
+      // Common dev requests
+      "prepare", "convert", "transform", "translate",
+      "extract", "analyze", "review", "check"
     ];
 
     // Questions always indicate problems to solve

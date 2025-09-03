@@ -202,7 +202,7 @@ export class ContextArchiver {
           toolCounts: {},
           filesModified: [],
           relevanceScore: 0,
-          extractionVersion: "0.2.0",
+          extractionVersion: "0.5.0",
         },
       };
 

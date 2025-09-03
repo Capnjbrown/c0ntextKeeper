@@ -4,6 +4,12 @@
 
 c0ntextKeeper uses Claude Code's hook system to automatically capture and preserve valuable context at multiple points in your workflow. The primary PreCompact hook works **completely automatically** - capturing context both when you manually run `/compact` and when Claude Code automatically compacts context due to size limits.
 
+### 🚀 v0.5.0 Critical Fixes
+- **Claude Code Compatibility**: Properly parses embedded content arrays in JSONL
+- **Fixed Relevance Scoring**: User questions now score 1.0 (was 0.06)
+- **50+ Semantic Patterns**: Vastly improved problem and solution detection
+- **Tool Tracking Fixed**: Correctly extracts tool_use and tool_result from messages
+
 ### 🎆 v0.3.0 Enhancements
 - **Analytics Dashboard**: Rich statistics in every archive README
 - **Tool Usage Tracking**: Comprehensive tracking of all tool invocations
@@ -32,7 +38,10 @@ c0ntextKeeper implements 4 powerful hooks:
 
 1. **PreCompact** (Enabled by default)
    - Fires before context compaction (both manual `/compact` and automatic)
-   - Captures entire session transcript with enhanced metadata:
+   - Captures entire session transcript with v0.5.0 enhancements:
+     - Proper Claude Code JSONL format parsing
+     - 50+ semantic patterns for problem detection
+     - User questions score 1.0 relevance
      - Tool usage counts and frequency
      - Session duration tracking
      - Files modified during session

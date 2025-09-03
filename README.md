@@ -2,7 +2,7 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-08-30
+> Last Updated: 2025-09-02
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
@@ -16,9 +16,21 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![GitHub Stars](https://img.shields.io/github/stars/Capnjbrown/c0ntextKeeper?style=social)](https://github.com/Capnjbrown/c0ntextKeeper/stargazers)
 
-## 🚀 What's New in v0.4.0
+## 🚀 What's New in v0.5.0
 
-### 🎯 Ready for Open Source
+**Package Version**: 0.5.0 | **Extraction Algorithm**: 0.5.0
+
+### 🎯 Critical Claude Code Compatibility Fixes
+- **🔧 Fixed JSONL Parsing** - Now correctly handles Claude Code's embedded content arrays
+- **📈 Enhanced Relevance Scoring** - User questions now properly score 1.0 (was 0.06)
+- **🧠 50+ Semantic Patterns** - Vastly improved problem and solution detection
+- **🛠️ Tool Tracking Fixed** - Properly extracts tool_use and tool_result from messages
+- **✅ Test Updates** - All tests and examples updated to Claude's array format
+- **🔍 Better Extraction** - Captures more context with relaxed patterns
+
+## 📊 v0.4.0 - Ready for Open Source
+
+### 🎯 Open Source Migration
 - **🔒 Security Hardened** - Removed all sensitive data
 - **📝 Community Ready** - Added CODE_OF_CONDUCT, issue/PR templates
 - **🛡️ Security Policy** - Clear vulnerability reporting process
@@ -70,9 +82,9 @@ Every time Claude Code runs `/compact` (manually OR automatically), valuable con
 - 🤖 **Fully Automatic** - Works with both manual `/compact` and automatic compaction
 - 📊 **Analytics Dashboard** - Rich statistics and insights in every archive
 - 🎣 **4 Hook System** - PreCompact, UserPromptSubmit, PostToolUse, and Stop hooks
-- 🧠 **Intelligent Extraction** - Identifies problems, solutions, decisions, and patterns
+- 🧠 **Intelligent Extraction** - Enhanced with 50+ semantic patterns for superior problem/solution detection
 - 🔧 **Tool Usage Tracking** - Monitor which tools you use and how often
-- 📊 **Relevance Scoring** - Multi-factor scoring ensures only valuable context is preserved
+- 📊 **Advanced Relevance Scoring** - User questions score 1.0, with improved multi-factor analysis
 - 🔍 **Smart Retrieval** - MCP tools provide instant access to relevant historical context
 - 📈 **Pattern Recognition** - Identifies recurring solutions and approaches
 - 📊 **Aggregate Metrics** - Project-wide statistics and trends
@@ -615,6 +627,13 @@ npm update -g c0ntextkeeper
 c0ntextkeeper migrate
 ```
 
+#### Low Relevance Scores for User Questions
+**Fixed in v0.5.0** - Questions now properly score 1.0 instead of 0.06
+```bash
+# Update to latest version
+npm update -g c0ntextkeeper
+```
+
 #### Archives Not Being Created
 ```bash
 # Enable debug logging
@@ -640,14 +659,15 @@ For more troubleshooting, see [USER-GUIDE.md](USER-GUIDE.md#troubleshooting)
 
 ## 📊 Project Status
 
-### ✅ Completed Features (v0.2.0)
+### ✅ Completed Features (v0.5.0)
 - **Fully automatic operation** with reliable manual and auto compaction support
+- **Claude Code compatibility** with proper JSONL parsing of embedded content arrays
 - **Type safety** for all content types (strings, arrays, objects)
 - **Timeout protection** preventing 504 errors
 - **4 working hooks** (PreCompact, UserPromptSubmit, PostToolUse, Stop)
 - **Hook management CLI** with enable/disable/test commands
 - **Configuration system** via config.json
-- Core extraction engine with intelligent analysis
+- Core extraction engine with 50+ semantic patterns and Claude format compatibility
 - MCP server implementation with 3 tools
 - File-based storage with multiple directories
 - Pattern recognition and analysis

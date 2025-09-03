@@ -201,14 +201,17 @@ export class RelevanceScorer {
    * Calculate user engagement level from message content
    */
   private calculateUserEngagement(content: string): number {
-    let engagement = 0;
+    let engagement = 0.2; // Base engagement for any user input
+
+    // Questions are highly valuable - they represent problems to solve
+    if (content.includes("?")) {
+      engagement = 1.0; // Max engagement for questions
+      return engagement; // Return immediately for questions
+    }
 
     // Length indicates detailed explanation
     if (content.length > 200) engagement += 0.3;
     if (content.length > 500) engagement += 0.2;
-
-    // Questions indicate active problem-solving
-    if (content.includes("?")) engagement += 0.2;
 
     // Technical terms indicate deeper engagement
     const technicalTerms = [

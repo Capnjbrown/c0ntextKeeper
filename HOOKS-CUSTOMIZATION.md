@@ -4,6 +4,12 @@
 
 c0ntextKeeper uses multiple Claude Code hooks to capture context at different points in your workflow. The primary PreCompact hook works **completely automatically** - capturing context both when you manually run `/compact` and when Claude Code automatically compacts due to context size limits. This guide explains how to customize which hooks are active and what they capture.
 
+### 🚀 v0.5.0 Claude Code Compatibility
+- **🔧 Fixed JSONL Parsing** - Handles Claude's embedded content arrays
+- **📈 Correct Relevance Scoring** - User questions now score 1.0
+- **🧠 50+ Semantic Patterns** - Superior problem detection
+- **🛠️ Tool Tracking Fixed** - Properly extracts tool_use/tool_result
+
 ### 🎆 v0.3.0 Analytics Enhancements
 - **📊 Analytics Dashboard** in every archive README
 - **🔧 Tool Usage Tracking** with comprehensive counts
@@ -28,12 +34,14 @@ c0ntextKeeper uses multiple Claude Code hooks to capture context at different po
 - **When**: 
   - Before manual `/compact` command
   - Before automatic compaction by Claude Code (no action required!)
-- **Captures**: 
-  - Entire session transcript
+- **Captures** (enhanced v0.5.0): 
+  - Entire session transcript with Claude format parsing
+  - User questions with 1.0 relevance scoring
+  - Tool usage via proper tool_use/tool_result extraction
   - Tool usage statistics (counts per tool)
   - Session duration in milliseconds
   - Files modified during session
-  - Most relevant problems
+  - Most relevant problems (50+ semantic patterns)
   - Decisions and patterns
 - **Analytics Generated**:
   - Project-wide tool usage trends

@@ -22,7 +22,7 @@ A clear and concise description of what you expected to happen.
  - OS: [e.g. macOS 14.0]
  - Node Version: [e.g. 20.x]
  - Claude Code Version: [e.g. 1.0.0]
- - c0ntextKeeper Version: [e.g. 0.3.0]
+ - c0ntextKeeper Version: [e.g. 0.5.0]
 
 **Logs**
 If applicable, add logs to help explain your problem.

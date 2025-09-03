@@ -3,6 +3,9 @@
 ## Overview
 Model Context Protocol (MCP) servers extend Claude Code's capabilities by providing specialized tools for different aspects of development. This document explains each server's purpose, capabilities, and optimal usage patterns for developing c0ntextKeeper - the intelligent context preservation system for Claude Code.
 
+### v0.5.0 Enhancements
+As of v0.5.0, c0ntextKeeper properly handles Claude Code's JSONL format with embedded content arrays, ensuring accurate extraction with 50+ semantic patterns and correct relevance scoring (user questions now score 1.0).
+
 ## Configuration
 All MCP servers are configured at **project level** in `.mcp.json` to ensure:
 - **STRICT PROJECT ISOLATION** - Each project has its own MCP configuration

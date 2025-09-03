@@ -1,5 +1,16 @@
 #!/usr/bin/env node
 
+/**
+ * Test script for c0ntextKeeper extraction pipeline
+ * 
+ * Version Compatibility: v0.5.0+
+ * - Uses Claude Code's JSONL format with content arrays
+ * - Tests extraction with mixed content types (strings, arrays, objects)
+ * - Validates relevance scoring and pattern detection
+ * 
+ * Format: content: [{ type: "text", text: "actual content" }]
+ */
+
 const { ContextArchiver } = require('../dist/core/archiver.js');
 const fs = require('fs');
 const path = require('path');
@@ -12,8 +23,10 @@ const testTranscript = [
     cwd: '/Users/jasonbrown/Projects/c0ntextKeeper',
     message: {
       role: 'user',
-      // Test non-string content (array)
-      content: ['Can you help me fix the extraction?', 'It returns 0 items.']
+      content: [
+        { type: 'text', text: 'Can you help me fix the extraction?' },
+        { type: 'text', text: 'It returns 0 items.' }
+      ]
     }
   },
   {
@@ -21,7 +34,10 @@ const testTranscript = [
     timestamp: new Date().toISOString(),
     message: {
       role: 'assistant',
-      content: "I'll help you fix the extraction issue. Let me analyze the problem."
+      content: [{
+        type: 'text',
+        text: "I'll help you fix the extraction issue. Let me analyze the problem."
+      }]
     }
   },
   {
@@ -45,8 +61,10 @@ const testTranscript = [
     timestamp: new Date().toISOString(),
     message: {
       role: 'assistant',
-      // Test object content
-      content: { text: 'The issue is with type checking. Let me fix it.' }
+      content: [{
+        type: 'text',
+        text: 'The issue is with type checking. Let me fix it.'
+      }]
     }
   },
   {
@@ -66,7 +84,10 @@ const testTranscript = [
     timestamp: new Date().toISOString(),
     message: {
       role: 'user',
-      content: 'Great! Does this handle all edge cases?'
+      content: [{
+        type: 'text',
+        text: 'Great! Does this handle all edge cases?'
+      }]
     }
   },
   {
@@ -74,7 +95,10 @@ const testTranscript = [
     timestamp: new Date().toISOString(),
     message: {
       role: 'assistant',
-      content: 'Yes, this handles all edge cases including arrays and objects. The solution is complete.'
+      content: [{
+        type: 'text',
+        text: 'Yes, this handles all edge cases including arrays and objects. The solution is complete.'
+      }]
     }
   }
 ];

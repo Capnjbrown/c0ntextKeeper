@@ -21,7 +21,10 @@ describe('ContextExtractor', () => {
           sessionId: 'test-session',
           message: {
             role: 'user',
-            content: 'I have an error with the authentication API'
+            content: [{
+              type: 'text',
+              text: 'I have an error with the authentication API'
+            }]
           }
         },
         {
@@ -30,7 +33,10 @@ describe('ContextExtractor', () => {
           sessionId: 'test-session',
           message: {
             role: 'assistant',
-            content: 'Let me help you fix the authentication error. The solution is to update the JWT validation.'
+            content: [{
+              type: 'text',
+              text: 'Let me help you fix the authentication error. The solution is to update the JWT validation.'
+            }]
           }
         },
         {
@@ -114,7 +120,10 @@ describe('ContextExtractor', () => {
           sessionId: 'test-session',
           message: {
             role: 'assistant',
-            content: 'We should use Redis for caching because it provides better performance than in-memory storage.'
+            content: [{
+              type: 'text',
+              text: 'We should use Redis for caching because it provides better performance than in-memory storage.'
+            }]
           }
         }
       ];

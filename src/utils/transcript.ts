@@ -110,6 +110,7 @@ export function parseTranscriptContent(content: string): TranscriptEntry[] {
 
 /**
  * Normalize a transcript entry to ensure consistent structure
+ * Handles both old format and new Claude Code format with embedded content arrays
  */
 function normalizeEntry(entry: any): TranscriptEntry {
   // Handle different entry formats that might exist
@@ -124,19 +125,86 @@ function normalizeEntry(entry: any): TranscriptEntry {
     normalized.cwd = entry.cwd;
   }
 
+  // Handle Claude Code's actual format with embedded content arrays
   if (entry.message) {
-    normalized.message = {
-      role: entry.message.role || "unknown",
-      content: entry.message.content || "",
-    };
+    const message = entry.message;
+    
+    // Extract content from array format (Claude's actual format)
+    if (Array.isArray(message.content)) {
+      // Process each content item
+      for (const contentItem of message.content) {
+        // Handle tool_use embedded in assistant messages
+        if (contentItem.type === "tool_use") {
+          normalized.type = "tool_use";
+          normalized.toolUse = {
+            name: contentItem.name || "",
+            input: contentItem.input || {},
+          };
+          // Keep the assistant context
+          if (message.role === "assistant") {
+            normalized.message = {
+              role: "assistant",
+              content: `Using tool: ${contentItem.name}`,
+            };
+          }
+        }
+        // Handle tool_result embedded in user messages
+        else if (contentItem.type === "tool_result") {
+          normalized.type = "tool_result";
+          normalized.toolResult = {
+            output: extractToolResultContent(contentItem),
+            error: contentItem.is_error ? extractToolResultContent(contentItem) : undefined,
+          };
+          // Don't override user type for actual user messages
+          if (message.role === "user" && !contentItem.tool_use_id) {
+            normalized.type = "user";
+          }
+        }
+        // Handle regular text content
+        else if (contentItem.type === "text") {
+          // Only set message if we haven't found a tool use/result
+          if (!normalized.toolUse && !normalized.toolResult) {
+            normalized.message = {
+              role: message.role || "unknown",
+              content: contentItem.text || "",
+            };
+          }
+        }
+      }
+      
+      // If no specific content was extracted, try to get text
+      if (!normalized.message && !normalized.toolUse && !normalized.toolResult) {
+        const textContent = message.content
+          .filter((c: any) => c.type === "text")
+          .map((c: any) => c.text || "")
+          .join("\n");
+        if (textContent) {
+          normalized.message = {
+            role: message.role || "unknown",
+            content: textContent,
+          };
+        }
+      }
+    }
+    // Handle old format with string content
+    else {
+      normalized.message = {
+        role: message.role || "unknown",
+        content: message.content || "",
+      };
+    }
   }
 
+  // Handle old format with separate toolUse/toolResult fields
   if (entry.toolUse || entry.tool_use) {
     const toolUse = entry.toolUse || entry.tool_use;
     normalized.toolUse = {
       name: toolUse.name || "",
       input: toolUse.input || {},
     };
+    if (!normalized.type || normalized.type === "unknown") {
+      normalized.type = "tool_use";
+    }
   }
 
   if (entry.toolResult || entry.tool_result) {
@@ -145,9 +213,34 @@ function normalizeEntry(entry: any): TranscriptEntry {
       output: toolResult.output,
       error: toolResult.error,
     };
+    if (!normalized.type || normalized.type === "unknown") {
+      normalized.type = "tool_result";
+    }
   }
 
   return normalized;
+}
+
+/**
+ * Extract content from tool result which may be string or nested array
+ */
+function extractToolResultContent(toolResult: any): string {
+  if (typeof toolResult.content === "string") {
+    return toolResult.content;
+  }
+  if (Array.isArray(toolResult.content)) {
+    return toolResult.content
+      .map((item: any) => {
+        if (typeof item === "string") return item;
+        if (item.type === "text" && item.text) return item.text;
+        return JSON.stringify(item);
+      })
+      .join("\n");
+  }
+  if (toolResult.output) {
+    return toolResult.output;
+  }
+  return "";
 }
 
 /**

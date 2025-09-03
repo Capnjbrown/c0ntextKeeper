@@ -46,7 +46,7 @@ c0ntextKeeper stores all data locally on your Mac in hidden directories within y
 
 ## 📊 Understanding Your Analytics Dashboard
 
-Starting with v0.3.0, every project archive includes a comprehensive analytics dashboard in its README.md file. Here's what you'll find:
+Starting with v0.3.0 (enhanced in v0.5.0), every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy. Here's what you'll find:
 
 ### Project Analytics Section
 - **Total Sessions**: Number of times context was preserved
@@ -63,8 +63,12 @@ Starting with v0.3.0, every project archive includes a comprehensive analytics d
 
 ### Quality Metrics
 - **Average Relevance Score**: How valuable your preserved context is (0-100%)
+  - v0.5.0+: User questions now properly score 100% relevance
+  - Improved with 50+ semantic patterns for better detection
 - **Files Modified**: Total unique files changed across sessions
 - **Archive Version**: Version of c0ntextKeeper that created the archive
+  - Note: The extraction algorithm version tracks improvements to context detection
+  - Package version (npm) may differ from extraction version in some releases
 
 ### Session Details
 Each session entry in the README shows:

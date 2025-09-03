@@ -92,12 +92,24 @@ We use Jest for testing. Please ensure:
 - **Write integration tests** for new features
 - **Maintain >80% code coverage**
 - **Use descriptive test names**
+- **Test with Claude Code format** - Use content arrays, not strings (v0.5.0+)
 
-Example test:
+Example test (v0.5.0+ Claude Code format):
 ```typescript
 describe('ContextExtractor', () => {
   it('should extract problems from user messages containing error indicators', () => {
-    // Test implementation
+    const entries: TranscriptEntry[] = [{
+      type: 'user',
+      timestamp: '2025-09-02T10:00:00Z',
+      message: {
+        role: 'user',
+        content: [{
+          type: 'text',
+          text: 'How do I fix this authentication error?'
+        }]
+      }
+    }];
+    // Test implementation with content arrays, not strings
   });
 });
 ```

@@ -5,6 +5,37 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-09-02
+
+**Note**: v0.5.0 refers to both the npm package version and the internal extraction algorithm version. These are aligned in this release to ensure compatibility.
+
+### Fixed
+- **Critical**: Claude Code JSONL format parsing now handles embedded content arrays correctly
+- **Critical**: User questions now score 1.0 relevance (was incorrectly 0.06)
+- **Important**: Tool tracking now properly extracts tool_use and tool_result from embedded content
+- Test files updated to use Claude's array format instead of strings
+- Example archives updated to version 0.5.0
+
+### Added
+- 50+ semantic problem indicators for enhanced extraction
+- 30+ request patterns for better problem detection
+- Support for "tool_result" and "unknown" entry types
+- Comprehensive content array parsing in normalizeEntry()
+- extractToolResultContent() helper for proper result extraction
+
+### Enhanced
+- Relevance scoring algorithm with special handling for questions
+- Problem extraction with semantic patterns like "how do", "why", "implement", etc.
+- Solution detection with action verbs and code blocks
+- Decision extraction with improved pattern matching
+- Tool tracking with proper embedded content handling
+
+### Changed
+- Extraction version updated from 0.2.0 to 0.5.0
+- All test fixtures updated to Claude Code format
+- Example transcripts converted to array format
+- Archive generation now captures significantly more context
+
 ## [0.4.0] - 2025-08-30
 
 ### Added

@@ -4,13 +4,13 @@
 
 // Transcript-related types
 export interface TranscriptEntry {
-  type: "user" | "assistant" | "tool_use" | "system";
+  type: "user" | "assistant" | "tool_use" | "tool_result" | "system" | "unknown";
   timestamp: string;
   sessionId: string;
   cwd?: string;
   message?: {
     role: string;
-    content: string;
+    content: string | Array<{ type: string; text?: string; [key: string]: any }>;
   };
   toolUse?: {
     name: string;

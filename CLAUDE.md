@@ -95,10 +95,23 @@ c0ntextKeeper addresses the context loss problem in Claude Code by:
 - [x] Prepared for npm publishing and community contributions
 - [x] Bumped version to 0.4.0
 
+### Phase 10: Claude Code Format Compatibility - v0.5.0 ✅ (2025-09-02)
+- [x] Fixed critical JSONL parsing to handle Claude's embedded content arrays
+- [x] Corrected relevance scoring - user questions now score 1.0 (was 0.06)
+- [x] Added 50+ semantic problem indicators for enhanced extraction
+- [x] Implemented proper tool_use and tool_result parsing from embedded content
+- [x] Updated all test files to use Claude's array format
+- [x] Converted example archives to v0.5.0 format
+- [x] Enhanced extractProblems() with comprehensive semantic patterns
+- [x] Fixed calculateUserEngagement() to properly score questions
+- [x] Added extractToolResultContent() helper for result extraction
+- [x] Updated normalizeEntry() with complete content array handling
+- [x] Bumped extraction version to 0.5.0
+
 ## Implementation Summary
 
-### What We Built (2025-08-27 to 2025-08-29)
-Successfully implemented the complete c0ntextKeeper system with fully automatic operation and critical bug fixes:
+### What We Built (2025-08-27 to 2025-09-02)
+Successfully implemented the complete c0ntextKeeper system with Claude Code format compatibility, fully automatic operation, and critical bug fixes:
 
 **18 Core Modules:**
 - `extractor.ts` - Intelligent context extraction with problem/solution mapping
@@ -119,6 +132,14 @@ Successfully implemented the complete c0ntextKeeper system with fully automatic 
 - `index.ts` - MCP server entry point
 - `cli.ts` - Enhanced CLI with hook commands
 - `types.ts` - Comprehensive TypeScript definitions
+
+**Key Achievements (v0.5.0):**
+- ✅ **Claude Code Compatibility** - Properly parses embedded content arrays
+- ✅ **Fixed Relevance Scoring** - Questions now score 1.0 instead of 0.06
+- ✅ **50+ Semantic Patterns** - Comprehensive problem detection
+- ✅ **Tool Tracking Fixed** - Extracts tool_use/tool_result from messages
+- ✅ **Enhanced Extraction** - Captures significantly more valuable context
+- ✅ **Test Suite Updated** - All tests use Claude's array format
 
 **Key Achievements (v0.3.0):**
 - ✅ **Analytics Dashboard** - Beautiful statistics in every archive README
