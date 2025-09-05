@@ -16,7 +16,19 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![GitHub Stars](https://img.shields.io/github/stars/Capnjbrown/c0ntextKeeper?style=social)](https://github.com/Capnjbrown/c0ntextKeeper/stargazers)
 
-## 🚀 What's New in v0.5.1
+## 🚀 What's New in v0.5.2
+
+**Package Version**: 0.5.2 | **Extraction Algorithm**: 0.5.1
+
+### 🎯 CLI Experience & Bug Fixes
+- **📊 Fixed Storage Display** - Stats command now correctly shows KB for archives under 1MB
+- **🔢 Version Consistency** - All components now report correct version (was showing 0.1.0)
+- **📝 Better Search UX** - Search command now optional, shows recent archives when no query
+- **💬 Helpful Error Messages** - All commands now show available options and help hints
+- **🎨 Fixed Formatting** - Status command output no longer has excessive line breaks
+- **📚 Enhanced Descriptions** - Commands show examples and available options
+
+## 🚀 Previous Release - v0.5.1
 
 **Package Version**: 0.5.1 | **Extraction Algorithm**: 0.5.1
 
