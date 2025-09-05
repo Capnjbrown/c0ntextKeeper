@@ -381,8 +381,8 @@ c0ntextkeeper setup          # Configure hooks for Claude Code
 c0ntextkeeper status         # Show automation status
 
 # Manual operations
-c0ntextkeeper archive <file> # Manually archive a transcript
-c0ntextkeeper search <query> # Search archived contexts
+c0ntextkeeper archive <file> # Manually archive a JSONL transcript
+c0ntextkeeper search [query] # Search archives (shows recent if no query)
 c0ntextkeeper patterns       # Analyze recurring patterns
 c0ntextkeeper stats          # Show storage statistics
 c0ntextkeeper validate       # Verify installation

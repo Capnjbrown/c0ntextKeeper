@@ -5,6 +5,33 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2025-09-04
+
+### Fixed
+- **Storage Size Display**: Fixed `c0ntextkeeper stats` showing "0 Bytes" for archives under 1MB
+  - Changed file-store.ts to return bytes instead of pre-converted MB
+  - CLI now properly formats bytes using formatFileSize()
+- **Version Display**: CLI now correctly shows v0.5.1+ instead of v0.1.0
+- **MCP Server Version**: Updated from v0.5.0 to v0.5.1 for consistency
+- **Status Command Formatting**: Fixed excessive line breaks with '═' characters
+  - Resolved issue with characters appearing on individual lines
+
+### Enhanced
+- **Search Command UX**: Made query parameter optional
+  - Shows 5 most recent archives when no query provided
+  - Displays helpful search examples
+  - Provides tips for new users with empty archives
+- **CLI Error Messages**: Improved user experience for missing arguments
+  - Added `showHelpAfterError()` for helpful hints on all commands
+  - Hook commands now show available options (PreCompact, UserPromptSubmit, PostToolUse, Stop)
+  - Archive command description includes example usage
+
+### Changed
+- Search command syntax from `search <query>` to `search [query]`
+- Hook command descriptions now list all available hook names
+- Archive command description now shows example: "path/to/transcript.jsonl"
+- Prefixed unused formatter imports with underscore to satisfy linter
+
 ## [0.5.1] - 2025-09-03
 
 ### Fixed

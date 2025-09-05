@@ -202,7 +202,6 @@ export function truncateText(text: string, maxLength = 100): string {
  */
 export function getPackageVersion(): string {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const pkg = require("../../package.json");
     return pkg.version || "unknown";
   } catch {

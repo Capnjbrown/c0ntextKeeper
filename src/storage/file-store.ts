@@ -19,9 +19,9 @@ import {
 } from "../utils/session-namer.js";
 import {
   formatTimestamp,
-  formatFileCount,
-  formatDuration,
-  formatToolStats,
+  formatFileCount as _formatFileCount,
+  formatDuration as _formatDuration,
+  formatToolStats as _formatToolStats,
   getTopTools,
   calculateAverage,
   formatRelevance,
@@ -276,7 +276,7 @@ export class FileStore {
     return {
       totalProjects: projectDirs.length,
       totalSessions,
-      totalSize: Math.round(totalSize / 1024 / 1024), // Convert to MB
+      totalSize, // Return in bytes
       oldestSession,
       newestSession,
     };

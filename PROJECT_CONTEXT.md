@@ -1,7 +1,7 @@
 # Project Context Document
 <!-- Generated: 2025-09-03 -->
 <!-- Generator: Claude Code CLI Context Discovery -->
-<!-- Last Updated: 2025-09-03 for v0.5.1 -->
+<!-- Last Updated: 2025-09-04 for v0.5.2 -->
 
 ## Project Identification
 
@@ -9,7 +9,7 @@
 - **Project Name**: c0ntextKeeper
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
-- **Version**: 0.5.1 (Package) / 0.5.1 (Extraction Algorithm) / 0.1.0 (MCP Server - needs update)
+- **Version**: 0.5.2 (Package) / 0.5.1 (Extraction Algorithm) / 0.5.1 (MCP Server)
 - **Repository**: https://github.com/Capnjbrown/c0ntextKeeper
 
 ### Purpose Statement
@@ -139,7 +139,7 @@ c0ntextKeeper/
 c0ntextkeeper setup              # Configure hooks
 c0ntextkeeper status            # Show automation status
 c0ntextkeeper archive <file>   # Manual archive
-c0ntextkeeper search <query>   # Search archives
+c0ntextkeeper search [query]   # Search archives (shows recent if no query)
 c0ntextkeeper patterns          # Analyze patterns
 c0ntextkeeper stats            # Storage statistics
 c0ntextkeeper migrate          # Migrate old archives
@@ -298,17 +298,26 @@ c0ntextkeeper setup     # Configure hooks
 ### Contributor Information
 - **Primary Maintainer**: Jason Brown (@Capnjbrown)
 - **License**: MIT
-- **Last Activity**: 2025-09-02 (v0.5.0 release)
+- **Last Activity**: 2025-09-04 (v0.5.2 release)
 - **Release Pattern**: Semantic versioning with CHANGELOG.md
 
 ### Version History
-- **Current Version**: 0.5.0
+- **Current Version**: 0.5.2
 - **Major Milestones**:
+  - v0.5.2: CLI UX improvements and bug fixes
+  - v0.5.1: Enhanced content preservation
   - v0.5.0: Claude Code format compatibility
   - v0.4.0: Open source preparation
   - v0.3.0: Analytics dashboard
   - v0.2.0: Critical bug fixes
   - v0.1.0: Initial release
+
+### Recent Fixes (v0.5.2)
+- **Storage Size Display**: Fixed stats command showing "0 Bytes" for archives under 1MB
+- **Version Consistency**: All components now report v0.5.1+ correctly
+- **Status Command**: Fixed excessive line breaks in output formatting
+- **Search Command UX**: Made query optional, shows recent archives when none provided
+- **CLI Error Messages**: Added helpful hints and available options in error messages
 
 ## Technical Debt & Issues
 
@@ -318,14 +327,14 @@ c0ntextkeeper setup     # Configure hooks
 - **Integration Tests**: Directory exists but empty (needs implementation)
 - **Complex Functions**: Extractor has high complexity (50+ patterns - by design)
 - **TypeScript Strict Mode**: Enabled (excellent type safety)
-- **Version Inconsistency**: MCP server shows v0.1.0, should be v0.5.0
+- **Linting**: 66 warnings (mostly `any` types), 0 errors after fixes
 
 ### Known Issues
 - **Test coverage needs expansion** - Only 2 unit test files
 - **Integration tests missing** - Directory exists but empty
 - **Tools directory unused** - Integrated directly in server/index.ts
-- **Version mismatch** - MCP server code shows v0.1.0 instead of v0.5.0
 - **Performance benchmarks missing** - No documented metrics
+- **TypeScript `any` types** - 66 instances need proper typing
 
 ## Recommendations for Context Improvement
 
@@ -341,13 +350,13 @@ c0ntextkeeper setup     # Configure hooks
 - Migration path from older versions
 
 ### Suggested Next Steps
-1. **Fix version inconsistency** - Update server/index.ts from v0.1.0 to v0.5.0
-2. **Expand test coverage** - Add tests for all core modules
-3. **Implement integration tests** - Test complete workflows
-4. **Document performance** - Benchmark extraction speed and memory usage
-5. **Create architecture diagrams** - Visual system overview
-6. **Add code examples** - More usage examples in docs
-7. **Implement remaining hooks** - SessionStart, SessionEnd, PreToolUse
+1. **Expand test coverage** - Add tests for all core modules
+2. **Implement integration tests** - Test complete workflows
+3. **Document performance** - Benchmark extraction speed and memory usage
+4. **Create architecture diagrams** - Visual system overview
+5. **Add code examples** - More usage examples in docs
+6. **Implement remaining hooks** - SessionStart, SessionEnd, PreToolUse
+7. **Replace `any` types** - Add proper TypeScript types for 66 instances
 
 ## Quick Reference
 

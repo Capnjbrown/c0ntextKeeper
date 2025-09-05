@@ -21,7 +21,8 @@ const program = new Command();
 program
   .name("c0ntextkeeper")
   .description("Intelligent context preservation for Claude Code")
-  .version("0.1.0");
+  .version("0.5.2")
+  .showHelpAfterError("(add --help for additional information)");
 
 // Setup command
 program
@@ -57,7 +58,7 @@ program
 // Archive command
 program
   .command("archive <transcript>")
-  .description("Manually archive a transcript file")
+  .description("Manually archive a JSONL transcript file (e.g., path/to/transcript.jsonl)")
   .action(async (transcriptPath: string) => {
     try {
       logger.info(`Archiving transcript: ${transcriptPath}`);
@@ -88,13 +89,54 @@ program
 
 // Search command
 program
-  .command("search <query>")
-  .description("Search archived contexts")
+  .command("search [query]")
+  .description("Search archived contexts (shows recent archives if no query)")
   .option("-l, --limit <number>", "Maximum results", "10")
   .option("-p, --project <path>", "Filter by project path")
-  .action(async (query: string, options: any) => {
+  .action(async (query: string | undefined, options: any) => {
     try {
       const retriever = new ContextRetriever();
+      
+      // If no query provided, show recent archives
+      if (!query) {
+        console.log("📚 Recent Archives (use a search query to find specific content)\n");
+        
+        const storage = new FileStore();
+        const stats = await storage.getStats();
+        
+        if (stats.totalSessions === 0) {
+          console.log("No archives found yet.");
+          console.log("\n💡 Tips:");
+          console.log("  • Archives are created automatically during compaction");
+          console.log("  • Use 'c0ntextkeeper archive <file>' to manually archive");
+          console.log("  • Try 'c0ntextkeeper search authentication' to search for specific topics");
+          return;
+        }
+        
+        // Get recent contexts without a specific query
+        const results = await retriever.searchArchive({
+          query: "",
+          limit: 5,
+          projectPath: options.project,
+        });
+        
+        console.log(`Showing ${Math.min(5, results.length)} most recent archives:\n`);
+        
+        results.slice(0, 5).forEach((result, index) => {
+          console.log(`${index + 1}. Session: ${result.context.sessionId}`);
+          console.log(`   Project: ${result.context.projectPath}`);
+          console.log(`   Date: ${formatTimestamp(result.context.timestamp)}`);
+          console.log();
+        });
+        
+        console.log("💡 Search examples:");
+        console.log("  • c0ntextkeeper search 'authentication'");
+        console.log("  • c0ntextkeeper search 'error' --limit 20");
+        console.log("  • c0ntextkeeper search 'bug fix' --project ~/myproject");
+        return;
+      }
+      
+      // Original search logic when query is provided
       const results = await retriever.searchArchive({
         query,
         limit: parseInt(options.limit),
@@ -181,7 +223,7 @@ program
       console.log(`Total Projects: ${stats.totalProjects}`);
       console.log(`Total Sessions: ${stats.totalSessions}`);
       console.log(
-        `Storage Size: ${formatFileSize(stats.totalSize * 1024 * 1024)}`,
+        `Storage Size: ${formatFileSize(stats.totalSize)}`,
       );
 
       if (stats.oldestSession) {
@@ -218,7 +260,7 @@ hooks
 // Enable hook
 hooks
   .command("enable <hook>")
-  .description("Enable a specific hook")
+  .description("Enable a specific hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)")
   .action(async (hookName: string) => {
     try {
       const HooksManager = (await import("./cli/hooks-manager.js"))
@@ -234,7 +276,7 @@ hooks
 // Disable hook
 hooks
   .command("disable <hook>")
-  .description("Disable a specific hook")
+  .description("Disable a specific hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)")
   .action(async (hookName: string) => {
     try {
       const HooksManager = (await import("./cli/hooks-manager.js"))
@@ -250,7 +292,7 @@ hooks
 // Configure hook
 hooks
   .command("config <hook>")
-  .description("Configure a hook")
+  .description("Configure a hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)")
   .option("-m, --matcher <pattern>", "Set matcher pattern")
   .action(async (hookName: string, options: any) => {
     try {
@@ -267,7 +309,7 @@ hooks
 // Test hook
 hooks
   .command("test <hook>")
-  .description("Test a specific hook")
+  .description("Test a specific hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)")
   .action(async (hookName: string) => {
     try {
       const HooksManager = (await import("./cli/hooks-manager.js"))
@@ -348,7 +390,7 @@ program
       console.log("  • Enable other hooks for more granular capture");
       console.log('  • Use "c0ntextkeeper hooks list" to manage hooks');
 
-      console.log("\n═".repeat(60));
+      console.log("\n" + "═".repeat(60));
     } catch (error) {
       logger.error("Status error:", error);
       process.exit(1);
