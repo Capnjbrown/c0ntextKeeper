@@ -21,21 +21,22 @@ c0ntextKeeper stores all data locally on your Mac in hidden directories within y
     │       ├── c0ntextKeeper/          # Project by actual name
     │       │   ├── README.md           # 📊 Analytics dashboard & navigation
     │       │   ├── index.json          # Project stats with tool usage
-    │       │   └── sessions/           # Individual work sessions
-    │       │       └── 2025-08-28_1430_MT_feature-implementation.json
+    │       │   ├── sessions/           # Individual work sessions
+    │       │   │   └── 2025-08-28_1430_MT_feature-implementation.json
+    │       │   └── test/               # Test/validation data (separated)
     │       └── [other-project-name]/
     │           └── sessions/
     ├── prompts/                        # UserPromptSubmit hook data
     │   └── [project-hash]/
-    │       └── 2025-08-28-prompts.jsonl
+    │       └── 2025-08-28-prompts.json       # Daily prompts array (JSON)
     ├── patterns/                       # PostToolUse hook data
     │   └── [project-hash]/
-    │       └── 2025-08-28-tools.jsonl
+    │       └── 2025-08-28-patterns.json      # Daily patterns array (JSON)
     ├── knowledge/                      # Stop hook data
     │   └── [project-hash]/
-    │       └── 2025-08-28-qa.jsonl
+    │       └── 2025-08-28-knowledge.json     # Daily Q&A pairs array (JSON)
     ├── errors/                         # Error patterns
-    │   └── error-patterns.jsonl
+    │   └── 2025-08-28-errors.json            # Daily error patterns (JSON)
     ├── solutions/                      # Indexed solutions
     │   └── index.json
     └── logs/                           # Hook execution logs

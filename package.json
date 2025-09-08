@@ -1,6 +1,6 @@
 {
   "name": "c0ntextkeeper",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Intelligent context preservation and retrieval for Claude Code with analytics dashboard",
   "main": "dist/index.js",
   "bin": {

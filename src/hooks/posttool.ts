@@ -68,18 +68,20 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
         break;
     }
 
-    // Store patterns for analysis
+    // Store patterns for analysis in JSON format
     const projectHash = crypto
       .createHash("md5")
       .update(input.project_path || process.cwd())
       .digest("hex")
       .substring(0, 8);
 
+    // Store patterns at root level, not under archive/
     const storagePath = path.join(
-      storage.getBasePath(),
+      process.env.HOME || "",
+      ".c0ntextkeeper",
       "patterns",
       projectHash,
-      `${new Date().toISOString().split("T")[0]}-tools.jsonl`,
+      `${new Date().toISOString().split("T")[0]}-patterns.json`,
     );
 
     // Ensure directory exists
@@ -88,9 +90,27 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    // Append to JSONL file
-    const entry = JSON.stringify(toolPattern) + "\n";
-    fs.appendFileSync(storagePath, entry);
+    // Read existing patterns or create new array
+    let patterns: ToolPattern[] = [];
+    if (fs.existsSync(storagePath)) {
+      try {
+        const existingData = fs.readFileSync(storagePath, 'utf-8');
+        patterns = JSON.parse(existingData);
+        // Ensure it's an array
+        if (!Array.isArray(patterns)) {
+          patterns = [];
+        }
+      } catch (error) {
+        console.error(`Failed to parse existing patterns file: ${error}`);
+        patterns = [];
+      }
+    }
+
+    // Add new pattern to array
+    patterns.push(toolPattern);
+
+    // Write back as formatted JSON
+    fs.writeFileSync(storagePath, JSON.stringify(patterns, null, 2), 'utf-8');
 
     // Track error patterns for learning
     if (!success && toolPattern.error) {
@@ -150,11 +170,14 @@ async function trackErrorPattern(
   pattern: ToolPattern,
   storage: FileStore,
 ): Promise<void> {
-  // Store common errors for pattern recognition
+  // Store common errors for pattern recognition in JSON format
+  const dateStr = new Date().toISOString().split("T")[0];
+  // Store errors at root level, not under archive/
   const errorPath = path.join(
-    storage.getBasePath(),
+    process.env.HOME || "",
+    ".c0ntextkeeper",
     "errors",
-    "error-patterns.jsonl",
+    `${dateStr}-errors.json`,
   );
 
   const dir = path.dirname(errorPath);
@@ -171,7 +194,27 @@ async function trackErrorPattern(
     command: pattern.commandExecuted,
   };
 
-  fs.appendFileSync(errorPath, JSON.stringify(errorEntry) + "\n");
+  // Read existing errors or create new array
+  let errors: any[] = [];
+  if (fs.existsSync(errorPath)) {
+    try {
+      const existingData = fs.readFileSync(errorPath, 'utf-8');
+      errors = JSON.parse(existingData);
+      // Ensure it's an array
+      if (!Array.isArray(errors)) {
+        errors = [];
+      }
+    } catch (error) {
+      console.error(`Failed to parse existing errors file: ${error}`);
+      errors = [];
+    }
+  }
+
+  // Add new error to array
+  errors.push(errorEntry);
+
+  // Write back as formatted JSON
+  fs.writeFileSync(errorPath, JSON.stringify(errors, null, 2), 'utf-8');
 }
 
 // Main execution

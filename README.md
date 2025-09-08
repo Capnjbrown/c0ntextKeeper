@@ -2,7 +2,7 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-09-03
+> Last Updated: 2025-09-05
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
@@ -16,7 +16,19 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![GitHub Stars](https://img.shields.io/github/stars/Capnjbrown/c0ntextKeeper?style=social)](https://github.com/Capnjbrown/c0ntextKeeper/stargazers)
 
-## 🚀 What's New in v0.5.2
+## 🚀 What's New in v0.5.3
+
+**Package Version**: 0.5.3 | **Extraction Algorithm**: 0.5.3
+
+### 🎯 Unified JSON Format & Test Data Separation
+- **📄 JSON Everywhere** - All archives now use consistent JSON format (no more JSONL)
+- **🧪 Test Data Separation** - Test/validation data automatically separated to `test/` directory
+- **📖 Better Readability** - All archive files now human-readable with proper formatting
+- **📚 File Format Docs** - New FILE-FORMATS.md with comprehensive format reference
+- **🏷️ Standardized Naming** - Consistent file naming across all archive types
+- **✨ Daily Aggregation** - Prompts, patterns, and knowledge use daily JSON arrays
+
+## 📊 Previous Release - v0.5.2
 
 **Package Version**: 0.5.2 | **Extraction Algorithm**: 0.5.1
 
@@ -28,7 +40,7 @@
 - **🎨 Fixed Formatting** - Status command output no longer has excessive line breaks
 - **📚 Enhanced Descriptions** - Commands show examples and available options
 
-## 🚀 Previous Release - v0.5.1
+## 📈 Previous Release - v0.5.1
 
 **Package Version**: 0.5.1 | **Extraction Algorithm**: 0.5.1
 

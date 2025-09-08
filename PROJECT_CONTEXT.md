@@ -1,7 +1,7 @@
 # Project Context Document
 <!-- Generated: 2025-09-03 -->
 <!-- Generator: Claude Code CLI Context Discovery -->
-<!-- Last Updated: 2025-09-04 for v0.5.2 -->
+<!-- Last Updated: 2025-09-05 for v0.5.3 -->
 
 ## Project Identification
 
@@ -9,11 +9,11 @@
 - **Project Name**: c0ntextKeeper
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
-- **Version**: 0.5.2 (Package) / 0.5.1 (Extraction Algorithm) / 0.5.1 (MCP Server)
+- **Version**: 0.5.3 (Package) / 0.5.3 (Extraction Algorithm) / 0.5.3 (MCP Server)
 - **Repository**: https://github.com/Capnjbrown/c0ntextKeeper
 
 ### Purpose Statement
-c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 50+ semantic patterns, making them instantly retrievable through MCP tools. The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. The system works fully automatically, requiring zero manual intervention after initial setup.
+c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 50+ semantic patterns, making them instantly retrievable through MCP tools. The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. The system works fully automatically, requiring zero manual intervention after initial setup.
 
 ## Discovery Findings
 
@@ -32,7 +32,7 @@ c0ntextKeeper is an intelligent context preservation and retrieval system for Cl
   - tsx v4.19.2: Development runtime
   - npm: Package management
 - **Package Managers**: npm (with package-lock.json)
-- **Database/Storage**: File-based JSON storage in ~/.c0ntextkeeper/
+- **Database/Storage**: File-based JSON storage in ~/.c0ntextkeeper/ (v0.5.3: all archives use JSON format)
 - **Testing Frameworks**: 
   - Jest v30: Unit and integration testing
   - ts-jest v29: TypeScript test execution
@@ -53,9 +53,9 @@ c0ntextKeeper/
 │   │   └── types.ts           # TypeScript type definitions
 │   ├── hooks/                 # Claude Code hook handlers
 │   │   ├── precompact.ts      # PreCompact hook (auto/manual capture)
-│   │   ├── userprompt.ts      # UserPromptSubmit hook
-│   │   ├── posttool.ts        # PostToolUse hook
-│   │   └── stop.ts            # Stop hook for Q&A pairs
+│   │   ├── userprompt.ts      # UserPromptSubmit hook (v0.5.3: JSON storage)
+│   │   ├── posttool.ts        # PostToolUse hook (v0.5.3: JSON storage)
+│   │   └── stop.ts            # Stop hook for Q&A pairs (v0.5.3: JSON storage)
 │   ├── server/                # MCP server implementation
 │   │   └── index.ts           # MCP server entry point
 │   ├── storage/               # Storage abstraction layer
@@ -298,12 +298,13 @@ c0ntextkeeper setup     # Configure hooks
 ### Contributor Information
 - **Primary Maintainer**: Jason Brown (@Capnjbrown)
 - **License**: MIT
-- **Last Activity**: 2025-09-04 (v0.5.2 release)
+- **Last Activity**: 2025-09-05 (v0.5.3 release)
 - **Release Pattern**: Semantic versioning with CHANGELOG.md
 
 ### Version History
-- **Current Version**: 0.5.2
+- **Current Version**: 0.5.3
 - **Major Milestones**:
+  - v0.5.3: JSON format standardization and test data separation
   - v0.5.2: CLI UX improvements and bug fixes
   - v0.5.1: Enhanced content preservation
   - v0.5.0: Claude Code format compatibility
@@ -312,7 +313,13 @@ c0ntextkeeper setup     # Configure hooks
   - v0.2.0: Critical bug fixes
   - v0.1.0: Initial release
 
-### Recent Fixes (v0.5.2)
+### Recent Changes (v0.5.3)
+- **Storage Format**: Migrated all archives from JSONL to JSON for consistency
+- **Test Data Separation**: Automatic separation of test data to `test/` directory
+- **File Format Documentation**: Added comprehensive FILE-FORMATS.md reference
+- **Archive Readability**: All files now human-readable with proper formatting
+
+### Previous Fixes (v0.5.2)
 - **Storage Size Display**: Fixed stats command showing "0 Bytes" for archives under 1MB
 - **Version Consistency**: All components now report v0.5.1+ correctly
 - **Status Command**: Fixed excessive line breaks in output formatting
@@ -394,6 +401,7 @@ npm publish           # Publish to npm
 - **Hook Documentation**:
   - `HOOK-INTEGRATION.md` - Hook setup and troubleshooting
   - `HOOKS-CUSTOMIZATION.md` - Hook customization guide
+  - `FILE-FORMATS.md` - Comprehensive file format reference (v0.5.3)
 - **User Documentation**:
   - `USER-GUIDE.md` - Data access and storage locations
   - `MIGRATION_GUIDE.md` - Version migration procedures
@@ -404,7 +412,7 @@ npm publish           # Publish to npm
   - `SECURITY.md` - Security policy
 - **Entry Points**: 
   - `src/cli.ts` - CLI entry point
-  - `src/server/index.ts` - MCP server (⚠️ version needs update to 0.5.0)
+  - `src/server/index.ts` - MCP server (v0.5.3)
 - **Critical Logic**: 
   - `src/core/extractor.ts` - 50+ semantic patterns for extraction
   - `src/core/scorer.ts` - Relevance scoring (1.0 for questions)
@@ -423,8 +431,8 @@ npm publish           # Publish to npm
 - File-based storage is intentional for simplicity and portability
 - Empty directories (tools, integration tests) are placeholders for future development
 - Queue and debounce utilities are for handling concurrent operations during auto-compaction
-- Extraction algorithm version (0.5.0) intentionally tracks separately from package version
-- MCP server version mismatch is an oversight needing correction
+- Extraction algorithm version (0.5.3) now aligned with package version
+- All component versions synchronized in v0.5.3
 
 ### Areas Requiring Human Verification
 - Exact performance characteristics under load
@@ -434,4 +442,4 @@ npm publish           # Publish to npm
 
 ---
 
-*This document was generated through automated project analysis. It represents the current state of the c0ntextKeeper project as of 2025-09-03. The project is actively maintained and demonstrates professional software engineering practices with room for test coverage expansion.*
+*This document was generated through automated project analysis and updated to reflect the current state of the c0ntextKeeper project as of 2025-09-05 (v0.5.3). The project is actively maintained and demonstrates professional software engineering practices with room for test coverage expansion.*

@@ -96,6 +96,7 @@ export interface ContextMetadata {
   filesModified: string[];
   relevanceScore: number;
   extractionVersion: string;
+  isTest?: boolean; // Flag to indicate test/validation data
 }
 
 // Storage types

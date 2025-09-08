@@ -100,18 +100,20 @@ async function processExchange(input: StopHookInput): Promise<void> {
       hasError,
     };
 
-    // Store in knowledge base
+    // Store in knowledge base as JSON for better readability
     const projectHash = crypto
       .createHash("md5")
       .update(input.project_path || process.cwd())
       .digest("hex")
       .substring(0, 8);
 
+    // Store knowledge at root level, not under archive/
     const storagePath = path.join(
-      storage.getBasePath(),
+      process.env.HOME || "",
+      ".c0ntextkeeper",
       "knowledge",
       projectHash,
-      `${new Date().toISOString().split("T")[0]}-qa.jsonl`,
+      `${new Date().toISOString().split("T")[0]}-knowledge.json`,
     );
 
     // Ensure directory exists
@@ -120,9 +122,27 @@ async function processExchange(input: StopHookInput): Promise<void> {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    // Append to JSONL file
-    const entry = JSON.stringify(qaPair) + "\n";
-    fs.appendFileSync(storagePath, entry);
+    // Read existing Q&A pairs or create new array
+    let qaPairs: QAPair[] = [];
+    if (fs.existsSync(storagePath)) {
+      try {
+        const existingData = fs.readFileSync(storagePath, 'utf-8');
+        qaPairs = JSON.parse(existingData);
+        // Ensure it's an array
+        if (!Array.isArray(qaPairs)) {
+          qaPairs = [];
+        }
+      } catch (error) {
+        console.error(`Failed to parse existing knowledge file: ${error}`);
+        qaPairs = [];
+      }
+    }
+
+    // Add new Q&A pair to array
+    qaPairs.push(qaPair);
+
+    // Write back as formatted JSON
+    fs.writeFileSync(storagePath, JSON.stringify(qaPairs, null, 2), 'utf-8');
 
     // If this solved a problem, also store in solutions index
     if (hasSolution) {

@@ -64,18 +64,20 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
       return;
     }
 
-    // Store in lightweight format
+    // Store in JSON format for better readability
     const projectHash = crypto
       .createHash("md5")
       .update(context.projectPath || "global")
       .digest("hex")
       .substring(0, 8);
 
+    // Store prompts at root level, not under archive/
     const storagePath = path.join(
-      storage.getBasePath(),
+      process.env.HOME || "",
+      ".c0ntextkeeper",
       "prompts",
       projectHash,
-      `${new Date().toISOString().split("T")[0]}-prompts.jsonl`,
+      `${new Date().toISOString().split("T")[0]}-prompts.json`,
     );
 
     // Ensure directory exists
@@ -84,9 +86,27 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    // Append to JSONL file (lightweight storage)
-    const entry = JSON.stringify(context) + "\n";
-    fs.appendFileSync(storagePath, entry);
+    // Read existing prompts or create new array
+    let prompts: UserPromptContext[] = [];
+    if (fs.existsSync(storagePath)) {
+      try {
+        const existingData = fs.readFileSync(storagePath, 'utf-8');
+        prompts = JSON.parse(existingData);
+        // Ensure it's an array
+        if (!Array.isArray(prompts)) {
+          prompts = [];
+        }
+      } catch (error) {
+        console.error(`Failed to parse existing prompts file: ${error}`);
+        prompts = [];
+      }
+    }
+
+    // Add new prompt to array
+    prompts.push(context);
+
+    // Write back as formatted JSON
+    fs.writeFileSync(storagePath, JSON.stringify(prompts, null, 2), 'utf-8');
 
     console.log(
       JSON.stringify({

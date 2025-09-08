@@ -185,7 +185,7 @@ export class ContextArchiver {
       // Test storage initialization
       await this.storage.initialize();
 
-      // Test with a dummy context
+      // Test with a dummy context - marked as test data
       const testContext: ExtractedContext = {
         sessionId: "validation-" + Date.now(),
         projectPath: process.cwd(), // Use current working directory instead of test path
@@ -203,6 +203,7 @@ export class ContextArchiver {
           filesModified: [],
           relevanceScore: 0,
           extractionVersion: "0.5.0",
+          isTest: true, // Mark as test data for separation
         },
       };
 

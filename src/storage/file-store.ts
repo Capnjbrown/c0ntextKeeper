@@ -69,7 +69,11 @@ export class FileStore {
     // Use actual project name instead of hash
     const projectName = extractProjectName(context.projectPath);
     const projectDir = path.join(this.basePath, "projects", projectName);
-    const sessionsDir = path.join(projectDir, "sessions");
+    
+    // Store test data separately for clarity
+    const sessionsDir = context.metadata.isTest 
+      ? path.join(projectDir, "test")
+      : path.join(projectDir, "sessions");
 
     await ensureDir(projectDir);
     await ensureDir(sessionsDir);
@@ -81,14 +85,17 @@ export class FileStore {
     // Store context
     await fs.writeFile(sessionPath, JSON.stringify(context, null, 2), "utf-8");
 
-    // Update project index
-    await this.updateProjectIndex(projectDir, context, sessionFile);
+    // Skip index and README updates for test data
+    if (!context.metadata.isTest) {
+      // Update project index
+      await this.updateProjectIndex(projectDir, context, sessionFile);
 
-    // Create/Update project README for navigation
-    await this.createProjectReadme(projectDir, projectName, context);
+      // Create/Update project README for navigation
+      await this.createProjectReadme(projectDir, projectName, context);
 
-    // Update global index
-    await this.updateGlobalIndex(context, projectName);
+      // Update global index
+      await this.updateGlobalIndex(context, projectName);
+    }
 
     // Clean old sessions if needed
     await this.cleanOldSessions(projectDir);

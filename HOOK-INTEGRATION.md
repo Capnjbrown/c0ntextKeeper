@@ -497,21 +497,22 @@ This ensures:
 │   │   │   │   ├── 2025-08-28-session-abc123.json
 │   │   │   │   └── 2025-08-28-session-def456.json
 │   │   │   └── index.json
+│   │   │   └── test/           # Test/validation data
 │   │   └── [another-project-hash]/
 │   │       └── ...
 │   └── global/
 │       └── index.json
 ├── prompts/                 # UserPromptSubmit hook data
 │   └── [project-hash]/
-│       └── 2025-08-28-prompts.jsonl
+│       └── 2025-08-28-prompts.json    # JSON array format
 ├── patterns/                # PostToolUse hook data
 │   └── [project-hash]/
-│       └── 2025-08-28-tools.jsonl
+│       └── 2025-08-28-patterns.json   # JSON array format
 ├── knowledge/               # Stop hook data
 │   └── [project-hash]/
-│       └── 2025-08-28-qa.jsonl
+│       └── 2025-08-28-knowledge.json  # JSON array format
 ├── errors/                  # Error patterns
-│   └── error-patterns.jsonl
+│   └── 2025-08-28-errors.json         # JSON array format
 ├── solutions/               # Indexed solutions
 │   └── index.json
 └── logs/                    # Hook execution logs

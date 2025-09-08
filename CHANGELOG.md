@@ -5,6 +5,38 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.3] - 2025-09-05
+
+### Changed
+- **BREAKING**: Migrated all archive files from JSONL to JSON format for consistency
+  - Prompts: Now stored as `YYYY-MM-DD-prompts.json` (was `.jsonl`)
+  - Patterns: Now stored as `YYYY-MM-DD-patterns.json` (was `.jsonl`)
+  - Knowledge: Now stored as `YYYY-MM-DD-knowledge.json` (was `.jsonl`)
+  - Errors: Now stored as `YYYY-MM-DD-errors.json` (was `.jsonl`)
+  - All files now use formatted JSON with 2-space indentation
+
+### Added
+- **Test Data Separation**: Automatic separation of test/validation data from real session data
+  - Test sessions stored in `projects/[name]/test/` directory
+  - Real sessions remain in `projects/[name]/sessions/` directory
+  - Test data excluded from project statistics and indexes
+  - Added `isTest` flag to metadata for identification
+- **File Format Documentation**: Comprehensive FILE-FORMATS.md reference
+  - Complete format specifications for all archive types
+  - Storage structure documentation
+  - Migration guidance from JSONL to JSON
+
+### Enhanced
+- **Data Readability**: All archive files now human-readable with proper formatting
+- **Consistency**: Unified JSON format across all storage types
+- **File Naming**: Standardized naming conventions across all archive types
+- **Storage Management**: Daily files now use consistent patterns
+
+### Fixed
+- Documentation inconsistencies about file formats
+- File naming conventions across different archive types
+- Test data contamination in project statistics
+
 ## [0.5.2] - 2025-09-04
 
 ### Fixed
