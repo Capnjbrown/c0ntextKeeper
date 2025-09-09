@@ -4,6 +4,14 @@
 
 c0ntextKeeper uses Claude Code's hook system to automatically capture and preserve valuable context at multiple points in your workflow. The primary PreCompact hook works **completely automatically** - capturing context both when you manually run `/compact` and when Claude Code automatically compacts context due to size limits.
 
+### 🏗️ v0.6.0 Hybrid Storage Architecture
+- **📁 Project-Local Storage** - Initialize with `c0ntextkeeper init` in your project
+- **🌍 Global Storage** - Use `c0ntextkeeper init --global` for shared storage
+- **🔍 Smart Path Resolution** - Automatically finds the right storage location
+- **🎛️ Environment Override** - Use `CONTEXTKEEPER_HOME` for custom locations
+- **🔧 Configuration Merging** - Global and project configs work together
+- **📊 Storage Status** - Check configuration with `c0ntextkeeper status`
+
 ### 🚀 v0.5.1 Quality Improvements
 - **Better Content Preservation**: Configurable limits up to 2000 chars for questions/solutions
 - **Smarter Session Naming**: Fixed "that"/"then" issue with 100+ stopwords filter
@@ -57,25 +65,25 @@ c0ntextKeeper implements 4 powerful hooks:
      - 50+ semantic patterns for problem detection
      - User questions score 1.0 relevance
      - Tool usage counts and frequency
-   - Storage: `~/.c0ntextkeeper/archive/`
+   - Storage: `archive/` (relative to storage location)
    - Generates analytics dashboard in README.md
 
 2. **UserPromptSubmit** (Optional)
    - Fires when you send a message to Claude
    - Tracks your questions and requests
-   - Storage: `~/.c0ntextkeeper/prompts/`
+   - Storage: `prompts/` (relative to storage location)
    - Enable: `c0ntextkeeper hooks enable userprompt`
 
 3. **PostToolUse** (Optional)
    - Fires after Claude uses tools (Write, Edit, Bash, etc.)
    - Captures tool results and patterns
-   - Storage: `~/.c0ntextkeeper/patterns/`
+   - Storage: `patterns/` (relative to storage location)
    - Enable: `c0ntextkeeper hooks enable posttool`
 
 4. **Stop** (Optional)
    - Fires after Claude finishes responding
    - Saves complete Q&A exchanges
-   - Storage: `~/.c0ntextkeeper/knowledge/`
+   - Storage: `knowledge/` (relative to storage location)
    - Enable: `c0ntextkeeper hooks enable stop`
 
 ### Automatic Compaction
@@ -93,16 +101,20 @@ The PreCompact hook captures context in **both cases** automatically. You never 
 ### Method 1: Automated Installation (Recommended)
 
 ```bash
-# After installing c0ntextkeeper globally
+# Step 1: Install c0ntextkeeper globally
 npm install -g c0ntextkeeper
 
-# Run the setup wizard (enables PreCompact hook)
+# Step 2: Initialize storage (choose one)
+c0ntextkeeper init              # Project-local storage (recommended)
+c0ntextkeeper init --global      # Global storage for all projects
+
+# Step 3: Run the setup wizard (enables PreCompact hook)
 c0ntextkeeper setup
 
-# Check automation status
+# Step 4: Check automation status
 c0ntextkeeper status
 
-# Verify installation
+# Step 5: Verify installation
 c0ntextkeeper validate
 ```
 

@@ -1,7 +1,7 @@
 # Project Context Document
 <!-- Generated: 2025-09-03 -->
 <!-- Generator: Claude Code CLI Context Discovery -->
-<!-- Last Updated: 2025-09-05 for v0.5.3 -->
+<!-- Last Updated: 2025-09-09 for v0.6.0 -->
 
 ## Project Identification
 
@@ -9,11 +9,11 @@
 - **Project Name**: c0ntextKeeper
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
-- **Version**: 0.5.3 (Package) / 0.5.3 (Extraction Algorithm) / 0.5.3 (MCP Server)
+- **Version**: 0.6.0 (Package) / 0.6.0 (Extraction Algorithm) / 0.6.0 (MCP Server)
 - **Repository**: https://github.com/Capnjbrown/c0ntextKeeper
 
 ### Purpose Statement
-c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 50+ semantic patterns, making them instantly retrievable through MCP tools. The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. The system works fully automatically, requiring zero manual intervention after initial setup.
+c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 50+ semantic patterns, making them instantly retrievable through MCP tools. The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.6.0 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). The system works fully automatically, requiring zero manual intervention after initial setup.
 
 ## Discovery Findings
 
@@ -32,7 +32,11 @@ c0ntextKeeper is an intelligent context preservation and retrieval system for Cl
   - tsx v4.19.2: Development runtime
   - npm: Package management
 - **Package Managers**: npm (with package-lock.json)
-- **Database/Storage**: File-based JSON storage in ~/.c0ntextkeeper/ (v0.5.3: all archives use JSON format)
+- **Database/Storage**: File-based JSON storage with hybrid architecture (v0.6.0)
+  - Project-local: `.c0ntextkeeper/` within project directories
+  - Global: `~/.c0ntextkeeper/` for shared context
+  - Intelligent path resolution with directory tree walking
+  - Environment variable override via `CONTEXTKEEPER_HOME`
 - **Testing Frameworks**: 
   - Jest v30: Unit and integration testing
   - ts-jest v29: TypeScript test execution
@@ -42,7 +46,8 @@ c0ntextKeeper is an intelligent context preservation and retrieval system for Cl
 c0ntextKeeper/
 ├── src/                       # Source code (TypeScript)
 │   ├── cli/                   # CLI command implementations
-│   │   └── hooks-manager.ts   # Hook configuration management
+│   │   ├── hooks-manager.ts   # Hook configuration management
+│   │   └── init.ts            # Storage initialization commands
 │   ├── core/                  # Core business logic
 │   │   ├── archiver.ts        # Context archival logic
 │   │   ├── config.ts          # Configuration management (v0.5.1: contentLimits)
@@ -65,6 +70,7 @@ c0ntextKeeper/
 │   │   ├── filesystem.ts      # File system operations
 │   │   ├── formatter.ts       # Display formatting utilities
 │   │   ├── logger.ts          # Logging infrastructure
+│   │   ├── path-resolver.ts   # Hybrid storage path resolution (v0.6.0)
 │   │   ├── security-filter.ts # Sensitive data filtering
 │   │   ├── session-namer.ts   # Session naming (v0.5.1: 100+ stopwords)
 │   │   └── transcript.ts      # JSONL transcript parser
@@ -79,6 +85,7 @@ c0ntextKeeper/
 │   └── fixtures/              # Test data
 ├── dist/                      # Compiled JavaScript output
 ├── docs/                      # Additional documentation
+│   └── STORAGE.md             # Storage architecture documentation (v0.6.0)
 └── examples/                  # Usage examples
 ```
 
@@ -136,14 +143,16 @@ c0ntextKeeper/
 
 #### CLI Commands
 ```bash
-c0ntextkeeper setup              # Configure hooks
-c0ntextkeeper status            # Show automation status
-c0ntextkeeper archive <file>   # Manual archive
-c0ntextkeeper search [query]   # Search archives (shows recent if no query)
+c0ntextkeeper init              # Initialize storage (project-local or global)
+c0ntextkeeper init --global     # Initialize global storage
+c0ntextkeeper status            # Check storage configuration and status
+c0ntextkeeper setup             # Configure hooks
+c0ntextkeeper archive <file>    # Manual archive
+c0ntextkeeper search [query]    # Search archives (shows recent if no query)
 c0ntextkeeper patterns          # Analyze patterns
-c0ntextkeeper stats            # Storage statistics
-c0ntextkeeper migrate          # Migrate old archives
-c0ntextkeeper validate         # Verify installation
+c0ntextkeeper stats             # Storage statistics
+c0ntextkeeper migrate           # Migrate old archives
+c0ntextkeeper validate          # Verify installation
 c0ntextkeeper hooks <subcommand> # Hook management
 ```
 

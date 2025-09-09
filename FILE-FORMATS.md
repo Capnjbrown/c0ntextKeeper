@@ -4,6 +4,29 @@
 
 As of v0.5.3, c0ntextKeeper uses **JSON format exclusively** for all archive files. This provides consistency, readability, and easy inspection of preserved context.
 
+## Storage Modes (v0.6.0+)
+
+c0ntextKeeper v0.6.0 introduces hybrid storage with flexible location options:
+
+### Project-Local Storage
+- **Location**: `.c0ntextkeeper/` within your project directory
+- **Scope**: Context specific to the current project
+- **Initialize**: `c0ntextkeeper init`
+- **Use Case**: Recommended for project-specific context
+
+### Global Storage  
+- **Location**: `~/.c0ntextkeeper/` in your home directory
+- **Scope**: Shared context across all projects
+- **Initialize**: `c0ntextkeeper init --global`
+- **Use Case**: Good for cross-project patterns and knowledge
+
+### Storage Resolution
+The system automatically finds the appropriate storage:
+1. Checks `CONTEXTKEEPER_HOME` environment variable (if set)
+2. Looks for `.c0ntextkeeper/` in current directory
+3. Walks up parent directories searching for `.c0ntextkeeper/`
+4. Falls back to global storage at `~/.c0ntextkeeper/`
+
 ## File Format Table
 
 | Archive Type | Format | File Pattern | Storage Location | Description |
@@ -20,8 +43,11 @@ As of v0.5.3, c0ntextKeeper uses **JSON format exclusively** for all archive fil
 
 ## Storage Structure
 
+The storage structure is the same for both project-local and global modes, just at different root locations:
+
+### Project-Local Mode
 ```
-~/.c0ntextkeeper/
+.c0ntextkeeper/                          # In your project directory
 ├── archive/
 │   ├── global/
 │   │   └── index.json                    # Master index (JSON)
@@ -49,6 +75,19 @@ As of v0.5.3, c0ntextKeeper uses **JSON format exclusively** for all archive fil
 ├── config.json                          # System configuration (JSON)
 └── logs/
     └── hook.log                          # Execution logs (Plain text)
+```
+
+### Global Mode
+```
+~/.c0ntextkeeper/                        # In your home directory
+├── projects/                            # Per-project storage (by hash)
+│   └── [project-hash]/                  # Project-specific archives
+│       └── (same structure as above)
+├── global/
+│   └── solutions/                       # Shared solutions
+├── config.json                          # Global configuration
+├── index.json                           # Project registry
+└── logs/                               # Global logs
 ```
 
 ## File Format Details

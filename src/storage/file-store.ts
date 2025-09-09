@@ -28,14 +28,23 @@ import {
   truncateText,
   getPackageVersion,
 } from "../utils/formatter.js";
+import { getStoragePath, getProjectStorageInfo } from "../utils/path-resolver.js";
 
 export class FileStore {
   private basePath: string;
   private config: C0ntextKeeperConfig["storage"];
+  private isGlobal: boolean;
 
-  constructor(config?: Partial<C0ntextKeeperConfig["storage"]>) {
+  constructor(config?: Partial<C0ntextKeeperConfig["storage"]> & { global?: boolean }) {
+    // Use path resolver to determine storage location
+    this.isGlobal = config?.global || false;
+    const resolvedPath = getStoragePath({
+      global: this.isGlobal,
+      createIfMissing: true
+    });
+    
     this.config = {
-      basePath: path.join(process.env.HOME || "", ".c0ntextkeeper", "archive"),
+      basePath: path.join(resolvedPath, "archive"),
       maxArchiveSize: 100, // MB
       compressionEnabled: false,
       retentionDays: 90,
@@ -49,6 +58,45 @@ export class FileStore {
    */
   getBasePath(): string {
     return this.basePath;
+  }
+
+  /**
+   * Check if storage is initialized for current project
+   */
+  isInitialized(): boolean {
+    const info = getProjectStorageInfo();
+    return info.exists;
+  }
+
+  /**
+   * Get archive path
+   */
+  getArchivePath(): string {
+    return path.join(this.basePath);
+  }
+
+  /**
+   * Get prompts path
+   */
+  getPromptsPath(): string {
+    const storagePath = getStoragePath({ createIfMissing: false });
+    return path.join(storagePath, "prompts");
+  }
+
+  /**
+   * Get patterns path
+   */
+  getPatternsPath(): string {
+    const storagePath = getStoragePath({ createIfMissing: false });
+    return path.join(storagePath, "patterns");
+  }
+
+  /**
+   * Get knowledge path
+   */
+  getKnowledgePath(): string {
+    const storagePath = getStoragePath({ createIfMissing: false });
+    return path.join(storagePath, "knowledge");
   }
 
   /**

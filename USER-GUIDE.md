@@ -1,18 +1,69 @@
 # 📚 c0ntextKeeper User Guide
 
-## Where Your Data Lives on Your Mac
+## 🏗️ Storage Modes (v0.6.0+)
 
-c0ntextKeeper stores all data locally on your Mac in hidden directories within your home folder. Here's exactly where everything is located:
+c0ntextKeeper v0.6.0 introduces flexible storage options to match your workflow:
 
+### Project-Local Storage (Recommended)
+```bash
+# Initialize in your project directory
+cd /path/to/your/project
+c0ntextkeeper init
+```
+- Creates `.c0ntextkeeper/` within your project
+- Keeps context with your code
+- Portable with your project
+- Can be added to version control (optional)
+
+### Global Storage
+```bash
+# Initialize global storage for all projects
+c0ntextkeeper init --global
+```
+- Uses `~/.c0ntextkeeper/` for all projects
+- Shared context across projects
+- Good for personal machines
+- Centralized management
+
+### How c0ntextKeeper Finds Your Storage
+
+The system uses intelligent path resolution:
+1. **Environment Variable**: Checks `CONTEXTKEEPER_HOME` first
+2. **Current Directory**: Looks for `.c0ntextkeeper/` 
+3. **Parent Directories**: Walks up the tree searching
+4. **Global Fallback**: Uses `~/.c0ntextkeeper/` if nothing found
+
+## Where Your Data Lives
+
+c0ntextKeeper stores all data locally on your Mac. The exact location depends on your storage mode:
+
+### Project-Local Storage Structure
+```
+/path/to/your/project/
+├── .c0ntextkeeper/                     # ← Project-specific context
+│   ├── config.json                     # Project configuration
+│   ├── archive/                        # Session archives
+│   │   ├── README.md                   # Analytics dashboard
+│   │   ├── index.json                  # Session index
+│   │   ├── sessions/                   # Work sessions
+│   │   └── test/                       # Test data (separated)
+│   ├── prompts/                        # Your questions
+│   ├── patterns/                       # Tool usage patterns
+│   ├── knowledge/                      # Q&A pairs
+│   └── logs/                          # Execution logs
+│
+└── your-code-files...
+```
+
+### Global Storage Structure
 ```
 /Users/jasonbrown/                      # Your home directory (~)
 │
 ├── .claude/                            # Claude Code configuration
 │   ├── settings.json                   # ← Hook configuration lives here
 │   └── hooks/                          # Hook scripts
-│       └── c0ntextkeeper-hook.sh       # Wrapper script for debugging
 │
-└── .c0ntextkeeper/                     # ← All your preserved context
+└── .c0ntextkeeper/                     # ← Global preserved context
     ├── config.json                     # Hook and system configuration
     ├── archive/                        # PreCompact hook data
     │   ├── global/                     
@@ -44,6 +95,46 @@ c0ntextKeeper stores all data locally on your Mac in hidden directories within y
 ```
 
 **Note:** Folders starting with `.` (dot) are hidden by default on macOS.
+
+## 🔍 Checking Your Storage Configuration
+
+Use the `status` command to see your current storage setup:
+
+```bash
+c0ntextkeeper status
+```
+
+Example output:
+```
+C0ntextKeeper Storage Status
+
+Current Directory: /Users/jasonbrown/projects/my-app
+Project Hash: a1b2c3d4e5f6
+✓ Storage initialized (local)
+  Location: /Users/jasonbrown/projects/my-app/.c0ntextkeeper
+  Version: 0.6.0
+  Created: 2025-09-09
+  Type: project
+```
+
+### Storage Commands
+
+```bash
+# Initialize storage
+c0ntextkeeper init              # Project-local (in current directory)
+c0ntextkeeper init --global      # Global storage
+c0ntextkeeper init --force       # Reinitialize existing storage
+
+# Check status
+c0ntextkeeper status             # Show current configuration
+
+# View statistics
+c0ntextkeeper stats              # Storage usage and metrics
+
+# Search archives
+c0ntextkeeper search             # Show 5 most recent archives
+c0ntextkeeper search "query"     # Search for specific content
+```
 
 ## 📊 Understanding Your Analytics Dashboard
 

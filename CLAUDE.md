@@ -127,6 +127,21 @@ PROJECT_CONTEXT.md contains:
 - [x] Updated normalizeEntry() with complete content array handling
 - [x] Bumped extraction version to 0.5.0
 
+### Phase 11: Hybrid Storage Architecture - v0.6.0 ✅ (2025-09-09)
+- [x] Implemented intelligent path resolution system (`src/utils/path-resolver.ts`)
+- [x] Added support for project-local storage (`.c0ntextkeeper/`)
+- [x] Maintained global storage compatibility (`~/.c0ntextkeeper/`)
+- [x] Created `c0ntextkeeper init` command for storage initialization
+- [x] Added `c0ntextkeeper status` command for configuration checking
+- [x] Implemented 4-step storage resolution algorithm with directory walking
+- [x] Added environment variable override via `CONTEXTKEEPER_HOME`
+- [x] Updated FileStore to use dynamic path resolution
+- [x] Modified all hooks to use consistent storage paths
+- [x] Created configuration merging for global + project configs
+- [x] Added comprehensive test coverage (19 tests, 89% passing)
+- [x] Created STORAGE.md documentation
+- [x] Bumped version to 0.6.0
+
 ## Implementation Summary
 
 ### What We Built (2025-08-27 to 2025-09-02)
@@ -208,7 +223,8 @@ c0ntextKeeper/
 ├── src/
 │   ├── cli.ts          # CLI entry point
 │   ├── cli/
-│   │   └── hooks-manager.ts # Hook management commands
+│   │   ├── hooks-manager.ts # Hook management commands
+│   │   └── init.ts         # Storage initialization (v0.6.0)
 │   ├── server/
 │   │   └── index.ts    # MCP server entry point
 │   ├── hooks/
@@ -230,6 +246,7 @@ c0ntextKeeper/
 │       ├── filesystem.ts     # File utilities
 │       ├── transcript.ts     # JSONL parser
 │       ├── logger.ts         # Logging utility
+│       ├── path-resolver.ts  # Hybrid storage paths (v0.6.0)
 │       └── security-filter.ts # Security filtering
 ├── scripts/
 │   └── setup-hooks.js    # Installation script

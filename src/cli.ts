@@ -12,6 +12,7 @@ import { PatternAnalyzer } from "./core/patterns.js";
 import { FileStore } from "./storage/file-store.js";
 import { Logger } from "./utils/logger.js";
 import { formatTimestamp, formatFileSize } from "./utils/formatter.js";
+import { initCommand, statusCommand } from "./cli/init.js";
 import { execSync } from "child_process";
 import path from "path";
 
@@ -53,6 +54,18 @@ program
       logger.error("Setup failed:", error);
       process.exit(1);
     }
+  });
+
+// Init command for storage initialization
+program
+  .command("init")
+  .description("Initialize c0ntextkeeper storage")
+  .option("--global", "Initialize global storage")
+  .option("--force", "Force reinitialization")
+  .option("--skip-gitignore", "Skip adding to .gitignore")
+  .option("--project-name <name>", "Set project name")
+  .action(async (options) => {
+    await initCommand(options);
   });
 
 // Archive command
@@ -338,11 +351,15 @@ hooks
     }
   });
 
-// Status command - Show automation status
+// Status command - Show storage and automation status
 program
   .command("status")
-  .description("Show c0ntextKeeper automation status")
+  .description("Show c0ntextKeeper storage and automation status")
   .action(async () => {
+    // Show storage status from new implementation
+    await statusCommand();
+    
+    // Also show automation/hook status
     try {
       console.log("\n🤖 c0ntextKeeper Automation Status\n");
       console.log("═".repeat(60));
@@ -361,18 +378,10 @@ program
           console.log("  🔄 Triggers on:");
           console.log("     • Manual /compact command");
           console.log("     • Automatic compaction by Claude Code");
-          console.log("  📦 Archives saved to: ~/.c0ntextkeeper/archive/");
         } else {
           console.log('  ❌ Not enabled - run "c0ntextkeeper setup"');
         }
       }
-
-      console.log("\n🎯 How It Works:");
-      console.log("  1. Claude Code monitors context size automatically");
-      console.log("  2. When context gets large, it auto-compacts");
-      console.log("  3. PreCompact hook fires automatically");
-      console.log("  4. c0ntextKeeper archives everything");
-      console.log("  5. You never lose context!");
 
       console.log("\n📊 Additional Hooks (Optional):");
       const hooks = ["UserPromptSubmit", "PostToolUse", "Stop"];
@@ -384,11 +393,6 @@ program
         const status = enabled ? "✅ Enabled" : "⭕ Disabled";
         console.log(`  ${status} ${hook}`);
       }
-
-      console.log("\n💡 Tips:");
-      console.log("  • PreCompact works automatically - no action needed!");
-      console.log("  • Enable other hooks for more granular capture");
-      console.log('  • Use "c0ntextkeeper hooks list" to manage hooks');
 
       console.log("\n" + "═".repeat(60));
     } catch (error) {

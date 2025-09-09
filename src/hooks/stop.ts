@@ -11,6 +11,7 @@ import { FileStore } from "../storage/file-store";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ContextExtractor } from "../core/extractor";
 import { RelevanceScorer } from "../core/scorer";
+import { getStoragePath } from "../utils/path-resolver";
 import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";

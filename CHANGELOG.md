@@ -5,6 +5,41 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-09-09
+
+### Added
+- **Hybrid Storage Architecture**: Intelligent project-local and global storage system
+  - Project-local storage in `.c0ntextkeeper/` within project directories
+  - Global storage in `~/.c0ntextkeeper/` for shared context across projects
+  - Automatic directory tree walking to find appropriate storage location
+  - Environment variable override with `CONTEXTKEEPER_HOME` for custom locations
+- **Storage Management CLI Commands**:
+  - `c0ntextkeeper init`: Initialize storage in project or globally
+  - `c0ntextkeeper status`: Check current storage configuration and status
+  - Added `--global` flag for global storage operations
+  - Added `--force` flag to reinitialize existing storage
+  - Added `--skip-gitignore` flag to skip .gitignore updates
+- **Path Resolution System** (`src/utils/path-resolver.ts`):
+  - Smart 4-step resolution algorithm for finding storage
+  - Project hash generation for unique project identification
+  - Storage structure initialization with proper directories
+  - Support for symbolic links and nested project paths
+- **Configuration Merging**: Global and project configurations merge intelligently
+- **Storage Documentation**: Comprehensive STORAGE.md with architecture details
+
+### Enhanced
+- **FileStore Module**: Now uses path resolver for dynamic storage location
+- **All Hooks**: Updated to use consistent path resolution across all hooks
+- **Config System**: Supports merged global + project configuration hierarchy
+- **CLI Architecture**: Reorganized with new init command module (`src/cli/init.ts`)
+- **Test Coverage**: Added comprehensive tests for path resolution (19 tests)
+
+### Changed
+- Storage path resolution now follows intelligent hierarchy with fallback
+- Hooks automatically find appropriate storage location without configuration
+- Configuration loading merges global and project settings seamlessly
+- Default storage location can be overridden via environment variables
+
 ## [0.5.3] - 2025-09-05
 
 ### Changed

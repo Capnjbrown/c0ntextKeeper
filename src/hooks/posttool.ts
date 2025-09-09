@@ -8,6 +8,7 @@
 
 import { SecurityFilter } from "../utils/security-filter";
 import { FileStore } from "../storage/file-store";
+import { getStoragePath } from "../utils/path-resolver";
 import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";

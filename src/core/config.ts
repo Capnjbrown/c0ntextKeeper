@@ -7,6 +7,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
+import { getStoragePath, CONTEXTKEEPER_DIR } from "../utils/path-resolver.js";
 
 export interface HookSettings {
   enabled: boolean;
@@ -95,9 +96,12 @@ const DEFAULT_CONFIG: C0ntextKeeperConfig = {
 export class ConfigManager {
   private configPath: string;
   private config: C0ntextKeeperConfig;
+  private isGlobal: boolean;
 
-  constructor() {
-    this.configPath = path.join(os.homedir(), ".c0ntextkeeper", "config.json");
+  constructor(options: { global?: boolean } = {}) {
+    this.isGlobal = options.global || false;
+    const basePath = getStoragePath({ global: this.isGlobal });
+    this.configPath = path.join(basePath, "config.json");
     this.config = this.loadConfig();
   }
 
@@ -120,6 +124,42 @@ export class ConfigManager {
     // Create default config file
     this.saveConfig(DEFAULT_CONFIG);
     return DEFAULT_CONFIG;
+  }
+
+  /**
+   * Get merged configuration (global + project)
+   */
+  static getMergedConfig(): C0ntextKeeperConfig {
+    const projectPath = getStoragePath({ global: false });
+    const globalPath = getStoragePath({ global: true });
+    
+    let globalConfig: Partial<C0ntextKeeperConfig> = {};
+    let projectConfig: Partial<C0ntextKeeperConfig> = {};
+    
+    const globalConfigPath = path.join(globalPath, "config.json");
+    if (fs.existsSync(globalConfigPath)) {
+      try {
+        globalConfig = JSON.parse(fs.readFileSync(globalConfigPath, "utf-8"));
+      } catch (error) {
+        console.error("Error loading global config:", error);
+      }
+    }
+    
+    const projectConfigPath = path.join(projectPath, "config.json");
+    if (fs.existsSync(projectConfigPath)) {
+      try {
+        projectConfig = JSON.parse(fs.readFileSync(projectConfigPath, "utf-8"));
+      } catch (error) {
+        console.error("Error loading project config:", error);
+      }
+    }
+    
+    // Project config overrides global, both override defaults
+    const manager = new ConfigManager();
+    return manager.mergeConfigs(
+      manager.mergeConfigs(DEFAULT_CONFIG, globalConfig),
+      projectConfig
+    );
   }
 
   /**

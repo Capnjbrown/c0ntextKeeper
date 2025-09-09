@@ -1,6 +1,6 @@
 {
   "name": "c0ntextkeeper",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "Intelligent context preservation and retrieval for Claude Code with analytics dashboard",
   "main": "dist/index.js",
   "bin": {
@@ -11,9 +11,13 @@
     "dev": "tsx watch src/server/index.ts",
     "build": "tsc",
     "cli": "tsx src/cli.ts",
+    "init": "tsx src/cli.ts init",
+    "init:global": "tsx src/cli.ts init --global",
+    "status": "tsx src/cli.ts status",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:storage": "jest tests/utils/path-resolver.test.ts",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write 'src/**/*.ts'",
     "format:check": "prettier --check 'src/**/*.ts'",

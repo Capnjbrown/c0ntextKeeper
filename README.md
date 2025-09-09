@@ -2,7 +2,7 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-09-05
+> Last Updated: 2025-09-09
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
@@ -16,7 +16,39 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![GitHub Stars](https://img.shields.io/github/stars/Capnjbrown/c0ntextKeeper?style=social)](https://github.com/Capnjbrown/c0ntextKeeper/stargazers)
 
-## 🚀 What's New in v0.5.3
+## 📑 Table of Contents
+- [What's New](#-whats-new-in-v060)
+- [The Problem](#-the-problem)
+- [The Solution](#-the-solution)
+- [How It Works](#-how-it-works-automatically)
+- [Quick Start](#-quick-start)
+- [Storage Architecture](#-storage-architecture)
+- [Features](#-features)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [CLI Usage](#-cli-usage)
+- [MCP Tools](#-mcp-tools)
+- [Analytics Dashboard](#-analytics-dashboard)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+## 🚀 What's New in v0.6.0
+
+**Package Version**: 0.6.0 | **Extraction Algorithm**: 0.6.0
+
+### 🏗️ Hybrid Storage Architecture
+- **🎯 Intelligent Storage** - Automatic project-local or global storage detection
+- **📁 Project Isolation** - Each project gets its own `.c0ntextkeeper/` directory
+- **🌍 Global Sharing** - Shared context in `~/.c0ntextkeeper/` across projects
+- **🔍 Smart Resolution** - Directory tree walking finds the right storage location
+- **🎛️ Environment Override** - Use `CONTEXTKEEPER_HOME` for custom locations
+- **⚡ New CLI Commands**:
+  - `c0ntextkeeper init` - Initialize storage in your project
+  - `c0ntextkeeper status` - Check storage configuration
+- **🔧 Configuration Merging** - Global and project configs work together
+
+## 📊 Previous Release - v0.5.3
 
 **Package Version**: 0.5.3 | **Extraction Algorithm**: 0.5.3
 
@@ -154,14 +186,21 @@ Every time Claude Code runs `/compact` (manually OR automatically), valuable con
 # Step 1: Install globally
 npm install -g c0ntextkeeper
 
-# Step 2: Run setup wizard (REQUIRED)
+# Step 2: Initialize storage (choose one)
+c0ntextkeeper init              # Project-local storage (recommended)
+c0ntextkeeper init --global      # Global storage for all projects
+
+# Step 3: Run setup wizard (REQUIRED)
 c0ntextkeeper setup
 
-# Step 3: Verify installation
+# Step 4: Verify installation
 c0ntextkeeper status
 ```
 
-**Important:** The `c0ntextkeeper setup` command is REQUIRED after installation to configure the hooks with Claude Code.
+**Important:** 
+- The `c0ntextkeeper init` command sets up your storage location (new in v0.6.0)
+- The `c0ntextkeeper setup` command configures the hooks with Claude Code
+- Both commands are required for proper operation
 
 That's it! c0ntextKeeper now automatically captures context before each `/compact`.
 
@@ -183,6 +222,39 @@ c0ntextKeeper requires **zero effort** after installation:
 | **Automatic** | Claude Code detects large context | Captures context automatically |
 
 **You don't need to do anything** - both types are handled automatically!
+
+## 🏗️ Storage Architecture
+
+c0ntextKeeper v0.6.0 introduces a flexible hybrid storage system:
+
+### Storage Modes
+
+#### Project-Local Storage (Recommended)
+```bash
+# Creates .c0ntextkeeper/ in your project
+c0ntextkeeper init
+```
+- Stores context within your project directory
+- Keeps project data isolated
+- Easily portable with your project
+- Can be version controlled (optional)
+
+#### Global Storage
+```bash
+# Uses ~/.c0ntextkeeper/ for all projects
+c0ntextkeeper init --global
+```
+- Shared storage across all projects
+- Centralized context management
+- Good for personal machines
+
+### Storage Resolution
+
+c0ntextKeeper automatically finds the right storage location:
+1. Checks `CONTEXTKEEPER_HOME` environment variable
+2. Looks for `.c0ntextkeeper/` in current directory
+3. Walks up directory tree searching for `.c0ntextkeeper/`
+4. Falls back to `~/.c0ntextkeeper/` (global)
 
 ## 📦 Installation
 
@@ -397,12 +469,20 @@ Decision from 2025-08-10:
 
 ## 🛠️ CLI Commands
 
+### Storage Management (New in v0.6.0)
+
+```bash
+# Initialize storage
+c0ntextkeeper init           # Initialize project-local storage
+c0ntextkeeper init --global  # Initialize global storage
+c0ntextkeeper status         # Check storage configuration and status
+```
+
 ### Core Commands
 
 ```bash
 # Setup and configuration
 c0ntextkeeper setup          # Configure hooks for Claude Code
-c0ntextkeeper status         # Show automation status
 
 # Manual operations
 c0ntextkeeper archive <file> # Manually archive a JSONL transcript
@@ -449,12 +529,13 @@ c0ntextKeeper/
 │   ├── Solution Mapper
 │   ├── Decision Extractor
 │   └── Pattern Identifier
-├── Configuration System    # Centralized settings
-│   └── ~/.c0ntextkeeper/config.json
-├── Storage Layer          # Multiple storage locations
-│   ├── ~/.c0ntextkeeper/archive/    # Session transcripts
-│   ├── ~/.c0ntextkeeper/prompts/    # User questions
-│   ├── ~/.c0ntextkeeper/patterns/   # Tool usage
+├── Configuration System    # Hybrid configuration hierarchy
+│   ├── Project: .c0ntextkeeper/config.json
+│   └── Global: ~/.c0ntextkeeper/config.json
+├── Storage Layer          # Flexible storage locations
+│   ├── archive/           # Session transcripts
+│   ├── prompts/           # User questions
+│   ├── patterns/          # Tool usage
 │   └── ~/.c0ntextkeeper/knowledge/  # Q&A pairs
 └── MCP Server            # Exposes retrieval tools to Claude Code
     ├── fetch_context
@@ -464,28 +545,48 @@ c0ntextKeeper/
 
 ## 📁 Where Is My Data Stored?
 
-**All data is stored locally on your Mac** in hidden directories:
+**All data is stored locally on your Mac** - v0.6.0 introduces hybrid storage:
 
-| Data Type | Location | Purpose |
-|-----------|----------|----------|
-| **Archived Contexts** | `~/.c0ntextkeeper/archive/` | Your preserved work sessions |
-| **Hook Configuration** | `~/.claude/settings.json` | Claude Code integration settings |
-| **Logs** | `~/.c0ntextkeeper/logs/` | Debug and execution logs |
+### Storage Locations (v0.6.0+)
+
+| Storage Mode | Location | When to Use |
+|--------------|----------|-------------|
+| **Project-Local** | `.c0ntextkeeper/` in project | Recommended - keeps context with project |
+| **Global** | `~/.c0ntextkeeper/` | For shared context across projects |
+| **Custom** | Via `CONTEXTKEEPER_HOME` | For custom storage locations |
+
+### Data Organization
+
+| Data Type | Relative Path | Purpose |
+|-----------|---------------|----------|
+| **Archived Contexts** | `archive/` | Your preserved work sessions |
+| **Prompts** | `prompts/` | User questions and requests |
+| **Patterns** | `patterns/` | Tool usage patterns |
+| **Knowledge** | `knowledge/` | Q&A pairs |
+| **Configuration** | `config.json` | Storage settings |
+| **Hook Configuration** | `~/.claude/settings.json` | Claude Code integration |
 
 ### Quick Access Commands
 
 ```bash
-# Open your archives in Finder
+# Check current storage location
+c0ntextkeeper status
+
+# Open your archives in Finder (project-local)
+open .c0ntextkeeper/archive
+
+# Open global archives
 open ~/.c0ntextkeeper/archive
 
 # View your latest archive
-ls -t ~/.c0ntextkeeper/archive/projects/*/sessions/*.json | head -1 | xargs cat | jq '.'
+c0ntextkeeper search  # Shows 5 most recent
 
 # Search your archives
 c0ntextkeeper search "authentication"
 
 # Check storage size
-du -sh ~/.c0ntextkeeper/
+du -sh .c0ntextkeeper/  # Project-local
+du -sh ~/.c0ntextkeeper/  # Global
 ```
 
 **📖 For detailed information, see the [USER-GUIDE.md](USER-GUIDE.md)**
@@ -497,6 +598,11 @@ c0ntextKeeper works out of the box, but you can customize its behavior:
 ### Environment Variables
 
 ```bash
+# Storage Configuration (v0.6.0+)
+CONTEXTKEEPER_HOME=/path/to/storage  # Override storage location
+CONTEXTKEEPER_GLOBAL=true            # Force global storage mode
+
+# Processing Configuration
 LOG_LEVEL=INFO           # Logging level (DEBUG, INFO, WARN, ERROR)
 RETENTION_DAYS=90        # Days to keep archived context
 MAX_CONTEXT_ITEMS=50     # Maximum items per extraction
