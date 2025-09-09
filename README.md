@@ -56,7 +56,7 @@
 - **📄 JSON Everywhere** - All archives now use consistent JSON format (no more JSONL)
 - **🧪 Test Data Separation** - Test/validation data automatically separated to `test/` directory
 - **📖 Better Readability** - All archive files now human-readable with proper formatting
-- **📚 File Format Docs** - New FILE-FORMATS.md with comprehensive format reference
+- **📚 File Format Docs** - New [File Formats Guide](docs/technical/file-formats.md) with comprehensive format reference
 - **🏷️ Standardized Naming** - Consistent file naming across all archive types
 - **✨ Daily Aggregation** - Prompts, patterns, and knowledge use daily JSON arrays
 
@@ -589,7 +589,7 @@ du -sh .c0ntextkeeper/  # Project-local
 du -sh ~/.c0ntextkeeper/  # Global
 ```
 
-**📖 For detailed information, see the [USER-GUIDE.md](USER-GUIDE.md)**
+**📖 For detailed information, see the [User Guide](docs/guides/user-guide.md)**
 
 ## ⚙️ Configuration
 
@@ -633,6 +633,16 @@ RELEVANCE_THRESHOLD=0.5  # Minimum relevance score (0-1)
 - Node.js 18.x, 20.x, or 22.x
 - TypeScript 5.9+
 - Git
+- Claude Code CLI (optional, for enhanced development)
+
+### Claude Code CLI Integration
+
+c0ntextKeeper includes special support for Claude Code CLI development:
+
+- **`CLAUDE.md`** - Team-shared Claude Code instructions (version controlled)
+- **`CLAUDE.local.md`** - Personal Claude Code settings (git-ignored, optional)
+
+The `CLAUDE.md` file at the project root is automatically detected by Claude Code CLI when running `claude` commands, providing project-specific context and guidelines. For personal settings that shouldn't be shared with the team, create a `CLAUDE.local.md` file (automatically ignored by git).
 
 ### Building from Source
 
@@ -688,10 +698,10 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ### Quick Contribution Guide
 1. Fork the repository
-2. Review [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) for technical architecture
+2. Review [Project Context](docs/development/project-context.md) for technical architecture
 3. Create a feature branch (`git checkout -b feature/amazing-feature`)
 4. Make your changes
-5. Update PROJECT_CONTEXT.md if making architectural changes
+5. Update [Project Context](docs/development/project-context.md) if making architectural changes
 6. Run tests (`npm test`) and linting (`npm run lint`)
 7. Commit using conventional commits (`feat:`, `fix:`, etc.)
 8. Push to your branch
@@ -799,7 +809,7 @@ cat ~/.claude/settings.json | jq '.hooks.PreCompact'
 c0ntextkeeper setup
 ```
 
-For more troubleshooting, see [USER-GUIDE.md](USER-GUIDE.md#troubleshooting)
+For more troubleshooting, see the [User Guide](docs/guides/user-guide.md#troubleshooting)
 
 ## 📊 Project Status
 
@@ -838,9 +848,22 @@ For more troubleshooting, see [USER-GUIDE.md](USER-GUIDE.md#troubleshooting)
 - 🐛 [Issue Tracker](https://github.com/Capnjbrown/c0ntextKeeper/issues)
 - 📧 [Email Support](mailto:support@c0ntextkeeper.com)
 
-### Resources
-- [User Guide](USER-GUIDE.md) - Complete guide to accessing your data
-- [Hook Integration](HOOK-INTEGRATION.md) - Technical setup details
+### 📚 Documentation
+
+#### Quick Links
+- **[📖 Documentation Index](docs/README.md)** - Complete documentation map
+- **[👤 User Guide](docs/guides/user-guide.md)** - Installation and usage
+- **[🔧 Technical Specs](docs/technical/)** - Technical documentation
+- **[🛠️ Development](docs/development/)** - Development guidelines
+
+#### Key Documents
+- [Hook Integration](docs/technical/hook-integration.md) - Set up automatic context preservation
+- [File Formats](docs/technical/file-formats.md) - Archive format specifications
+- [Storage Architecture](docs/technical/storage.md) - Hybrid storage system
+- [Migration Guide](docs/guides/migration-guide.md) - Version migration procedures
+- [MCP Usage](docs/technical/mcp-usage.md) - MCP tool patterns
+
+### External Resources
 - [Homepage](https://c0ntextkeeper.com)
 - [NPM Package](https://www.npmjs.com/package/c0ntextkeeper)
 - [MCP Documentation](https://modelcontextprotocol.io)

@@ -14,6 +14,7 @@ build/
 coverage/
 *.lcov
 .nyc_output/
+test-transcript-*.jsonl
 
 # Environment files
 .env
@@ -21,6 +22,9 @@ coverage/
 .env.development
 .env.test
 .env.production
+
+# Claude Code CLI
+CLAUDE.local.md
 
 # IDE
 .vscode/

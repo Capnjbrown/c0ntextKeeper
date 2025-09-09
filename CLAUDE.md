@@ -1,6 +1,7 @@
 # c0ntextKeeper - MCP Context Preservation System
+<!-- This file is automatically detected by Claude Code CLI when running `claude` commands -->
 
-> **📋 NOTE**: This file contains workflow guidelines. For technical specifications and current project state, see **[PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md)** - the authoritative source of truth.
+> **📋 NOTE**: This file contains workflow guidelines. For technical specifications and current project state, see **[project-context.md](docs/development/project-context.md)** - the authoritative source of truth.
 
 ## Project Vision
 Building an MCP server that intelligently preserves valuable context from Claude Code sessions during compaction, ensuring no critical knowledge is lost between conversations.
@@ -12,14 +13,14 @@ c0ntextKeeper addresses the context loss problem in Claude Code by:
 - Providing searchable access to historical context via MCP tools
 - Building a knowledge graph of project-specific learnings
 
-## 📋 CRITICAL: PROJECT_CONTEXT.md is the Single Source of Truth
+## 📋 CRITICAL: project-context.md is the Single Source of Truth
 
 **MANDATORY READING**: Before starting ANY work on this project, you MUST:
-1. Read the complete PROJECT_CONTEXT.md file
+1. Read the complete project-context.md file
 2. Use it as your primary reference for project state
 3. Update it IMMEDIATELY when making significant changes
 
-PROJECT_CONTEXT.md contains:
+project-context.md contains:
 - Complete project identification and purpose
 - All technical specifications and architecture
 - Current implementation status
@@ -27,7 +28,7 @@ PROJECT_CONTEXT.md contains:
 - Important file references
 - Analysis metadata
 
-⚠️ **This CLAUDE.md file provides workflow guidelines, but PROJECT_CONTEXT.md is the authoritative technical reference.**
+⚠️ **This CLAUDE.md file provides workflow guidelines, but project-context.md is the authoritative technical reference.**
 
 ## Current Development Status
 
@@ -211,8 +212,10 @@ Successfully implemented the complete c0ntextKeeper system with Claude Code form
 c0ntextKeeper/
 ├── .mcp.json                 # MCP server configurations
 ├── .gitignore              # Security configuration
-├── MCP-USAGE.md           # MCP server documentation
-├── CLAUDE.md             # This file - project context
+├── docs/
+│   ├── technical/          # Technical documentation
+│   ├── guides/            # User guides
+│   └── development/       # Development docs
 ├── README.md             # User-facing documentation
 ├── LICENSE               # MIT license
 ├── package.json          # Node.js configuration
@@ -353,7 +356,7 @@ Always start with sequential-thinking for complex problems, then research with g
 ### 🎯 MANDATORY: Sequential-Thinking First Policy
 
 **BEFORE starting ANY task, you MUST:**
-0. Read PROJECT_CONTEXT.md for current project state
+0. Read project-context.md for current project state
 1. Use `mcp__sequential-thinking__sequentialthinking` to analyze the task
 2. Determine the most optimal MCP server(s) for the job
 3. Plan the approach and execution strategy
@@ -464,7 +467,7 @@ simultaneously by implementing queue system.
 # Documentation
 docs(mcp): add comprehensive testing procedures
 
-- Create MCP-TESTING.md with all test commands
+- Create testing documentation with all test commands
 - Include expected outputs for verification
 - Add troubleshooting section
 ```
@@ -566,9 +569,9 @@ npm start
 
 ## Documentation Maintenance
 
-### 🎯 PROJECT_CONTEXT.md Update Policy (HIGHEST PRIORITY)
+### 🎯 project-context.md Update Policy (HIGHEST PRIORITY)
 
-**PROJECT_CONTEXT.md is the AUTHORITATIVE SOURCE OF TRUTH and must be updated IMMEDIATELY when:**
+**project-context.md is the AUTHORITATIVE SOURCE OF TRUTH and must be updated IMMEDIATELY when:**
 
 #### Mandatory Update Triggers
 1. **Version Changes**
@@ -610,7 +613,7 @@ npm start
    - Config file format updates
    - Default settings modified
 
-#### How to Update PROJECT_CONTEXT.md
+#### How to Update project-context.md
 1. **Read current version** before making changes
 2. **Update relevant sections** as you work
 3. **Keep version history** accurate
@@ -619,14 +622,14 @@ npm start
 6. **Cross-reference** with other documentation
 
 #### Documentation Hierarchy
-1. **PROJECT_CONTEXT.md** - Single source of truth (UPDATE FIRST)
+1. **project-context.md** - Single source of truth (UPDATE FIRST)
 2. **README.md** - User-facing documentation (UPDATE SECOND)
 3. **CLAUDE.md** - This file - workflow guidelines (UPDATE THIRD)
 4. Other documentation files as needed
 
 ### README Update Policy
 
-**After updating PROJECT_CONTEXT.md, update README.md when ANY user-facing changes occur:**
+**After updating project-context.md, update README.md when ANY user-facing changes occur:**
 
 #### Triggers for README Updates
 1. **Dependencies** - User-visible changes
@@ -644,7 +647,7 @@ Include last updated timestamp:
 
 ### Cross-Reference Maintenance
 When updating documentation:
-1. **Start with PROJECT_CONTEXT.md**
+1. **Start with project-context.md**
 2. Update other files based on changes
 3. Ensure consistency across all docs
 4. Verify all links work
@@ -725,7 +728,7 @@ When updating documentation:
 
 ### Standard Development Flow
 
-**📋 STEP 0: ALWAYS READ PROJECT_CONTEXT.md FIRST**
+**📋 STEP 0: ALWAYS READ project-context.md FIRST**
 
 **⚠️ IMPORTANT: Always start with Task Execution Protocol (sequential-thinking first)**
 
@@ -755,12 +758,12 @@ When updating documentation:
    - Manual verification
 
 6. **Update documentation** 
-   - Update PROJECT_CONTEXT.md FIRST for any significant changes
+   - Update project-context.md FIRST for any significant changes
    - Update README.md for user-facing changes
    - Sync CLAUDE.md if workflow changes
-   - Update MCP-USAGE.md for new patterns
+   - Update technical documentation for new patterns
 
-7. **Update PROJECT_CONTEXT.md** 
+7. **Update project-context.md** 
    - Document any architecture changes
    - Update feature status
    - Add new dependencies
@@ -835,9 +838,9 @@ MIT - Open source for the community
 ## Notes
 
 ### Critical Reminders
-- **ALWAYS** read PROJECT_CONTEXT.md before starting work
-- **IMMEDIATELY** update PROJECT_CONTEXT.md for any significant changes
-- **PROJECT_CONTEXT.md** is the single source of truth - keep it current
+- **ALWAYS** read project-context.md before starting work
+- **IMMEDIATELY** update project-context.md for any significant changes
+- **project-context.md** is the single source of truth - keep it current
 - **ALWAYS** use sequential-thinking BEFORE any task
 - **NEVER** execute git commits - only draft messages
 - **IMMEDIATELY** update README.md for any user-facing changes
@@ -847,8 +850,8 @@ MIT - Open source for the community
 - Environment variables in .env (never commit)
 - All code must pass lint and typecheck before commit
 - Use `/mcp` command to verify all servers are connected
-- Refer to MCP-USAGE.md for detailed tool documentation
-- See MCP-TESTING.md for comprehensive testing procedures
+- Refer to [MCP Usage](docs/technical/mcp-usage.md) for detailed tool documentation
+- See [MCP Testing](docs/technical/mcp-testing.md) for comprehensive testing procedures
 - Follow GitHub README best practices for all documentation
 
 ### Getting Current Timestamp

@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Real sessions remain in `projects/[name]/sessions/` directory
   - Test data excluded from project statistics and indexes
   - Added `isTest` flag to metadata for identification
-- **File Format Documentation**: Comprehensive FILE-FORMATS.md reference
+- **File Format Documentation**: Comprehensive file formats documentation
   - Complete format specifications for all archive types
   - Storage structure documentation
   - Migration guidance from JSONL to JSON

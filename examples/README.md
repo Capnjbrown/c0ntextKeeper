@@ -143,6 +143,6 @@ Have a great example of c0ntextKeeper in action? Please contribute:
 
 ## Questions?
 
-- See the [User Guide](../USER-GUIDE.md) for detailed usage
+- See the [User Guide](../docs/guides/user-guide.md) for detailed usage
 - Check [Troubleshooting](troubleshooting/) for common issues
 - Open an [issue](https://github.com/Capnjbrown/c0ntextKeeper/issues) for help

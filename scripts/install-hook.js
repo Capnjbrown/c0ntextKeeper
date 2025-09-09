@@ -210,7 +210,7 @@ exit $EXIT_CODE
   console.log('- Test hook: c0ntextkeeper test-hook');
   
   log('\n📖 Documentation:', colors.bright);
-  console.log('- Integration guide: ' + path.join(projectDir, 'HOOK-INTEGRATION.md'));
+  console.log('- Integration guide: ' + path.join(projectDir, 'docs/technical/hook-integration.md'));
   console.log('- Project README: ' + path.join(projectDir, 'README.md'));
   
   // Step 10: Verify installation

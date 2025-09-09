@@ -369,6 +369,6 @@ When reporting MCP server issues, include:
 
 ## Related Documentation
 
-- [MCP-USAGE.md](./MCP-USAGE.md) - Detailed usage guide
-- [CLAUDE.md](./CLAUDE.md) - Project context and architecture
-- [README.md](./README.md) - Quick start guide
+- [MCP Usage Guide](./mcp-usage.md) - Detailed usage guide
+- [CLAUDE.md](../../CLAUDE.md) - Project context and architecture
+- [README.md](../../README.md) - Quick start guide

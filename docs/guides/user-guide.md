@@ -673,7 +673,7 @@ ls -la ~/.c0ntextkeeper/archive/projects/
 
 ## Support
 
-- **Documentation**: See `README.md` and `HOOK-INTEGRATION.md`
+- **Documentation**: See [README.md](../../README.md) and [Hook Integration](../technical/hook-integration.md)
 - **Troubleshooting**: See the comprehensive troubleshooting section above
 - **Issues**: https://github.com/Capnjbrown/c0ntextKeeper/issues
 - **Logs**: Check `~/.c0ntextkeeper/logs/hook.log`

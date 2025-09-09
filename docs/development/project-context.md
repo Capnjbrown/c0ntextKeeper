@@ -267,8 +267,8 @@ c0ntextkeeper setup     # Configure hooks
 
 ### Documentation Coverage
 - **Inline Documentation**: Comprehensive JSDoc comments
-- **API Documentation**: MCP-USAGE.md for tool documentation
-- **User Documentation**: README.md, USER-GUIDE.md, extensive guides
+- **API Documentation**: Technical docs for tool documentation
+- **User Documentation**: README.md, user guides, extensive documentation
 - **Developer Documentation**: CONTRIBUTING.md, migration guides
 
 ## Deployment & Operations
@@ -325,7 +325,7 @@ c0ntextkeeper setup     # Configure hooks
 ### Recent Changes (v0.5.3)
 - **Storage Format**: Migrated all archives from JSONL to JSON for consistency
 - **Test Data Separation**: Automatic separation of test data to `test/` directory
-- **File Format Documentation**: Added comprehensive FILE-FORMATS.md reference
+- **File Format Documentation**: Added comprehensive file formats reference
 - **Archive Readability**: All files now human-readable with proper formatting
 
 ### Previous Fixes (v0.5.2)
@@ -401,19 +401,19 @@ npm publish           # Publish to npm
   - `~/.claude/settings.json` - Claude Code hook settings
 - **Core Documentation**: 
   - `README.md` - User-facing documentation with badges
-  - `CLAUDE.md` - Project context for development
-  - `PROJECT_CONTEXT.md` - This file - single source of truth
+  - `/docs/development/claude.md` - Project context for development
+  - `/docs/development/project-context.md` - This file - single source of truth
 - **Technical Documentation**:
-  - `MCP-USAGE.md` - MCP server usage patterns
-  - `MCP-TESTING.md` - Testing procedures for all servers
-  - `MCP-ACTIVATION.md` - MCP activation guide
+  - `/docs/technical/mcp-usage.md` - MCP server usage patterns
+  - `/docs/technical/mcp-testing.md` - Testing procedures for all servers
+  - `/docs/technical/mcp-activation.md` - MCP activation guide
 - **Hook Documentation**:
-  - `HOOK-INTEGRATION.md` - Hook setup and troubleshooting
-  - `HOOKS-CUSTOMIZATION.md` - Hook customization guide
-  - `FILE-FORMATS.md` - Comprehensive file format reference (v0.5.3)
+  - `/docs/technical/hook-integration.md` - Hook setup and troubleshooting
+  - `/docs/technical/hooks-customization.md` - Hook customization guide
+  - `/docs/technical/file-formats.md` - Comprehensive file format reference (v0.5.3)
 - **User Documentation**:
-  - `USER-GUIDE.md` - Data access and storage locations
-  - `MIGRATION_GUIDE.md` - Version migration procedures
+  - `/docs/guides/user-guide.md` - Data access and storage locations
+  - `/docs/guides/migration-guide.md` - Version migration procedures
   - `CHANGELOG.md` - Detailed version history
 - **Community Documentation**:
   - `CONTRIBUTING.md` - Contribution guidelines

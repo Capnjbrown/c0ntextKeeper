@@ -152,11 +152,23 @@ docs(readme): add installation troubleshooting section
 - **Add JSDoc comments** for public APIs
 - **Keep functions small** (<50 lines)
 
+### Naming Convention Quick Reference
+
+| Convention | Example | Primary Usage |
+|------------|---------|---------------|
+| camelCase | `firstName` | JS/TS variables, functions |
+| PascalCase | `FirstName` | Classes, components, types |
+| snake_case | `first_name` | Test fixtures, data files |
+| kebab-case | `first-name` | File names, URLs |
+| SCREAMING_SNAKE | `FIRST_NAME` | Constants, env vars |
+
+**Note:** See [docs/NAMING-CONVENTIONS.md](docs/NAMING-CONVENTIONS.md) for complete guidelines.
+
 ## Documentation
 
 - **Update README.md** for user-facing changes
 - **Add JSDoc comments** for new functions/classes
-- **Update MCP-USAGE.md** for new MCP tools
+- **Update [MCP Usage](docs/technical/mcp-usage.md)** for new MCP tools
 - **Include examples** in documentation
 
 ## Review Process
