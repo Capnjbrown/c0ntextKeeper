@@ -35,15 +35,18 @@ export function getStoragePath(options: StorageOptions = {}): string {
     createIfMissing = false 
   } = options;
   
-  // Force global mode
-  if (forceGlobal) {
+  // Check for environment variable to force global mode
+  const envForceGlobal = process.env.CONTEXTKEEPER_FORCE_GLOBAL === 'true';
+  
+  // Force global mode (from parameter or environment)
+  if (forceGlobal || envForceGlobal) {
     if (createIfMissing && !fs.existsSync(GLOBAL_DIR)) {
       fs.mkdirSync(GLOBAL_DIR, { recursive: true });
     }
     return GLOBAL_DIR;
   }
   
-  // 1. Check environment variable
+  // 1. Check environment variable for custom home
   if (process.env.CONTEXTKEEPER_HOME) {
     const envPath = path.resolve(process.env.CONTEXTKEEPER_HOME);
     if (createIfMissing && !fs.existsSync(envPath)) {
@@ -118,19 +121,15 @@ export function initializeStorage(
   const { isGlobal = false, projectName } = options;
   
   const dirs = isGlobal ? [
-    path.join(storagePath, 'projects'),
-    path.join(storagePath, 'global'),
-    path.join(storagePath, 'global', 'solutions'),
+    path.join(storagePath, 'archive'),
+    path.join(storagePath, 'archive', 'projects'),
+    path.join(storagePath, 'archive', 'global'),
     path.join(storagePath, 'logs')
   ] : [
     path.join(storagePath, 'archive'),
-    path.join(storagePath, 'archive', 'sessions'),
-    path.join(storagePath, 'archive', 'test'),
-    path.join(storagePath, 'prompts'),
-    path.join(storagePath, 'patterns'),
-    path.join(storagePath, 'knowledge'),
-    path.join(storagePath, 'errors'),
-    path.join(storagePath, 'solutions'),
+    path.join(storagePath, 'archive', 'projects'),
+    path.join(storagePath, 'archive', 'projects', projectName || 'default'),
+    path.join(storagePath, 'archive', 'projects', projectName || 'default', 'sessions'),
     path.join(storagePath, 'logs')
   ];
   

@@ -8,12 +8,12 @@ This document provides comprehensive testing procedures for all MCP servers conf
 
 | Server | Last Tested | Status | Version |
 |--------|------------|--------|---------|
-| filesystem | 2025-09-02 | ✅ Operational | @modelcontextprotocol/server-filesystem |
-| sequential-thinking | 2025-09-02 | ✅ Operational | @modelcontextprotocol/server-sequential-thinking |
-| github-mcp | 2025-09-02 | ✅ Operational | @modelcontextprotocol/server-github |
-| context7 | 2025-09-02 | ✅ Operational | @upstash/context7-mcp |
-| fetch | 2025-09-02 | ✅ Operational | @kazuph/mcp-fetch |
-| c0ntextKeeper | 2025-09-02 | ✅ v0.5.0 | Claude Code format compatible |
+| filesystem | 2025-09-09 | ✅ Operational | @modelcontextprotocol/server-filesystem |
+| sequential-thinking | 2025-09-09 | ✅ Operational | @modelcontextprotocol/server-sequential-thinking |
+| github-mcp | 2025-09-09 | ✅ Operational | @modelcontextprotocol/server-github |
+| context7 | 2025-09-09 | ✅ Operational | @upstash/context7-mcp |
+| fetch | 2025-09-09 | ✅ Operational | @kazuph/mcp-fetch |
+| c0ntextKeeper | 2025-09-09 | ✅ v0.6.0 | Unified storage architecture |
 
 ## Quick Health Check
 
@@ -39,10 +39,10 @@ Run these commands immediately after starting Claude Code to verify all servers 
 ```typescript
 // Test 1: List allowed directories
 "Use mcp__filesystem__list_allowed_directories"
-// Expected: /Users/jasonbrown/Projects/c0ntextKeeper
+// Expected: Your project directory path
 
 // Test 2: List project contents
-"Use mcp__filesystem__list_directory to show /Users/jasonbrown/Projects/c0ntextKeeper"
+"Use mcp__filesystem__list_directory to show current project directory"
 // Expected: List of project files including .mcp.json, CLAUDE.md, etc.
 ```
 
@@ -60,7 +60,7 @@ Run these commands immediately after starting Claude Code to verify all servers 
 #### Search Operations
 ```typescript
 // Test 5: Search for files
-"Use mcp__filesystem__search_files to find '*.md' in /Users/jasonbrown/Projects/c0ntextKeeper"
+"Use mcp__filesystem__search_files to find '*.md' in current project"
 // Expected: List of all markdown files
 ```
 
@@ -190,6 +190,49 @@ Run these commands immediately after starting Claude Code to verify all servers 
 
 ---
 
+### 6. c0ntextKeeper Server Tests (v0.6.0)
+
+#### Context Retrieval
+```typescript
+// Test 1: Fetch relevant context
+"Use mcp__c0ntextkeeper__fetch_context with query='authentication implementation'"
+// Expected: Relevant archived context about authentication
+
+// Test 2: Search archives
+"Use mcp__c0ntextkeeper__search_archive with query='database configuration'"
+// Expected: Search results from all archived sessions
+
+// Test 3: Get patterns
+"Use mcp__c0ntextkeeper__get_patterns"
+// Expected: Recurring patterns and common solutions
+```
+
+#### Storage Configuration Test
+```bash
+# Test storage status
+c0ntextkeeper status
+
+# Expected output shows:
+# - Storage location (global or local)
+# - Automation status
+# - Hook configurations
+# - Archive statistics
+```
+
+#### Hook Testing
+```bash
+# Test individual hooks
+c0ntextkeeper hooks test precompact
+c0ntextkeeper hooks test userprompt
+c0ntextkeeper hooks test posttool
+c0ntextkeeper hooks test stop
+
+# View hook statistics
+c0ntextkeeper hooks stats
+```
+
+---
+
 ## Integration Tests
 
 ### Cross-Server Workflow Test
@@ -260,10 +303,10 @@ ls -la .mcp.json
 ### Permission Issues
 ```typescript
 // Test filesystem boundaries
-"Use filesystem to list /Users"
+"Use filesystem to list parent directory"
 // Expected: Error - outside allowed directory
 
-"Use filesystem to list /Users/jasonbrown/Projects/c0ntextKeeper"
+"Use filesystem to list current project directory"
 // Expected: Success - within allowed directory
 ```
 
@@ -334,7 +377,7 @@ MCP Servers:
 ### Successful Filesystem Test
 ```
 Allowed directories:
-/Users/jasonbrown/Projects/c0ntextKeeper
+[Your project path]
 ```
 
 ### Successful GitHub Search
@@ -361,7 +404,7 @@ When reporting MCP server issues, include:
 
 ## Notes
 
-- All tests performed in project directory: `/Users/jasonbrown/Projects/c0ntextKeeper`
+- All tests performed in your project directory
 - Filesystem server restricted to project directory only
 - GitHub token required for github-mcp server
 - Some operations may have rate limits

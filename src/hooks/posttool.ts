@@ -9,9 +9,9 @@
 import { SecurityFilter } from "../utils/security-filter";
 import { FileStore } from "../storage/file-store";
 import { getStoragePath } from "../utils/path-resolver";
+import { getHookStoragePath } from "../utils/project-utils";
 import * as fs from "fs";
 import * as path from "path";
-import * as crypto from "crypto";
 
 interface PostToolHookInput {
   hook_event_name: "PostToolUse" | "postToolUse";
@@ -70,19 +70,22 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
     }
 
     // Store patterns for analysis in JSON format
-    const projectHash = crypto
-      .createHash("md5")
-      .update(input.project_path || process.cwd())
-      .digest("hex")
-      .substring(0, 8);
-
-    // Store patterns at root level, not under archive/
-    const storagePath = path.join(
-      process.env.HOME || "",
-      ".c0ntextkeeper",
-      "patterns",
-      projectHash,
-      `${new Date().toISOString().split("T")[0]}-patterns.json`,
+    const dateString = new Date().toISOString().split("T")[0];
+    const workingDir = input.project_path || process.cwd();
+    
+    // Use proper storage resolution (respects env vars and storage hierarchy)
+    const basePath = getStoragePath({ 
+      projectPath: workingDir,
+      createIfMissing: true
+    });
+    
+    // Use unified project-based storage structure
+    const storagePath = getHookStoragePath(
+      basePath,
+      'patterns',
+      workingDir,
+      dateString,
+      'patterns.json'
     );
 
     // Ensure directory exists

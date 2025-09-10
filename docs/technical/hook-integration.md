@@ -71,19 +71,19 @@ c0ntextKeeper implements 4 powerful hooks:
 2. **UserPromptSubmit** (Optional)
    - Fires when you send a message to Claude
    - Tracks your questions and requests
-   - Storage: `prompts/` (relative to storage location)
+   - Storage: `archive/projects/[project-name]/prompts/`
    - Enable: `c0ntextkeeper hooks enable userprompt`
 
 3. **PostToolUse** (Optional)
    - Fires after Claude uses tools (Write, Edit, Bash, etc.)
    - Captures tool results and patterns
-   - Storage: `patterns/` (relative to storage location)
+   - Storage: `archive/projects/[project-name]/patterns/`
    - Enable: `c0ntextkeeper hooks enable posttool`
 
 4. **Stop** (Optional)
    - Fires after Claude finishes responding
    - Saves complete Q&A exchanges
-   - Storage: `knowledge/` (relative to storage location)
+   - Storage: `archive/projects/[project-name]/knowledge/`
    - Enable: `c0ntextkeeper hooks enable stop`
 
 ### Automatic Compaction

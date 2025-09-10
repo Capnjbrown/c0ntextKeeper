@@ -43,9 +43,14 @@ Once Claude Code is restarted, test the three available tools:
 
 ## 📍 MCP Server Location
 
-The server is installed at:
+The server runs from your c0ntextKeeper installation:
 ```
-/Users/jasonbrown/Projects/c0ntextKeeper/dist/server/index.js
+~/Projects/c0ntextKeeper/dist/server/index.js
+```
+
+Or if installed globally via npm:
+```
+$(npm root -g)/c0ntextkeeper/dist/server/index.js
 ```
 
 ## 🛠️ Manual Testing
@@ -82,15 +87,28 @@ node scripts/test-mcp-server.js
 
 Check what's been captured so far:
 ```bash
-# Count archives
+# Check storage configuration
+c0ntextkeeper status
+
+# Count all archives
 find ~/.c0ntextkeeper/archive -name "*.json" | wc -l
 
-# View latest archive
+# View latest session archive
 ls -t ~/.c0ntextkeeper/archive/projects/*/sessions/*.json | head -1
 
 # Check storage size
+c0ntextkeeper stats
+
+# Or manually
 du -sh ~/.c0ntextkeeper/
 ```
+
+## 🏗️ v0.6.0 Unified Storage Architecture
+
+- **📁 Global Storage Default** - Archives at `~/.c0ntextkeeper/archive/`
+- **🏷️ Project Name Organization** - Archives organized by readable project names
+- **🎛️ Environment Override** - Use `CONTEXTKEEPER_HOME` for custom locations
+- **📊 Storage Status** - Check configuration with `c0ntextkeeper status`
 
 ## 🎉 Success!
 

@@ -9,9 +9,9 @@
 import { SecurityFilter } from "../utils/security-filter";
 import { FileStore } from "../storage/file-store";
 import { getStoragePath } from "../utils/path-resolver";
+import { getHookStoragePath } from "../utils/project-utils";
 import * as fs from "fs";
 import * as path from "path";
-import * as crypto from "crypto";
 
 interface UserPromptHookInput {
   hook_event_name: "UserPromptSubmit" | "userPromptSubmit";
@@ -66,19 +66,22 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
     }
 
     // Store in JSON format for better readability
-    const projectHash = crypto
-      .createHash("md5")
-      .update(context.projectPath || "global")
-      .digest("hex")
-      .substring(0, 8);
-
-    // Store prompts at root level, not under archive/
-    const storagePath = path.join(
-      process.env.HOME || "",
-      ".c0ntextkeeper",
-      "prompts",
-      projectHash,
-      `${new Date().toISOString().split("T")[0]}-prompts.json`,
+    const dateString = new Date().toISOString().split("T")[0];
+    const workingDir = context.projectPath || process.cwd();
+    
+    // Use proper storage resolution (respects env vars and storage hierarchy)
+    const basePath = getStoragePath({ 
+      projectPath: workingDir,
+      createIfMissing: true
+    });
+    
+    // Use unified project-based storage structure
+    const storagePath = getHookStoragePath(
+      basePath,
+      'prompts',
+      workingDir,
+      dateString,
+      'prompts.json'
     );
 
     // Ensure directory exists

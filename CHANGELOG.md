@@ -8,24 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.6.0] - 2025-09-09
 
 ### Added
-- **Hybrid Storage Architecture**: Intelligent project-local and global storage system
-  - Project-local storage in `.c0ntextkeeper/` within project directories
-  - Global storage in `~/.c0ntextkeeper/` for shared context across projects
-  - Automatic directory tree walking to find appropriate storage location
-  - Environment variable override with `CONTEXTKEEPER_HOME` for custom locations
-- **Storage Management CLI Commands**:
-  - `c0ntextkeeper init`: Initialize storage in project or globally
-  - `c0ntextkeeper status`: Check current storage configuration and status
-  - Added `--global` flag for global storage operations
-  - Added `--force` flag to reinitialize existing storage
-  - Added `--skip-gitignore` flag to skip .gitignore updates
-- **Path Resolution System** (`src/utils/path-resolver.ts`):
-  - Smart 4-step resolution algorithm for finding storage
-  - Project hash generation for unique project identification
-  - Storage structure initialization with proper directories
-  - Support for symbolic links and nested project paths
-- **Configuration Merging**: Global and project configurations merge intelligently
-- **Storage Documentation**: Comprehensive STORAGE.md with architecture details
+- **Unified Storage Architecture**: Streamlined storage system with intelligent organization
+  - Archives organized by project name instead of cryptic hashes
+  - Global storage default at `~/.c0ntextkeeper/archive/`
+  - Project-local storage optional with `.c0ntextkeeper/`
+  - `CONTEXTKEEPER_FORCE_GLOBAL` environment variable for development
+- **Enhanced Storage Management**:
+  - `c0ntextkeeper init`: Initialize project-local or global storage
+  - `c0ntextkeeper status`: Shows storage configuration and automation status
+  - `c0ntextkeeper hooks test <hook>`: Test individual hooks
+  - Test archives separated from production data in `test/` folder
+- **Improved Path Resolution** (`src/utils/path-resolver.ts`):
+  - 5-step resolution: FORCE_GLOBAL → CONTEXTKEEPER_HOME → local → walk up → global
+  - Project name extraction utilities in `src/utils/project-utils.ts`
+  - Dynamic path resolution for all hooks
+  - No hardcoded usernames - fully portable
+- **Cleaner Archive Structure**:
+  - Removed duplicate folders at root level
+  - Everything organized under `archive/projects/[project-name]/`
+  - Separate folders for sessions, knowledge, patterns, prompts
+- **Documentation Updates**: Comprehensive updates to all documentation
 
 ### Enhanced
 - **FileStore Module**: Now uses path resolver for dynamic storage location

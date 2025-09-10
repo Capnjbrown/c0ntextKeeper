@@ -3,8 +3,8 @@
 ## Overview
 Model Context Protocol (MCP) servers extend Claude Code's capabilities by providing specialized tools for different aspects of development. This document explains each server's purpose, capabilities, and optimal usage patterns for developing c0ntextKeeper - the intelligent context preservation system for Claude Code.
 
-### v0.5.0 Enhancements
-As of v0.5.0, c0ntextKeeper properly handles Claude Code's JSONL format with embedded content arrays, ensuring accurate extraction with 50+ semantic patterns and correct relevance scoring (user questions now score 1.0).
+### v0.6.0 Unified Storage Architecture
+As of v0.6.0, c0ntextKeeper features a unified storage architecture with intelligent path resolution, project-name based organization, and seamless global/local storage support. Archives are now organized by readable project names instead of cryptic hashes.
 
 ## Configuration
 All MCP servers are configured at **project level** in `.mcp.json` to ensure:
@@ -14,9 +14,8 @@ All MCP servers are configured at **project level** in `.mcp.json` to ensure:
 - **Portability** - Configuration travels with the project
 - **Team collaboration** - Shared configuration in version control
 
-⚠️ **CRITICAL**: The filesystem server must be configured with the absolute path to THIS project:
-`/Users/jasonbrown/Projects/c0ntextKeeper`
-ONLY access files within the c0ntextKeeper project directory.
+⚠️ **CRITICAL**: The filesystem server must be configured with the absolute path to your project directory.
+ONLY access files within the configured project directory.
 
 ### Recommended Servers for c0ntextKeeper Development
 The following servers are essential for building our MCP server:
@@ -65,7 +64,7 @@ The following servers are essential for building our MCP server:
 **Working Examples**:
 ```typescript
 // List project files
-"Use mcp__filesystem__list_directory to show all files in /Users/jasonbrown/Projects/c0ntextKeeper"
+"Use mcp__filesystem__list_directory to show all files in current project"
 
 // Read a file
 "Use mcp__filesystem__read_text_file to read CLAUDE.md"
@@ -336,6 +335,70 @@ type ExtractedContext<T> = {
 
 ---
 
+### 6. c0ntextKeeper (Local MCP Server)
+**Purpose**: Retrieve preserved context from previous Claude Code sessions
+
+**Status**: ✅ v0.6.0 - Unified Storage Architecture
+
+**Available Tools**:
+- `mcp__c0ntextkeeper__fetch_context` - Get relevant archived context
+- `mcp__c0ntextkeeper__search_archive` - Search through all archives  
+- `mcp__c0ntextkeeper__get_patterns` - Find recurring patterns
+
+**Tool Parameters**:
+
+**fetch_context**:
+- `query`: Search query for relevant context
+- `limit`: Maximum results (default: 5, max: 100)
+- `minRelevance`: Minimum relevance score (0-1, default: 0.5)
+- `scope`: Search scope (session/project/global, default: project)
+
+**search_archive**:
+- `query`: Search query (required)
+- `limit`: Maximum results (default: 10, max: 100)
+- `filePattern`: File pattern filter (e.g., "*.ts")
+- `dateRange`: Date range for filtering
+- `sortBy`: Sort order (relevance/date/frequency)
+
+**get_patterns**:
+- `type`: Pattern type (code/command/architecture/all)
+- `limit`: Maximum patterns (default: 10, max: 50)
+- `minFrequency`: Minimum occurrence frequency (default: 2)
+
+**Capabilities**:
+- Retrieve context from previous sessions
+- Search across all archived knowledge
+- Identify recurring solutions and patterns
+- Access implementation history
+- Find previous decisions and rationale
+
+**Storage Architecture (v0.6.0)**:
+- **Global Storage**: `~/.c0ntextkeeper/archive/`
+- **Project Organization**: Archives organized by readable project names
+- **Smart Resolution**: Automatic storage location detection
+- **Test Separation**: Test archives isolated in `test/` folders
+
+**Working Examples**:
+```typescript
+// Get relevant context
+"Use mcp__c0ntextkeeper__fetch_context to find previous authentication implementations"
+
+// Search archives
+"Use mcp__c0ntextkeeper__search_archive to find all Redis configuration decisions"
+
+// Find patterns
+"Use mcp__c0ntextkeeper__get_patterns to show recurring TypeScript patterns"
+```
+
+**Integration with Hooks**:
+1. **PreCompact Hook** captures session transcripts
+2. **UserPromptSubmit Hook** tracks questions
+3. **PostToolUse Hook** captures tool results
+4. **Stop Hook** saves Q&A exchanges
+5. **MCP Tools** retrieve all captured data
+
+---
+
 ## Development Workflow Integration
 
 ### Phase 1: Project Setup
@@ -397,7 +460,7 @@ type ExtractedContext<T> = {
 - **CRITICAL**: Filesystem server is configured for THIS project only
 - **NEVER** use a filesystem server with root (/) access
 - **ALWAYS** use project-scoped configurations
-- **Path**: `/Users/jasonbrown/Projects/c0ntextKeeper`
+- **Path**: Your project directory
 
 ### GitHub PAT Setup
 ```bash

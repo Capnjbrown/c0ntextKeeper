@@ -12,9 +12,9 @@ import { FileStore } from "../storage/file-store";
 import { ContextExtractor } from "../core/extractor";
 import { RelevanceScorer } from "../core/scorer";
 import { getStoragePath } from "../utils/path-resolver";
+import { getHookStoragePath } from "../utils/project-utils";
 import * as fs from "fs";
 import * as path from "path";
-import * as crypto from "crypto";
 
 interface StopHookInput {
   hook_event_name: "Stop" | "stop" | "SubagentStop";
@@ -102,19 +102,22 @@ async function processExchange(input: StopHookInput): Promise<void> {
     };
 
     // Store in knowledge base as JSON for better readability
-    const projectHash = crypto
-      .createHash("md5")
-      .update(input.project_path || process.cwd())
-      .digest("hex")
-      .substring(0, 8);
-
-    // Store knowledge at root level, not under archive/
-    const storagePath = path.join(
-      process.env.HOME || "",
-      ".c0ntextkeeper",
-      "knowledge",
-      projectHash,
-      `${new Date().toISOString().split("T")[0]}-knowledge.json`,
+    const dateString = new Date().toISOString().split("T")[0];
+    const workingDir = input.project_path || process.cwd();
+    
+    // Use proper storage resolution (respects env vars and storage hierarchy)
+    const basePath = getStoragePath({ 
+      projectPath: workingDir,
+      createIfMissing: true
+    });
+    
+    // Use unified project-based storage structure
+    const storagePath = getHookStoragePath(
+      basePath,
+      'knowledge',
+      workingDir,
+      dateString,
+      'knowledge.json'
     );
 
     // Ensure directory exists

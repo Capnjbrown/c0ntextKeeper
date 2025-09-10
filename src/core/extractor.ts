@@ -90,7 +90,7 @@ export class ContextExtractor {
         toolCounts: {},
         filesModified: [],
         relevanceScore: 0,
-        extractionVersion: "0.5.0", // Fixed Claude Code format parsing and relevance scoring
+        extractionVersion: "0.6.0", // Unified storage architecture with project-name organization
       },
     };
 

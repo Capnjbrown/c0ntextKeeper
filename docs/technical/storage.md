@@ -7,11 +7,15 @@ c0ntextkeeper implements a hybrid storage architecture that supports both projec
 ## Storage Resolution Algorithm
 
 ```
-1. Check CONTEXTKEEPER_HOME environment variable
-2. Search for .c0ntextkeeper/ in current directory
-3. Walk up directory tree looking for .c0ntextkeeper/
-4. Fall back to ~/.c0ntextkeeper/ (global)
+1. Check CONTEXTKEEPER_FORCE_GLOBAL environment variable (force global)
+2. Check CONTEXTKEEPER_HOME environment variable (custom path)
+3. Search for .c0ntextkeeper/ in current directory
+4. Walk up directory tree looking for .c0ntextkeeper/
+5. Fall back to ~/.c0ntextkeeper/ (global)
 ```
+
+### Special Case: c0ntextKeeper Development
+When developing c0ntextKeeper itself, the project **always uses global storage** to avoid recursive confusion. This is enforced via the `.env` file with `CONTEXTKEEPER_FORCE_GLOBAL=true`.
 
 ## Directory Structures
 
@@ -39,20 +43,25 @@ Located at `~/.c0ntextkeeper/`
 
 ```
 .c0ntextkeeper/
-├── projects/            # Per-project storage (by hash)
-│   └── [hash]/         # Project-specific data
-├── global/             
-│   └── solutions/      # Shared solutions
-├── config.json         # Global configuration
+├── archive/
+│   ├── projects/       # Per-project storage (by name)
+│   │   └── [project-name]/
+│   │       ├── sessions/
+│   │       ├── knowledge/
+│   │       ├── patterns/
+│   │       └── prompts/
+│   └── global/         # Cross-project data
 ├── index.json          # Project registry
 └── logs/              # Global logs
 ```
 
+Note: Projects are now organized by name instead of hash for better readability.
+
 ## Configuration Hierarchy
 
 1. **Environment Variables** (highest priority)
-   - `CONTEXTKEEPER_HOME`: Override storage location
-   - `CONTEXTKEEPER_GLOBAL`: Force global mode
+   - `CONTEXTKEEPER_FORCE_GLOBAL`: Force global storage (set to `true` for c0ntextKeeper itself)
+   - `CONTEXTKEEPER_HOME`: Override storage location with custom path
 
 2. **Project Configuration** (`.c0ntextkeeper/config.json`)
    - Project-specific settings
@@ -110,9 +119,12 @@ c0ntextkeeper status
 export CONTEXTKEEPER_HOME=/custom/path
 c0ntextkeeper status
 
-# Force global mode
-export CONTEXTKEEPER_GLOBAL=true
+# Force global mode (used for c0ntextKeeper development)
+export CONTEXTKEEPER_FORCE_GLOBAL=true
 c0ntextkeeper archive transcript.jsonl
+
+# Or set in .env file for persistent configuration
+echo "CONTEXTKEEPER_FORCE_GLOBAL=true" >> .env
 ```
 
 ## Benefits
@@ -235,11 +247,14 @@ chmod 644 .c0ntextkeeper/config.json
 ```bash
 # Verify environment
 echo $CONTEXTKEEPER_HOME
-echo $CONTEXTKEEPER_GLOBAL
+echo $CONTEXTKEEPER_FORCE_GLOBAL
 
 # Clear environment
 unset CONTEXTKEEPER_HOME
-unset CONTEXTKEEPER_GLOBAL
+unset CONTEXTKEEPER_FORCE_GLOBAL
+
+# Check .env file
+cat .env | grep CONTEXTKEEPER
 ```
 
 ## Advanced Configuration
@@ -288,4 +303,4 @@ unset CONTEXTKEEPER_GLOBAL
 
 ---
 
-*Last Updated: 2025-09-08 | c0ntextKeeper v0.5.3*
+*Last Updated: 2025-09-09 | c0ntextKeeper v0.6.0*

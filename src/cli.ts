@@ -22,7 +22,7 @@ const program = new Command();
 program
   .name("c0ntextkeeper")
   .description("Intelligent context preservation for Claude Code")
-  .version("0.5.2")
+  .version("0.6.0")
   .showHelpAfterError("(add --help for additional information)");
 
 // Setup command

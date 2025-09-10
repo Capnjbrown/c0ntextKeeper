@@ -69,12 +69,14 @@ c0ntextKeeper stores all data locally on your Mac. The exact location depends on
     │   ├── global/                     
     │   │   └── index.json              # Master index of all archives
     │   └── projects/                   # Per-project archives
-    │       ├── c0ntextKeeper/          # Project by actual name
+    │       ├── c0ntextKeeper/          # Project by actual name (not hash!)
     │       │   ├── README.md           # 📊 Analytics dashboard & navigation
     │       │   ├── index.json          # Project stats with tool usage
-    │       │   ├── sessions/           # Individual work sessions
-    │       │   │   └── 2025-08-28_1430_MT_feature-implementation.json
-    │       │   └── test/               # Test/validation data (separated)
+    │       │   ├── sessions/           # Real development sessions
+    │       │   ├── test/               # Test archives (separated from production)
+    │       │   ├── knowledge/          # Q&A pairs from Stop hook
+    │       │   ├── patterns/           # Tool usage patterns
+    │       │   └── prompts/            # User questions tracked
     │       └── [other-project-name]/
     │           └── sessions/
     ├── prompts/                        # UserPromptSubmit hook data
@@ -138,7 +140,7 @@ c0ntextkeeper search "query"     # Search for specific content
 
 ## 📊 Understanding Your Analytics Dashboard
 
-Starting with v0.3.0 (enhanced in v0.5.0, quality improvements in v0.5.1), every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy and better session naming. Here's what you'll find:
+Starting with v0.6.0, every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy, better session naming, and organized storage structure. Here's what you'll find:
 
 ### Project Analytics Section
 - **Total Sessions**: Number of times context was preserved
