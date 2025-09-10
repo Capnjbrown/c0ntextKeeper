@@ -22,7 +22,7 @@ const program = new Command();
 program
   .name("c0ntextkeeper")
   .description("Intelligent context preservation for Claude Code")
-  .version("0.6.0")
+  .version("0.7.0")
   .showHelpAfterError("(add --help for additional information)");
 
 // Setup command
@@ -565,6 +565,103 @@ program
       console.log("✅ Restore complete!");
     } catch (error) {
       logger.error("Restore error:", error);
+      process.exit(1);
+    }
+  });
+
+// Context command group for auto-load features
+const context = program.command("context").description("Manage auto-loaded context");
+
+// Preview context command
+context
+  .command("preview")
+  .description("Preview what context will be auto-loaded")
+  .action(async () => {
+    try {
+      const { contextLoader } = await import("./core/context-loader.js");
+      const preview = await contextLoader.previewAutoLoad();
+      console.log(preview);
+    } catch (error) {
+      logger.error("Context preview error:", error);
+      process.exit(1);
+    }
+  });
+
+// Test context loading
+context
+  .command("test")
+  .description("Test context loading and show statistics")
+  .action(async () => {
+    try {
+      const { contextLoader } = await import("./core/context-loader.js");
+      const context = await contextLoader.getAutoLoadContext();
+      
+      console.log("✅ Context Loading Test Results\n");
+      console.log(`Strategy: ${context.strategy}`);
+      console.log(`Size: ${context.sizeKB.toFixed(2)} KB`);
+      console.log(`Items: ${context.itemCount}`);
+      console.log(`Timestamp: ${new Date(context.timestamp).toLocaleString()}`);
+      
+      if (context.content) {
+        console.log("\n📄 Sample (first 500 chars):");
+        console.log("-".repeat(50));
+        console.log(context.content.substring(0, 500));
+        if (context.content.length > 500) {
+          console.log("...[truncated]");
+        }
+      } else {
+        console.log("\n⚠️ No content loaded (auto-load may be disabled)");
+      }
+    } catch (error) {
+      logger.error("Context test error:", error);
+      process.exit(1);
+    }
+  });
+
+// Configure context loading
+context
+  .command("configure")
+  .description("Configure auto-load settings")
+  .option("--enable", "Enable auto-loading")
+  .option("--disable", "Disable auto-loading")
+  .option("--strategy <type>", "Set strategy (smart, recent, relevant, custom)")
+  .option("--max-size <kb>", "Set maximum size in KB")
+  .option("--session-count <n>", "Number of recent sessions to include")
+  .option("--pattern-count <n>", "Number of patterns to include")
+  .option("--format <style>", "Format style (summary, detailed, minimal)")
+  .action(async (options) => {
+    try {
+      const { ConfigManager } = await import("./core/config.js");
+      const configManager = new ConfigManager();
+      const currentSettings = configManager.getAutoLoadSettings();
+      
+      // Apply changes
+      const updates: any = {};
+      if (options.enable) updates.enabled = true;
+      if (options.disable) updates.enabled = false;
+      if (options.strategy) updates.strategy = options.strategy;
+      if (options.maxSize) updates.maxSizeKB = parseInt(options.maxSize);
+      if (options.sessionCount) updates.sessionCount = parseInt(options.sessionCount);
+      if (options.patternCount) updates.patternCount = parseInt(options.patternCount);
+      if (options.format) updates.formatStyle = options.format;
+      
+      if (Object.keys(updates).length > 0) {
+        configManager.updateAutoLoadSettings(updates);
+        console.log("✅ Auto-load settings updated:");
+        Object.entries(updates).forEach(([key, value]) => {
+          console.log(`  ${key}: ${value}`);
+        });
+      } else {
+        console.log("Current auto-load settings:");
+        console.log(`  Enabled: ${currentSettings.enabled}`);
+        console.log(`  Strategy: ${currentSettings.strategy}`);
+        console.log(`  Max Size: ${currentSettings.maxSizeKB} KB`);
+        console.log(`  Session Count: ${currentSettings.sessionCount}`);
+        console.log(`  Pattern Count: ${currentSettings.patternCount}`);
+        console.log(`  Format Style: ${currentSettings.formatStyle}`);
+      }
+    } catch (error) {
+      logger.error("Configure context error:", error);
       process.exit(1);
     }
   });

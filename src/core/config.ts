@@ -6,8 +6,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import * as os from "os";
-import { getStoragePath, CONTEXTKEEPER_DIR } from "../utils/path-resolver.js";
+import { getStoragePath } from "../utils/path-resolver.js";
 
 export interface HookSettings {
   enabled: boolean;
@@ -16,6 +15,20 @@ export interface HookSettings {
   minLength?: number;
   excludePatterns?: string[];
   captureErrors?: boolean;
+}
+
+export interface AutoLoadSettings {
+  enabled: boolean;
+  strategy: 'recent' | 'relevant' | 'smart' | 'custom';
+  maxSizeKB: number;
+  sessionCount: number;
+  patternCount: number;
+  knowledgeCount: number;
+  promptCount: number;
+  includeTypes: ('sessions' | 'patterns' | 'knowledge' | 'prompts')[];
+  timeWindowDays: number;
+  priorityKeywords: string[];
+  formatStyle: 'summary' | 'detailed' | 'minimal';
 }
 
 export interface C0ntextKeeperConfig {
@@ -48,6 +61,7 @@ export interface C0ntextKeeperConfig {
     filterSensitiveData?: boolean;
     customPatterns?: string[];
   };
+  autoLoad: AutoLoadSettings;
 }
 
 const DEFAULT_CONFIG: C0ntextKeeperConfig = {
@@ -90,6 +104,19 @@ const DEFAULT_CONFIG: C0ntextKeeperConfig = {
   security: {
     filterSensitiveData: true,
     customPatterns: [],
+  },
+  autoLoad: {
+    enabled: true,
+    strategy: 'smart',
+    maxSizeKB: 10,
+    sessionCount: 3,
+    patternCount: 5,
+    knowledgeCount: 10,
+    promptCount: 5,
+    includeTypes: ['sessions', 'patterns', 'knowledge', 'prompts'],
+    timeWindowDays: 7,
+    priorityKeywords: [],
+    formatStyle: 'summary',
   },
 };
 
@@ -196,7 +223,7 @@ export class ConfigManager {
     }
 
     // Merge other sections
-    ["storage", "extraction", "security"].forEach((section) => {
+    ["storage", "extraction", "security", "autoLoad"].forEach((section) => {
       if ((user as any)[section]) {
         (merged as any)[section] = {
           ...(merged as any)[section],
@@ -281,6 +308,31 @@ export class ConfigManager {
    */
   getConfigPath(): string {
     return this.configPath;
+  }
+
+  /**
+   * Get auto-load settings
+   */
+  getAutoLoadSettings(): AutoLoadSettings {
+    return this.config.autoLoad;
+  }
+
+  /**
+   * Update auto-load settings
+   */
+  updateAutoLoadSettings(settings: Partial<AutoLoadSettings>): void {
+    this.config.autoLoad = {
+      ...this.config.autoLoad,
+      ...settings,
+    };
+    this.saveConfig(this.config);
+  }
+
+  /**
+   * Check if auto-load is enabled
+   */
+  isAutoLoadEnabled(): boolean {
+    return this.config.autoLoad?.enabled || false;
   }
 
   /**

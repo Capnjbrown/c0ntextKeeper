@@ -1,8 +1,8 @@
 # 📚 c0ntextKeeper User Guide
 
-## 🏗️ Storage Modes (v0.6.0+)
+## 🏗️ Storage Modes (v0.7.0+)
 
-c0ntextKeeper v0.6.0 introduces flexible storage options to match your workflow:
+c0ntextKeeper v0.7.0 introduces flexible storage options to match your workflow:
 
 ### Project-Local Storage (Recommended)
 ```bash
@@ -114,7 +114,7 @@ Current Directory: /Users/jasonbrown/projects/my-app
 Project Hash: a1b2c3d4e5f6
 ✓ Storage initialized (local)
   Location: /Users/jasonbrown/projects/my-app/.c0ntextkeeper
-  Version: 0.6.0
+  Version: 0.7.0
   Created: 2025-09-09
   Type: project
 ```
@@ -140,7 +140,7 @@ c0ntextkeeper search "query"     # Search for specific content
 
 ## 📊 Understanding Your Analytics Dashboard
 
-Starting with v0.6.0, every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy, better session naming, and organized storage structure. Here's what you'll find:
+Starting with v0.7.0, every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy, better session naming, and organized storage structure. Here's what you'll find:
 
 ### Project Analytics Section
 - **Total Sessions**: Number of times context was preserved

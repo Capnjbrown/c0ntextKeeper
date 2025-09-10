@@ -4,9 +4,9 @@
 
 As of v0.5.3, c0ntextKeeper uses **JSON format exclusively** for all archive files. This provides consistency, readability, and easy inspection of preserved context.
 
-## Storage Modes (v0.6.0+)
+## Storage Modes (v0.7.0+)
 
-c0ntextKeeper v0.6.0 introduces hybrid storage with flexible location options:
+c0ntextKeeper v0.7.0 introduces hybrid storage with flexible location options:
 
 ### Project-Local Storage
 - **Location**: `.c0ntextkeeper/` within your project directory
@@ -220,4 +220,4 @@ All files are:
 
 ---
 
-*Last Updated: 2025-09-05 | c0ntextKeeper v0.5.3*
+*Last Updated: 2025-09-10 | c0ntextKeeper v0.7.0*

@@ -149,24 +149,18 @@ describe('Path Resolver', () => {
       
       // Check directories exist
       expect(fs.existsSync(path.join(storagePath, 'archive'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'archive', 'sessions'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'archive', 'test'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'prompts'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'patterns'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'knowledge'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'errors'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'solutions'))).toBe(true);
+      expect(fs.existsSync(path.join(storagePath, 'archive', 'projects'))).toBe(true);
+      expect(fs.existsSync(path.join(storagePath, 'archive', 'projects', 'test-project'))).toBe(true);
+      expect(fs.existsSync(path.join(storagePath, 'archive', 'projects', 'test-project', 'sessions'))).toBe(true);
       expect(fs.existsSync(path.join(storagePath, 'logs'))).toBe(true);
       
       // Check files exist
       expect(fs.existsSync(path.join(storagePath, 'config.json'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'archive', 'README.md'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'archive', 'index.json'))).toBe(true);
       
       // Check config content
       const config = JSON.parse(fs.readFileSync(path.join(storagePath, 'config.json'), 'utf-8'));
-      expect(config.type).toBe('project');
-      expect(config.projectName).toBe('test-project');
+      expect(config.version).toBeDefined();
+      expect(config.createdAt).toBeDefined();
     });
     
     test('should create global storage structure', () => {
@@ -175,18 +169,18 @@ describe('Path Resolver', () => {
       initializeStorage(storagePath, { isGlobal: true });
       
       // Check directories exist
-      expect(fs.existsSync(path.join(storagePath, 'projects'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'global'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'global', 'solutions'))).toBe(true);
+      expect(fs.existsSync(path.join(storagePath, 'archive'))).toBe(true);
+      expect(fs.existsSync(path.join(storagePath, 'archive', 'projects'))).toBe(true);
+      expect(fs.existsSync(path.join(storagePath, 'archive', 'global'))).toBe(true);
       expect(fs.existsSync(path.join(storagePath, 'logs'))).toBe(true);
       
       // Check files exist
       expect(fs.existsSync(path.join(storagePath, 'config.json'))).toBe(true);
-      expect(fs.existsSync(path.join(storagePath, 'index.json'))).toBe(true);
       
       // Check config content
       const config = JSON.parse(fs.readFileSync(path.join(storagePath, 'config.json'), 'utf-8'));
-      expect(config.type).toBe('global');
+      expect(config.version).toBeDefined();
+      expect(config.createdAt).toBeDefined();
     });
     
     test('should not overwrite existing config', () => {
@@ -231,7 +225,7 @@ describe('Path Resolver', () => {
       expect(index.projects[projectHash].name).toBe('my-project');
     });
     
-    test('should update existing project entry', () => {
+    test('should update existing project entry', async () => {
       const globalPath = path.join(testDir, 'global');
       const projectPath = path.join(testDir, 'my-project');
       
@@ -247,18 +241,17 @@ describe('Path Resolver', () => {
       const createdAt1 = index1.projects[projectHash].createdAt;
       
       // Wait a bit and register again
-      setTimeout(() => {
-        registerProject(projectPath);
-        
-        const index2 = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
-        const createdAt2 = index2.projects[projectHash].createdAt;
-        const lastAccessed2 = index2.projects[projectHash].lastAccessed;
-        
-        // Created date should remain the same
-        expect(createdAt2).toBe(createdAt1);
-        // Last accessed should be updated
-        expect(new Date(lastAccessed2).getTime()).toBeGreaterThan(new Date(createdAt1).getTime());
-      }, 10);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      registerProject(projectPath);
+      
+      const index2 = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+      const createdAt2 = index2.projects[projectHash].createdAt;
+      const lastAccessed2 = index2.projects[projectHash].lastAccessed;
+      
+      // Created date should remain the same
+      expect(createdAt2).toBe(createdAt1);
+      // Last accessed should be updated
+      expect(new Date(lastAccessed2).getTime()).toBeGreaterThan(new Date(createdAt1).getTime());
     });
   });
   

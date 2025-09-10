@@ -172,7 +172,7 @@ function extractToolPattern(input: PostToolHookInput): string {
 
 async function trackErrorPattern(
   pattern: ToolPattern,
-  storage: FileStore,
+  _storage: FileStore,
 ): Promise<void> {
   // Store common errors for pattern recognition in JSON format
   const dateStr = new Date().toISOString().split("T")[0];

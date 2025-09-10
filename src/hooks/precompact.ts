@@ -11,7 +11,7 @@
 import { HookInput, HookOutput } from "../core/types.js";
 import { ContextArchiver } from "../core/archiver.js";
 import { Logger } from "../utils/logger.js";
-import { getStoragePath } from "../utils/path-resolver.js";
+// Path resolution handled directly in code
 import * as path from "path";
 import * as fs from "fs";
 

@@ -3,8 +3,8 @@
 ## Overview
 Model Context Protocol (MCP) servers extend Claude Code's capabilities by providing specialized tools for different aspects of development. This document explains each server's purpose, capabilities, and optimal usage patterns for developing c0ntextKeeper - the intelligent context preservation system for Claude Code.
 
-### v0.6.0 Unified Storage Architecture
-As of v0.6.0, c0ntextKeeper features a unified storage architecture with intelligent path resolution, project-name based organization, and seamless global/local storage support. Archives are now organized by readable project names instead of cryptic hashes.
+### v0.7.0 Unified Storage Architecture
+As of v0.7.0, c0ntextKeeper features a unified storage architecture with intelligent path resolution, project-name based organization, and seamless global/local storage support. Archives are now organized by readable project names instead of cryptic hashes.
 
 ## Configuration
 All MCP servers are configured at **project level** in `.mcp.json` to ensure:
@@ -338,7 +338,7 @@ type ExtractedContext<T> = {
 ### 6. c0ntextKeeper (Local MCP Server)
 **Purpose**: Retrieve preserved context from previous Claude Code sessions
 
-**Status**: ✅ v0.6.0 - Unified Storage Architecture
+**Status**: ✅ v0.7.0 - Unified Storage Architecture
 
 **Available Tools**:
 - `mcp__c0ntextkeeper__fetch_context` - Get relevant archived context
@@ -372,7 +372,7 @@ type ExtractedContext<T> = {
 - Access implementation history
 - Find previous decisions and rationale
 
-**Storage Architecture (v0.6.0)**:
+**Storage Architecture (v0.7.0)**:
 - **Global Storage**: `~/.c0ntextkeeper/archive/`
 - **Project Organization**: Archives organized by readable project names
 - **Smart Resolution**: Automatic storage location detection

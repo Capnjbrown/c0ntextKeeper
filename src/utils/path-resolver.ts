@@ -217,11 +217,13 @@ This archive contains Claude Code session data and analytics.
  */
 export function registerProject(projectPath: string): void {
   const info = getProjectStorageInfo(projectPath);
-  const globalIndexPath = path.join(GLOBAL_DIR, 'index.json');
+  // Use environment variable if set, otherwise use home directory
+  const globalPath = process.env.CONTEXTKEEPER_HOME || GLOBAL_DIR;
+  const globalIndexPath = path.join(globalPath, 'index.json');
   
   // Ensure global directory exists
-  if (!fs.existsSync(GLOBAL_DIR)) {
-    initializeStorage(GLOBAL_DIR, { isGlobal: true });
+  if (!fs.existsSync(globalPath)) {
+    initializeStorage(globalPath, { isGlobal: true });
   }
   
   // Read or create index

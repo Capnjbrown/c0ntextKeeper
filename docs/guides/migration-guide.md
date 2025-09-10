@@ -194,7 +194,7 @@ After successful migration:
 
 ## Future Versions
 
-### v0.6.0 (Planned)
+### v0.7.0 (Planned)
 - Vector database integration for semantic search
 - Enhanced pattern recognition
 - Multi-project context sharing

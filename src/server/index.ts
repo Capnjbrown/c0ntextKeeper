@@ -10,13 +10,19 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  ListResourcesRequestSchema,
+  ReadResourceRequestSchema,
   Tool,
   TextContent,
+  Resource,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { ContextRetriever } from "../core/retriever.js";
 import { ContextArchiver as _ContextArchiver } from "../core/archiver.js";
 import { PatternAnalyzer } from "../core/patterns.js";
+import { contextLoader } from "../core/context-loader.js";
+import { ConfigManager } from "../core/config.js";
+import { getProjectName } from "../utils/project-utils.js";
 import {
   FetchContextInput as _FetchContextInput,
   SearchArchiveInput as _SearchArchiveInput,
@@ -27,11 +33,12 @@ import {
 const server = new Server(
   {
     name: "c0ntextkeeper",
-    version: "0.6.0",
+    version: "0.7.0",
   },
   {
     capabilities: {
       tools: {},
+      resources: {},
     },
   },
 );
@@ -174,6 +181,118 @@ const TOOLS: Tool[] = [
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: TOOLS,
 }));
+
+// Handle list resources request
+server.setRequestHandler(ListResourcesRequestSchema, async () => {
+  const configManager = new ConfigManager();
+  const autoLoadSettings = configManager.getAutoLoadSettings();
+  
+  // Only expose resources if auto-load is enabled
+  if (!autoLoadSettings.enabled) {
+    return { resources: [] };
+  }
+
+  const projectName = getProjectName(process.cwd());
+  const resources: Resource[] = [
+    {
+      uri: `context://project/${projectName}/current`,
+      name: `${projectName} Project Context`,
+      description: `Auto-loaded context for ${projectName} using ${autoLoadSettings.strategy} strategy`,
+      mimeType: "text/markdown",
+    },
+  ];
+
+  // Add additional resources based on configuration
+  if (autoLoadSettings.includeTypes.includes('patterns')) {
+    resources.push({
+      uri: `context://project/${projectName}/patterns`,
+      name: "Recurring Patterns",
+      description: "Common patterns and solutions from this project",
+      mimeType: "text/markdown",
+    });
+  }
+
+  if (autoLoadSettings.includeTypes.includes('knowledge')) {
+    resources.push({
+      uri: `context://project/${projectName}/knowledge`,
+      name: "Knowledge Base",
+      description: "Q&A pairs and learned information",
+      mimeType: "text/markdown",
+    });
+  }
+
+  return { resources };
+});
+
+// Handle read resource request
+server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+  const { uri } = request.params;
+  const projectName = getProjectName(process.cwd());
+  
+  try {
+    // Main project context
+    if (uri === `context://project/${projectName}/current`) {
+      const context = await contextLoader.getAutoLoadContext();
+      return {
+        contents: [{
+          uri,
+          mimeType: "text/markdown",
+          text: context.content,
+        }],
+      };
+    }
+    
+    // Patterns resource
+    if (uri === `context://project/${projectName}/patterns`) {
+      const analyzer = new PatternAnalyzer();
+      const patterns = await analyzer.getPatterns({
+        type: 'all',
+        minFrequency: 2,
+        limit: 10,
+      });
+      
+      const formatted = formatPatternResults(patterns);
+      return {
+        contents: [{
+          uri,
+          mimeType: "text/markdown",
+          text: `# Recurring Patterns for ${projectName}\n\n${formatted}`,
+        }],
+      };
+    }
+    
+    // Knowledge base resource
+    if (uri === `context://project/${projectName}/knowledge`) {
+      const retriever = new ContextRetriever();
+      const knowledge = await retriever.fetchRelevantContext({
+        scope: 'project',
+        limit: 20,
+      });
+      
+      const formatted = formatContextResults(knowledge);
+      return {
+        contents: [{
+          uri,
+          mimeType: "text/markdown",
+          text: `# Knowledge Base for ${projectName}\n\n${formatted}`,
+        }],
+      };
+    }
+    
+    throw new Error(`Unknown resource URI: ${uri}`);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error(`Resource read error for ${uri}:`, errorMessage);
+    
+    return {
+      contents: [{
+        uri,
+        mimeType: "text/plain",
+        text: `Error reading resource: ${errorMessage}`,
+      }],
+    };
+  }
+});
 
 // Handle tool calls
 server.setRequestHandler(CallToolRequestSchema, async (request) => {

@@ -34,7 +34,7 @@ interface UserPromptContext {
 
 async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
   const securityFilter = new SecurityFilter();
-  const storage = new FileStore();
+  // FileStore instance removed - not used in this function
 
   try {
     // Filter sensitive data from prompt

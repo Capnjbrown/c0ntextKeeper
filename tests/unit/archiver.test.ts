@@ -24,9 +24,14 @@ describe('ContextArchiver', () => {
     sessionId: 'test-session-123',
     timestamp: '2024-09-04T10:00:00Z',
     projectPath: '/test/project',
+    extractedAt: 'preCompact',
     problems: [
       {
+        id: 'prob-1',
         question: 'How do I fix authentication?',
+        timestamp: '2024-09-04T10:00:00Z',
+        tags: ['authentication', 'jwt'],
+        relevance: 0.9,
         solution: {
           approach: 'Update JWT validation',
           files: ['auth.ts'],
@@ -42,6 +47,8 @@ describe('ContextArchiver', () => {
       filesModified: ['auth.ts'],
       relevanceScore: 0.85,
       duration: 300000,
+      entryCount: 10,
+      toolsUsed: ['Edit', 'Write'],
       toolCounts: {
         Edit: 2,
         Write: 1
@@ -261,17 +268,54 @@ describe('ContextArchiver', () => {
       const detailedContext: ExtractedContext = {
         ...mockContext,
         problems: [
-          { question: 'How to fix error?', solution: { approach: 'Fix it', files: [], successful: true } },
-          { question: 'Another problem', solution: undefined }
+          { 
+            id: 'prob-1',
+            question: 'How to fix error?', 
+            timestamp: '2024-09-04T10:00:00Z',
+            tags: ['error', 'fix'],
+            relevance: 0.8,
+            solution: { approach: 'Fix it', files: [], successful: true } 
+          },
+          { 
+            id: 'prob-2',
+            question: 'Another problem', 
+            timestamp: '2024-09-04T10:01:00Z',
+            tags: ['general'],
+            relevance: 0.7,
+            solution: undefined 
+          }
         ],
         implementations: [
-          { tool: 'Edit', description: 'Fixed the bug', files: ['bug.ts'], successful: true }
+          { 
+            id: 'impl-1',
+            tool: 'Edit', 
+            file: 'bug.ts',
+            description: 'Fixed the bug', 
+            timestamp: '2024-09-04T10:00:00Z',
+            relevance: 0.8
+          }
         ],
         decisions: [
-          { type: 'architecture', description: 'Use microservices', rationale: 'Scalability' }
+          { 
+            id: 'dec-1',
+            decision: 'Use microservices',
+            context: 'Architecture decision for the system',
+            rationale: 'Scalability',
+            timestamp: '2024-09-04T10:00:00Z',
+            impact: 'high' as const,
+            tags: ['architecture']
+          }
         ],
         patterns: [
-          { type: 'command', value: 'npm test', description: 'Testing', examples: [], frequency: 3 }
+          { 
+            id: 'pat-1',
+            type: 'command' as const,
+            value: 'npm test',
+            examples: ['npm test'],
+            frequency: 3,
+            firstSeen: '2024-09-01T10:00:00Z',
+            lastSeen: '2024-09-04T10:00:00Z'
+          }
         ]
       };
 

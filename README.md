@@ -2,7 +2,7 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-09-09
+> Last Updated: 2025-09-10
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
@@ -29,7 +29,7 @@
 
 ## 📑 Table of Contents
 - [Quick Start](#-quick-start)
-- [What's New in v0.6.0](#-whats-new-in-v060)
+- [What's New in v0.7.0](#-whats-new-in-v070)
 - [How It Works](#-how-it-works)
 - [Installation](#-installation)
 - [Storage Architecture](#-storage-architecture)
@@ -54,21 +54,26 @@ c0ntextkeeper status
 
 That's it! c0ntextKeeper is now preserving your context automatically.
 
-## 🚀 What's New in v0.6.0
+## 🚀 What's New in v0.7.0
 
-**Package Version**: 0.6.0 | **Extraction Algorithm**: 0.6.0
+**Package Version**: 0.7.0 | **Extraction Algorithm**: 0.7.0
 
-### 🏗️ Unified Storage Architecture
-- **📁 Project-Name Organization** - Archives organized by project name, not cryptic hashes
-- **🌍 Global Storage Default** - Centralized storage in `~/.c0ntextkeeper/archive/`
-- **🎯 Smart Project Detection** - Automatic project identification and organization
-- **🔍 Environment Control** - Use `CONTEXTKEEPER_FORCE_GLOBAL=true` for c0ntextKeeper development
-- **🧪 Test Separation** - Test archives isolated from production data
-- **⚡ Enhanced CLI Commands**:
-  - `c0ntextkeeper init` - Initialize project-local or global storage
-  - `c0ntextkeeper status` - Check current storage configuration
-  - `c0ntextkeeper hooks test` - Test individual hooks
-- **🔧 Cleaner Structure** - No duplicate folders, everything under archive/
+### 🎯 Automatic Context Loading for MCP Server
+- **🤖 Zero-Configuration Auto-Load** - Context automatically provided when Claude Code connects
+- **📊 Smart Loading Strategies** - Choose from smart, recent, relevant, or custom strategies
+- **⚡ MCP Resource Support** - Exposes context as `context://project/{name}/current`
+- **🎛️ Fully Configurable** - Customize what gets loaded and how much (default 50KB limit)
+- **🧠 Intelligent Aggregation** - Combines sessions, patterns, knowledge, and prompts
+- **📝 New CLI Commands**:
+  - `c0ntextkeeper context preview` - Preview what will be auto-loaded
+  - `c0ntextkeeper context test` - Test different loading strategies
+  - `c0ntextkeeper context configure` - Interactive configuration wizard
+- **🔧 Enhanced Configuration** - New `autoLoad` section with comprehensive settings
+
+### v0.7.0 Features
+- Unified Storage Architecture with project-name organization
+- Global storage default at `~/.c0ntextkeeper/archive/`
+- Smart project detection and test separation
 
 See [Version History](#-version-history) for previous releases or [CHANGELOG.md](CHANGELOG.md) for complete details.
 
@@ -150,7 +155,7 @@ That's it! c0ntextKeeper is now automatically preserving your context.
 
 ## 📁 Storage Architecture
 
-### v0.6.0 Unified Global Storage
+### Unified Global Storage
 
 c0ntextKeeper uses a unified storage architecture with intelligent project organization:
 
@@ -389,7 +394,7 @@ Decision from 2025-08-10:
 
 ## 🛠️ CLI Commands
 
-### Storage Management (New in v0.6.0)
+### Storage Management
 
 ```bash
 # Initialize storage
@@ -405,7 +410,7 @@ c0ntextkeeper status         # Check storage configuration and status
 c0ntextkeeper setup          # Configure hooks for Claude Code
 
 # Manual operations
-c0ntextkeeper archive <file> # Manually archive a JSONL transcript
+c0ntextkeeper archive <file> # Manually archive a JSON transcript
 c0ntextkeeper search [query] # Search archives (shows recent if no query)
 c0ntextkeeper patterns       # Analyze recurring patterns
 c0ntextkeeper stats          # Show storage statistics
@@ -465,9 +470,9 @@ c0ntextKeeper/
 
 ## 📁 Where Is My Data Stored?
 
-**All data is stored locally on your Mac** - v0.6.0 introduces hybrid storage:
+**All data is stored locally on your Mac** - hybrid storage architecture:
 
-### Storage Locations (v0.6.0+)
+### Storage Locations
 
 | Storage Mode | Location | When to Use |
 |--------------|----------|-------------|
@@ -518,7 +523,7 @@ c0ntextKeeper works out of the box, but you can customize its behavior:
 ### Environment Variables
 
 ```bash
-# Storage Configuration (v0.6.0+)
+# Storage Configuration
 CONTEXTKEEPER_HOME=/path/to/storage  # Override storage location
 CONTEXTKEEPER_GLOBAL=true            # Force global storage mode
 
@@ -734,6 +739,8 @@ For more troubleshooting, see the [User Guide](docs/guides/user-guide.md#trouble
 ## 📈 Version History
 
 ### v0.5.x Series
+- **v0.7.0** - Auto-load context via MCP resources, intelligent loading strategies
+- **v0.6.0** - Unified storage architecture with project-name organization
 - **v0.5.3** - Unified JSON format, test data separation
 - **v0.5.2** - CLI improvements, version consistency fixes
 - **v0.5.1** - Better content preservation (2000 char limits), smarter session naming

@@ -4,7 +4,7 @@
 
 c0ntextKeeper uses Claude Code's hook system to automatically capture and preserve valuable context at multiple points in your workflow. The primary PreCompact hook works **completely automatically** - capturing context both when you manually run `/compact` and when Claude Code automatically compacts context due to size limits.
 
-### 🏗️ v0.6.0 Hybrid Storage Architecture
+### 🏗️ v0.7.0 Hybrid Storage Architecture
 - **📁 Project-Local Storage** - Initialize with `c0ntextkeeper init` in your project
 - **🌍 Global Storage** - Use `c0ntextkeeper init --global` for shared storage
 - **🔍 Smart Path Resolution** - Automatically finds the right storage location

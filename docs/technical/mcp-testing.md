@@ -13,7 +13,7 @@ This document provides comprehensive testing procedures for all MCP servers conf
 | github-mcp | 2025-09-09 | ✅ Operational | @modelcontextprotocol/server-github |
 | context7 | 2025-09-09 | ✅ Operational | @upstash/context7-mcp |
 | fetch | 2025-09-09 | ✅ Operational | @kazuph/mcp-fetch |
-| c0ntextKeeper | 2025-09-09 | ✅ v0.6.0 | Unified storage architecture |
+| c0ntextKeeper | 2025-09-09 | ✅ v0.7.0 | Unified storage architecture |
 
 ## Quick Health Check
 
@@ -190,7 +190,7 @@ Run these commands immediately after starting Claude Code to verify all servers 
 
 ---
 
-### 6. c0ntextKeeper Server Tests (v0.6.0)
+### 6. c0ntextKeeper Server Tests (v0.7.0)
 
 #### Context Retrieval
 ```typescript

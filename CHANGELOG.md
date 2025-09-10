@@ -5,6 +5,51 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2025-09-10
+
+### Added
+- **Automatic Context Loading**: Revolutionary auto-load feature for MCP server
+  - Context automatically provided when Claude Code connects to MCP server
+  - Zero-configuration with sensible defaults - works out of the box
+  - Configurable loading strategies: smart, recent, relevant, or custom
+  - Size-aware loading with configurable limits (default 50KB)
+  - MCP resource exposure at `context://project/{name}/current`
+- **Context Loader Module** (`src/core/context-loader.ts`):
+  - Intelligent context aggregation from multiple sources
+  - Smart strategy combines sessions, patterns, knowledge, and prompts
+  - Recent strategy focuses on latest sessions
+  - Relevant strategy uses keyword matching
+  - Custom strategy allows full user control
+  - Automatic size management and truncation
+- **Enhanced Configuration System**:
+  - New `autoLoad` configuration section with comprehensive settings
+  - Configurable session, pattern, knowledge, and prompt counts
+  - Time window filtering (default 7 days)
+  - Priority keyword matching for relevant content
+  - Format style options: summary, detailed, or minimal
+- **New CLI Commands**:
+  - `c0ntextkeeper context preview`: Preview auto-loaded context
+  - `c0ntextkeeper context test`: Test context loading strategies
+  - `c0ntextkeeper context configure`: Interactive configuration wizard
+  - Enhanced output formatting with size indicators
+- **MCP Resource Support**:
+  - Automatic resource listing when auto-load is enabled
+  - Dynamic resource generation based on configuration
+  - Support for patterns and knowledge base resources
+  - Proper MIME type handling (text/markdown)
+
+### Enhanced
+- **MCP Server**: Now supports ListResourcesRequestSchema and ReadResourceRequestSchema
+- **Configuration Manager**: Added getAutoLoadSettings() and updateAutoLoadSettings() methods
+- **CLI Architecture**: Added new context command group with subcommands
+- **Documentation**: Added comprehensive auto-load guide
+- **Test Coverage**: Added tests for context-loader module
+
+### Changed
+- Updated all version references to 0.7.0
+- Enhanced server startup to support resource handlers
+- Improved CLI help text with better command descriptions
+
 ## [0.6.0] - 2025-09-09
 
 ### Added

@@ -202,7 +202,7 @@ export class ContextArchiver {
           toolCounts: {},
           filesModified: [],
           relevanceScore: 0,
-          extractionVersion: "0.6.0",
+          extractionVersion: "0.7.0",
           isTest: true, // Mark as test data for separation
         },
       };

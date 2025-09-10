@@ -15,25 +15,30 @@ describe('PatternAnalyzer', () => {
   let mockFileStore: jest.Mocked<FileStore>;
 
   const mockPattern1: Pattern = {
-    type: 'command',
+    id: 'pat-1',
+    type: 'command' as const,
     value: 'npm test',
-    description: 'Running tests',
     examples: ['npm test', 'npm test -- --coverage'],
-    frequency: 5
+    frequency: 5,
+    firstSeen: '2024-01-01T10:00:00Z',
+    lastSeen: '2024-01-03T10:00:00Z'
   };
 
   const mockPattern2: Pattern = {
-    type: 'code',
+    id: 'pat-2',
+    type: 'code' as const,
     value: 'async/await pattern',
-    description: 'Async function pattern',
     examples: ['async function fetchData() { ... }'],
-    frequency: 3
+    frequency: 3,
+    firstSeen: '2024-01-01T10:00:00Z',
+    lastSeen: '2024-01-02T10:00:00Z'
   };
 
   const mockContext1: ExtractedContext = {
     sessionId: 'session-1',
     timestamp: '2024-01-01T10:00:00Z',
     projectPath: '/test/project',
+    extractedAt: 'preCompact',
     problems: [],
     implementations: [],
     decisions: [],
@@ -43,7 +48,9 @@ describe('PatternAnalyzer', () => {
       filesModified: ['test.ts'],
       relevanceScore: 0.85,
       duration: 300000,
-      toolCounts: { Bash: 5 }
+      toolCounts: { Bash: 5 },
+      entryCount: 10,
+      toolsUsed: ['Bash']
     }
   };
 
@@ -51,6 +58,7 @@ describe('PatternAnalyzer', () => {
     sessionId: 'session-2',
     timestamp: '2024-01-02T10:00:00Z',
     projectPath: '/test/project',
+    extractedAt: 'preCompact',
     problems: [],
     implementations: [],
     decisions: [],
@@ -60,7 +68,9 @@ describe('PatternAnalyzer', () => {
       filesModified: ['async.ts'],
       relevanceScore: 0.75,
       duration: 600000,
-      toolCounts: { Edit: 3 }
+      toolCounts: { Edit: 3 },
+      entryCount: 15,
+      toolsUsed: ['Edit']
     }
   };
 
@@ -126,11 +136,13 @@ describe('PatternAnalyzer', () => {
 
     it('should respect limit parameter', async () => {
       const manyPatterns = Array(20).fill(null).map((_, i) => ({
+        id: `pat-${i}`,
         type: 'command' as const,
         value: `pattern-${i}`,
-        description: `Pattern ${i}`,
         examples: [],
-        frequency: i + 1
+        frequency: i + 1,
+        firstSeen: '2024-01-01T10:00:00Z',
+        lastSeen: '2024-01-03T10:00:00Z'
       }));
 
       const contextWithManyPatterns = {
@@ -256,25 +268,31 @@ describe('PatternAnalyzer', () => {
     it('should handle different pattern types', async () => {
       const patterns: Pattern[] = [
         {
-          type: 'code',
+          id: 'pat-code-1',
+          type: 'code' as const,
           value: 'React component',
-          description: 'Component pattern',
           examples: [],
-          frequency: 4
+          frequency: 4,
+          firstSeen: '2024-01-01T10:00:00Z',
+          lastSeen: '2024-01-03T10:00:00Z'
         },
         {
-          type: 'architecture',
+          id: 'pat-arch-1',
+          type: 'architecture' as const,
           value: 'Dependency injection',
-          description: 'DI pattern',
           examples: [],
-          frequency: 3
+          frequency: 3,
+          firstSeen: '2024-01-01T10:00:00Z',
+          lastSeen: '2024-01-03T10:00:00Z'
         },
         {
-          type: 'error-handling',
+          id: 'pat-err-1',
+          type: 'error-handling' as const,
           value: 'Try-catch pattern',
-          description: 'Error handling',
           examples: [],
-          frequency: 5
+          frequency: 5,
+          firstSeen: '2024-01-01T10:00:00Z',
+          lastSeen: '2024-01-03T10:00:00Z'
         }
       ];
 
@@ -314,19 +332,23 @@ describe('PatternAnalyzer', () => {
   describe('pattern merging', () => {
     it('should merge patterns with same type and value', async () => {
       const pattern1 = {
+        id: 'pat-git-1',
         type: 'command' as const,
         value: 'git commit',
-        description: 'Committing changes',
         examples: ['git commit -m "fix"'],
-        frequency: 3
+        frequency: 3,
+        firstSeen: '2024-01-01T10:00:00Z',
+        lastSeen: '2024-01-03T10:00:00Z'
       };
 
       const pattern2 = {
+        id: 'pat-git-2',
         type: 'command' as const,
         value: 'git commit',
-        description: 'Committing changes',
         examples: ['git commit -m "feat"'],
-        frequency: 2
+        frequency: 2,
+        firstSeen: '2024-01-01T10:00:00Z',
+        lastSeen: '2024-01-03T10:00:00Z'
       };
 
       const context1 = { ...mockContext1, patterns: [pattern1] };

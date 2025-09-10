@@ -90,7 +90,7 @@ export class ContextExtractor {
         toolCounts: {},
         filesModified: [],
         relevanceScore: 0,
-        extractionVersion: "0.6.0", // Unified storage architecture with project-name organization
+        extractionVersion: "0.7.0", // Auto-load context feature with MCP resources
       },
     };
 

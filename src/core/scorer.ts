@@ -55,6 +55,7 @@ export class RelevanceScorer {
       if (item.metadata?.hasSolution) score += this.weights.problemSolution;
       if (item.metadata?.hasError) score += this.weights.errorResolution;
       if (item.metadata?.hasCode) score += this.weights.codeChanges * 0.5;
+      if (item.metadata?.hasDecision) score += this.weights.decisions;
       if (item.metadata?.toolsUsed > 0)
         score += this.weights.toolComplexity * 0.3;
     } else if (item.type === "prompt") {

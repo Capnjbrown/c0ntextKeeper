@@ -15,7 +15,7 @@ export function getProjectName(workingDir: string): string {
       // Sanitize for filesystem use (remove special chars except dash and underscore)
       return projectName.replace(/[^a-zA-Z0-9-_]/g, '-');
     }
-  } catch (error) {
+  } catch {
     // Fall through to hash generation
   }
   
