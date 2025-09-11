@@ -1,0 +1,58 @@
+# Development and testing
+tests/
+coverage/
+*.test.ts
+*.spec.ts
+jest.config.js
+scripts/test-*.js
+scripts/validate-public-ready.sh
+
+# GitHub specific
+.github/
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+PRE-RELEASE-CHECKLIST.md
+
+# Documentation source
+docs/development/
+docs/technical/
+docs/guides/
+
+# Local development
+.env
+.env.local
+*.log
+npm-debug.log*
+.c0ntextkeeper/
+tmp/
+
+# IDE and OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Build artifacts not needed
+*.map
+tsconfig.tsbuildinfo
+
+# Examples and demos
+examples/
+demo/
+
+# CI/CD
+.travis.yml
+.circleci/
+appveyor.yml
+
+# Keep these files (they'll be included):
+# - dist/ (compiled code)
+# - src/ (TypeScript source)
+# - README.md
+# - LICENSE
+# - CHANGELOG.md
+# - package.json
+# - package-lock.json
