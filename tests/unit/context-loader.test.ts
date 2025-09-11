@@ -28,8 +28,8 @@ describe("ContextLoader", () => {
     // Reset mocks
     jest.clearAllMocks();
     
-    // Mock file system
-    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    // Mock file system - use mockImplementation instead of redefining
+    jest.spyOn(fs, 'existsSync').mockImplementation(() => true);
     jest.spyOn(fs, 'readdirSync').mockReturnValue([
       '2025-01-10_10-00-00_session1.json',
       '2025-01-09_15-30-00_session2.json',

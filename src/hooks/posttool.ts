@@ -147,26 +147,83 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
 
 function extractToolPattern(input: PostToolHookInput): string {
   const { tool, input: toolInput, result } = input;
+  
+  // Determine if the operation was successful
+  const isSuccess = !result?.error && result?.success !== false;
 
+  // Handle MCP tools specifically
+  if (tool.startsWith("mcp__")) {
+    const parts = tool.split("__");
+    const server = parts[1] || "unknown";
+    const method = parts[2] || "unknown";
+    
+    // Extract meaningful details based on common MCP tools
+    if (tool.includes("filesystem")) {
+      const operation = method.replace(/_/g, " ");
+      const path = toolInput?.path || toolInput?.file_path || "unknown";
+      return `MCP ${server}: ${operation} on ${path} - ${isSuccess ? "success" : "failed"}`;
+    } else if (tool.includes("sequential-thinking")) {
+      return `MCP ${server}: ${method} - thought ${toolInput?.thoughtNumber || "?"} of ${toolInput?.totalThoughts || "?"}`;
+    } else if (tool.includes("github")) {
+      const operation = method.replace(/_/g, " ");
+      return `MCP ${server}: ${operation} - ${isSuccess ? "success" : "failed"}`;
+    } else {
+      return `MCP ${server}: ${method} - ${isSuccess ? "success" : "failed"}`;
+    }
+  }
+
+  // Handle standard tools
   switch (tool) {
     case "Write":
     case "Edit":
     case "MultiEdit":
-      return `${tool}: ${toolInput?.file_path || "unknown"} - ${result?.success ? "modified" : "failed"}`;
+      const filePath = toolInput?.file_path || "unknown";
+      return `${tool}: ${filePath} - ${isSuccess ? "modified" : "failed"}`;
 
     case "Bash":
       const cmd = (toolInput?.command || "").split(" ")[0];
-      return `Bash: ${cmd} - ${result?.exit_code === 0 ? "success" : `exit ${result?.exit_code}`}`;
+      const exitCode = result?.exit_code;
+      if (exitCode !== undefined) {
+        return `Bash: ${cmd} - ${exitCode === 0 ? "success" : `exit ${exitCode}`}`;
+      }
+      return `Bash: ${cmd} - ${isSuccess ? "success" : "failed"}`;
 
     case "Read":
-      return `Read: ${toolInput?.file_path || "unknown"}`;
+      const readPath = toolInput?.file_path || "unknown";
+      return `Read: ${readPath} - ${isSuccess ? "success" : "failed"}`;
 
     case "Grep":
     case "Glob":
-      return `${tool}: ${toolInput?.pattern || "unknown"} - ${result?.matches?.length || 0} matches`;
+      const pattern = toolInput?.pattern || "unknown";
+      const matches = result?.matches?.length || result?.files?.length || 0;
+      return `${tool}: ${pattern} - ${matches} matches`;
+
+    case "TodoWrite":
+      const todoCount = toolInput?.todos?.length || 0;
+      return `TodoWrite: ${todoCount} todos - ${isSuccess ? "updated" : "failed"}`;
+
+    case "ExitPlanMode":
+      return `ExitPlanMode: ${isSuccess ? "plan approved" : "plan rejected"}`;
+
+    case "WebSearch":
+      const query = toolInput?.query || "unknown";
+      return `WebSearch: "${query}" - ${isSuccess ? "success" : "failed"}`;
+
+    case "WebFetch":
+      const url = toolInput?.url || "unknown";
+      return `WebFetch: ${url} - ${isSuccess ? "fetched" : "failed"}`;
 
     default:
-      return `${tool}: ${result?.success ? "success" : "failed"}`;
+      // For unknown tools, provide a more informative pattern
+      if (toolInput?.file_path) {
+        return `${tool}: ${toolInput.file_path} - ${isSuccess ? "success" : "failed"}`;
+      } else if (toolInput?.path) {
+        return `${tool}: ${toolInput.path} - ${isSuccess ? "success" : "failed"}`;
+      } else if (toolInput?.query) {
+        return `${tool}: "${toolInput.query}" - ${isSuccess ? "success" : "failed"}`;
+      } else {
+        return `${tool}: ${isSuccess ? "success" : "failed"}`;
+      }
   }
 }
 

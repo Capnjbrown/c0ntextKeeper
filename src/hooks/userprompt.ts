@@ -7,7 +7,6 @@
  */
 
 import { SecurityFilter } from "../utils/security-filter";
-import { FileStore } from "../storage/file-store";
 import { getStoragePath } from "../utils/path-resolver";
 import { getHookStoragePath } from "../utils/project-utils";
 import * as fs from "fs";
