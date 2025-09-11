@@ -24,6 +24,44 @@ export class RelevanceScorer {
    * Score a single transcript entry
    */
   scoreEntry(entry: TranscriptEntry): number {
+    // CRITICAL: User messages should score high relevance (v0.5.0 fix)
+    if (entry.type === "user" && entry.message?.content) {
+      const contentStr =
+        typeof entry.message.content === "string"
+          ? entry.message.content
+          : JSON.stringify(entry.message.content);
+      const lowerContent = contentStr.toLowerCase();
+      
+      // Any user message with a question mark gets maximum relevance
+      if (contentStr.includes("?")) {
+        return 1.0;
+      }
+      
+      // User requests and commands also get high relevance
+      const requestIndicators = [
+        "implement", "create", "build", "add", "fix",
+        "refactor", "optimize", "migrate", "deploy",
+        "write", "test", "setup", "configure", "install",
+        "document", "explain", "help", "debug", "solve"
+      ];
+      
+      // Check for imperative/request patterns
+      if (requestIndicators.some(ind => lowerContent.includes(ind))) {
+        return 0.9; // High relevance for user requests
+      }
+      
+      // Check for problem statements
+      const problemIndicators = [
+        "error", "issue", "problem", "broken", "crash",
+        "fail", "wrong", "bug", "doesn't work", "not working",
+        "confused", "stuck", "slow", "vulnerability", "leak"
+      ];
+      
+      if (problemIndicators.some(ind => lowerContent.includes(ind))) {
+        return 0.9; // High relevance for problem reports
+      }
+    }
+    
     let score = 0;
     const factors = this.extractFactors(entry);
 
