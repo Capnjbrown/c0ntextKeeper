@@ -268,6 +268,12 @@ export class ContextRetriever {
    */
   private findMatches(context: ExtractedContext, query: string): Match[] {
     const matches: Match[] = [];
+    
+    // Handle undefined or empty query
+    if (!query) {
+      return matches;
+    }
+    
     const queryLower = query.toLowerCase();
 
     // Search in problems
