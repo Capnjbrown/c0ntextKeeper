@@ -136,8 +136,31 @@ export async function statusCommand(): Promise<void> {
     const globalIndexPath = path.join(globalPath, 'index.json');
     if (fs.existsSync(globalIndexPath)) {
       const index = JSON.parse(fs.readFileSync(globalIndexPath, 'utf-8'));
-      const projectCount = Object.keys(index.projects || {}).length;
-      logger.info(`  Registered projects: ${projectCount}`);
+      const projects = index.projects || {};
+      
+      // Filter out invalid/test projects for accurate count
+      const validProjects = Object.entries(projects).filter(([_, projectInfo]: [string, any]) => {
+        const projectPath = projectInfo.path;
+        // Skip test/temporary projects
+        if (projectPath.includes('/tmp/') || 
+            projectPath.includes('/var/folders/') ||
+            projectPath.includes('/private/tmp/') ||
+            projectPath.includes('/private/var/') ||
+            projectPath.includes('c0ntextkeeper-test-')) {
+          return false;
+        }
+        // Check if path exists
+        return fs.existsSync(projectPath);
+      });
+      
+      logger.info(`  Registered projects: ${validProjects.length}`);
+      
+      // Show valid project names if there are any
+      if (validProjects.length > 0 && validProjects.length <= 5) {
+        validProjects.forEach(([_, projectInfo]: [string, any]) => {
+          logger.info(`    - ${projectInfo.name}`);
+        });
+      }
     }
   }
 }

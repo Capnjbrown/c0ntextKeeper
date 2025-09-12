@@ -15,6 +15,8 @@ import { formatTimestamp, formatFileSize } from "./utils/formatter.js";
 import { initCommand, statusCommand } from "./cli/init.js";
 import { execSync } from "child_process";
 import path from "path";
+import * as fs from "fs";
+import * as os from "os";
 
 const logger = new Logger("CLI", undefined, false);
 const program = new Command();
@@ -397,6 +399,54 @@ program
       console.log("\n" + "═".repeat(60));
     } catch (error) {
       logger.error("Status error:", error);
+      process.exit(1);
+    }
+  });
+
+// Cleanup command - Clean invalid entries from global index
+program
+  .command("cleanup")
+  .description("Clean invalid/test projects from global index")
+  .option("--dry-run", "Preview what would be removed without making changes")
+  .option("--backup", "Create backup before cleaning (default: true)", true)
+  .action(async () => {
+    try {
+      const cleanupScript = path.join(__dirname, "..", "scripts", "cleanup-index.js");
+      if (!fs.existsSync(cleanupScript)) {
+        logger.error("Cleanup script not found. Please ensure scripts/cleanup-index.js exists.");
+        process.exit(1);
+      }
+
+      const { cleanIndex, isValidProject } = require(cleanupScript);
+      
+      console.log("\n🧹 c0ntextKeeper Index Cleanup");
+      console.log("=".repeat(50));
+      
+      const globalPath = path.join(os.homedir(), ".c0ntextkeeper");
+      const indexPath = path.join(globalPath, "index.json");
+      
+      if (!fs.existsSync(indexPath)) {
+        console.log("No index file found. Nothing to clean.");
+        return;
+      }
+      
+      // Read current index
+      const index = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
+      const projects = index.projects || {};
+      const totalCount = Object.keys(projects).length;
+      
+      if (totalCount === 0) {
+        console.log("No projects in index. Nothing to clean.");
+        return;
+      }
+      
+      console.log(`\nFound ${totalCount} project(s) in index`);
+      
+      // Perform cleanup
+      cleanIndex();
+      
+    } catch (error) {
+      logger.error("Cleanup failed:", error);
       process.exit(1);
     }
   });

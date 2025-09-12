@@ -10,7 +10,7 @@ This document outlines the naming conventions used throughout the c0ntextKeeper 
 | camelCase | `firstName` | JS/TS variables |
 | PascalCase | `FirstName` | Classes, components |
 | snake_case | `first_name` | Python, Ruby |
-| kebab-case | `first-name` | URLs, CSS, files |
+| kebab-case | `first-name` | URLs, CSS, files, documentations |
 | SCREAMING_SNAKE | `FIRST_NAME` | Constants |
 | Train-Case | `First-Name` | HTTP headers |
 | dot.case | `first.name` | Package names |

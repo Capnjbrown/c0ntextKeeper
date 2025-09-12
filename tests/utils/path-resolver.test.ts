@@ -16,6 +16,9 @@ describe('Path Resolver', () => {
   let testDir: string;
   
   beforeEach(() => {
+    // Set test mode to prevent global index pollution
+    process.env.CONTEXTKEEPER_TEST_MODE = 'true';
+    
     // Clean test directory
     if (fs.existsSync(testDirBase)) {
       fs.rmSync(testDirBase, { recursive: true });
@@ -36,6 +39,8 @@ describe('Path Resolver', () => {
     if (fs.existsSync(testDirBase)) {
       fs.rmSync(testDirBase, { recursive: true });
     }
+    // Clean up test mode flag
+    delete process.env.CONTEXTKEEPER_TEST_MODE;
   });
   
   describe('getStoragePath', () => {

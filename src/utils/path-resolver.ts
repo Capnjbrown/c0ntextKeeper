@@ -213,9 +213,44 @@ This archive contains Claude Code session data and analytics.
 }
 
 /**
+ * Check if a project path is a test/temporary project
+ */
+function isTestProject(projectPath: string): boolean {
+  const normalizedPath = path.normalize(projectPath).toLowerCase();
+  
+  // Check for test mode environment variable
+  if (process.env.CONTEXTKEEPER_TEST_MODE === 'true') {
+    return true;
+  }
+  
+  // Check for temporary directory patterns
+  const tempPatterns = [
+    '/tmp/',
+    '/temp/',
+    '/var/folders/',
+    '/private/tmp/',
+    '/private/var/',
+    'c0ntextkeeper-test-',
+    'contextkeeper-test-',
+    '/appdata/local/temp/',  // Windows temp
+    '\\temp\\',               // Windows temp
+    '\\tmp\\'                 // Windows tmp
+  ];
+  
+  return tempPatterns.some(pattern => normalizedPath.includes(pattern));
+}
+
+/**
  * Register a project in the global index
+ * Skips registration for test/temporary projects
  */
 export function registerProject(projectPath: string): void {
+  // Skip registration for test projects
+  if (isTestProject(projectPath)) {
+    console.log(`[c0ntextKeeper] Skipping test project registration: ${projectPath}`);
+    return;
+  }
+  
   const info = getProjectStorageInfo(projectPath);
   // Use environment variable if set, otherwise use home directory
   const globalPath = process.env.CONTEXTKEEPER_HOME || GLOBAL_DIR;
