@@ -103,32 +103,35 @@ graph LR
 5. **Archive created instantly** - With analytics and insights
 6. **MCP tools provide access** - Retrieve context anytime
 
-### Key Features
+### Key Features (Actual Implementation)
 
 - 🤖 **Fully Automatic** - Works with both manual `/compact` and automatic compaction
-- 📊 **Analytics Dashboard** - Rich statistics and insights in every archive
-- 🎣 **4 Hook System** - PreCompact, UserPromptSubmit, PostToolUse, and Stop hooks
-- 🧠 **Intelligent Extraction** - Enhanced with 50+ semantic patterns for superior problem/solution detection
-- 🔧 **Tool Usage Tracking** - Monitor which tools you use and how often
-- 📊 **Advanced Relevance Scoring** - User questions score 1.0, with improved multi-factor analysis
-- 🔍 **Smart Retrieval** - MCP tools provide instant access to relevant historical context
-- 📈 **Pattern Recognition** - Identifies recurring solutions and approaches
-- 📊 **Aggregate Metrics** - Project-wide statistics and trends
-- ⚙️ **CLI Management** - Complete control over hook configuration and settings
-- 📝 **Configuration System** - Centralized config.json for all preferences
-- 🔒 **Security First** - Automatic filtering of sensitive data (API keys, passwords, PII)
-- 💾 **Efficient Storage** - Multiple storage locations for different data types
-- ✅ **Production Ready** - Full CI/CD pipeline, comprehensive testing (72.4% success rate), TypeScript strict mode
+- 📊 **Rich Analytics Dashboard** - Auto-generated README.md with tool usage, session metrics, quality scores
+- 🎣 **4 Operational Hooks** - PreCompact (55s timeout), UserPromptSubmit, PostToolUse (with MCP tools), Stop
+- 🧠 **50+ Semantic Patterns** - Sophisticated extraction for problems, solutions, implementations, decisions
+- 🔧 **Full MCP Tool Support** - PostToolUse hook tracks all MCP server tools (filesystem, sequential-thinking, etc.)
+- 📊 **Multi-Factor Relevance Scoring** - Base 0.3 + weighted factors (problems +0.2, code +0.15, tools +0.1, etc.)
+- 🔍 **3 MCP Tools + Resources** - fetch_context, search_archive, get_patterns + auto-load resources
+- 📈 **Pattern Recognition** - Code, command, and architecture pattern identification across sessions
+- 📝 **JSON Storage Format** - All archives use readable JSON (sessions, prompts, patterns, knowledge)
+- ⚙️ **Comprehensive CLI** - init, status, archive, search, fetch, patterns, hooks, cleanup commands
+- 🔒 **Security Filtering** - Redacts API keys (OpenAI, Anthropic, AWS, GitHub), passwords, PII, JWT tokens
+- 💾 **Hybrid Storage Architecture** - Project-local (.c0ntextkeeper/) and global (~/.c0ntextkeeper/) modes
+- 🧪 **Test Isolation** - Automatic separation of test data to prevent pollution
+- ✅ **Production Ready** - 72.4% test success rate, <10ms performance, TypeScript strict mode
 
 ## ⚡ Performance
 
-c0ntextKeeper is built for speed and efficiency:
+c0ntextKeeper delivers exceptional performance with sophisticated implementation:
 
-- **<10ms Average Operations** - Lightning-fast context extraction and retrieval
-- **Zero Memory Leaks** - Efficient stream processing for large transcripts
-- **Instant Startup** - Auto-load context ready when Claude Code connects
-- **Minimal Overhead** - Negligible impact on Claude Code performance
-- **Optimized Storage** - Smart compression and indexing strategies
+- **<10ms Average Operations** - Lightning-fast context extraction and retrieval (verified in benchmarks)
+- **55-Second Timeout Protection** - Gracefully handles large transcripts without 504 errors
+- **Efficient Stream Processing** - Handles 10,000+ entry transcripts with smart prioritization
+- **JSON Storage Format** - All hooks use human-readable JSON (not JSONL) for better accessibility
+- **Test Project Filtering** - Actively prevents /tmp and test data pollution in global index
+- **Smart Content Limits** - 2000 character limits for questions/solutions prevent overflow
+- **Zero Memory Leaks** - Stream processing with automatic cleanup
+- **Instant MCP Resource Loading** - Auto-load context ready when Claude Code connects
 
 See [Performance Benchmarks](docs/technical/performance-benchmarks.md) and [Test Results](docs/technical/test-results-summary.md) for detailed metrics.
 
@@ -170,31 +173,49 @@ That's it! c0ntextKeeper is now automatically preserving your context.
 
 ## 📁 Storage Architecture
 
-### Unified Global Storage
+### Hybrid Storage System (v0.7.0)
 
-c0ntextKeeper uses a unified storage architecture with intelligent project organization:
+c0ntextKeeper uses a sophisticated hybrid storage architecture with intelligent path resolution:
 
 ```
 ~/.c0ntextkeeper/              # Global storage location
 ├── config.json               # Global configuration
 ├── archive/                  
-│   └── projects/
-│       ├── my-app/          # Readable project names!
-│       │   ├── sessions/    # Full session transcripts
-│       │   ├── knowledge/   # Q&A exchanges
-│       │   ├── patterns/    # Tool usage patterns
-│       │   ├── prompts/     # Your questions
-│       │   ├── test/        # Test data (separated)
-│       │   └── README.md    # Project analytics
-│       └── another-project/
+│   ├── projects/
+│   │   ├── c0ntextKeeper/   # Human-readable project names!
+│   │   │   ├── sessions/    # Individual JSON session files
+│   │   │   ├── test/        # Test data (auto-separated)
+│   │   │   ├── index.json   # Project statistics
+│   │   │   └── README.md    # Analytics dashboard
+│   │   └── web-scraper/     # Another project
+│   └── global/
+│       └── index.json       # Cross-project index
+├── prompts/                  # UserPromptSubmit hook data
+│   └── [project-hash]/
+│       └── YYYY-MM-DD-prompts.json      # Daily JSON arrays
+├── patterns/                 # PostToolUse hook data (with MCP tools)
+│   └── [project-hash]/
+│       └── YYYY-MM-DD-patterns.json     # Daily JSON arrays
+├── knowledge/                # Stop hook Q&A pairs
+│   └── [project-hash]/
+│       └── YYYY-MM-DD-knowledge.json    # Daily JSON arrays
+├── errors/                   # Error patterns
+│   └── YYYY-MM-DD-errors.json           # Daily JSON arrays
+├── solutions/                # Solutions index
+│   └── index.json
 └── logs/                     # Hook execution logs
+    └── hook.log
 ```
 
 ### Key Storage Features
-- **Project Names**: Archives organized by readable project names (not MD5 hashes)
-- **Global Default**: All archives in one place at `~/.c0ntextkeeper/`
-- **Test Separation**: Test archives automatically isolated in `test/` folders
+- **Hybrid Architecture**: Project-local (`.c0ntextkeeper/`) or global (`~/.c0ntextkeeper/`) modes
+- **Intelligent Path Resolution**: Walks up directory tree to find storage location
+- **Human-Readable Names**: Projects use actual names, not hashes (e.g., `c0ntextKeeper`, not `a1b2c3d4`)
+- **JSON Format Throughout**: All data stored as formatted JSON for readability
+- **Test Data Isolation**: Test sessions automatically separated to `test/` directories
+- **Daily Aggregation**: Hook data organized by date in JSON arrays
 - **Custom Location**: Override with `CONTEXTKEEPER_HOME` environment variable
+- **Test Project Filtering**: Prevents `/tmp`, `/var/folders`, and test projects from polluting index
 
 ## 📖 Usage
 

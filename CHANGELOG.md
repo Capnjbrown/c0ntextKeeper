@@ -51,6 +51,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced server startup to support resource handlers
 - Improved CLI help text with better command descriptions
 
+### Documentation
+- **Comprehensive Documentation Accuracy Update** (2025-09-12):
+  - Corrected all storage format references from JSONL to JSON for hook data
+  - Documented full MCP tool support in PostToolUse hook (filesystem, sequential-thinking, etc.)
+  - Added test project filtering documentation (prevents `/tmp/` and `/var/folders/` pollution)
+  - Updated performance metrics to reflect actual <10ms operations
+  - Fixed storage architecture diagrams to show human-readable project names (not MD5 hashes)
+  - Enhanced hook integration docs with 55-second timeout protection details
+  - Updated project-context.md as authoritative source of truth with actual implementation
+  - All documentation now accurately reflects MORE sophisticated implementation than originally documented
+
 ## [0.6.0] - 2025-09-09
 
 ### Added

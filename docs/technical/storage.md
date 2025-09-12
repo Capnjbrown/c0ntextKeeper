@@ -2,7 +2,7 @@
 
 ## Overview
 
-c0ntextkeeper implements a hybrid storage architecture that supports both project-local and global storage configurations. This design allows for maximum flexibility while maintaining clear separation of concerns.
+c0ntextKeeper implements a sophisticated hybrid storage architecture that supports both project-local and global storage configurations. The system uses intelligent path resolution, human-readable project names, and comprehensive test isolation to maintain clean, organized archives.
 
 ## Storage Resolution Algorithm
 
@@ -25,17 +25,30 @@ Located at `[project-root]/.c0ntextkeeper/`
 ```
 .c0ntextkeeper/
 ├── archive/
-│   ├── sessions/         # Session JSON files
-│   ├── test/            # Validation data
-│   ├── index.json       # Session index
-│   └── README.md        # Auto-generated dashboard
-├── prompts/             # Daily prompt aggregations
-├── patterns/            # Extracted patterns
-├── knowledge/           # Q&A pairs
-├── errors/              # Error patterns
-├── solutions/           # Local solutions
-├── config.json          # Project configuration
-└── logs/               # Execution logs
+│   ├── projects/
+│   │   └── [project-name]/     # Human-readable name
+│   │       ├── sessions/        # Individual JSON files
+│   │       ├── test/           # Test data (auto-separated)
+│   │       ├── index.json      # Project statistics
+│   │       └── README.md       # Analytics dashboard
+│   └── global/
+│       └── index.json          # Cross-project index
+├── prompts/                    # UserPromptSubmit hook data
+│   └── [project-hash]/
+│       └── YYYY-MM-DD-prompts.json    # Daily JSON arrays
+├── patterns/                   # PostToolUse hook data
+│   └── [project-hash]/
+│       └── YYYY-MM-DD-patterns.json   # Daily JSON arrays (with MCP tools)
+├── knowledge/                  # Stop hook Q&A pairs
+│   └── [project-hash]/
+│       └── YYYY-MM-DD-knowledge.json  # Daily JSON arrays
+├── errors/                     # Error patterns
+│   └── YYYY-MM-DD-errors.json         # Daily JSON arrays
+├── solutions/                  # Solutions index
+│   └── index.json
+├── config.json                 # Project configuration
+└── logs/                       # Execution logs
+    └── hook.log
 ```
 
 ### Global Structure
@@ -44,18 +57,40 @@ Located at `~/.c0ntextkeeper/`
 ```
 .c0ntextkeeper/
 ├── archive/
-│   ├── projects/       # Per-project storage (by name)
-│   │   └── [project-name]/
-│   │       ├── sessions/
-│   │       ├── knowledge/
-│   │       ├── patterns/
-│   │       └── prompts/
-│   └── global/         # Cross-project data
-├── index.json          # Project registry
-└── logs/              # Global logs
+│   ├── projects/               # Per-project storage
+│   │   ├── c0ntextKeeper/     # Actual project names!
+│   │   │   ├── sessions/       # Individual JSON sessions
+│   │   │   ├── test/          # Test data (auto-filtered)
+│   │   │   ├── index.json     # Project analytics
+│   │   │   └── README.md      # Dashboard
+│   │   └── web-scraper/        # Another project
+│   └── global/
+│       └── index.json         # Master index (test-filtered)
+├── prompts/                   # Hook data by project hash
+│   └── [project-hash]/
+│       └── YYYY-MM-DD-prompts.json
+├── patterns/                  # Tool patterns (includes MCP)
+│   └── [project-hash]/
+│       └── YYYY-MM-DD-patterns.json
+├── knowledge/                 # Q&A knowledge base
+│   └── [project-hash]/
+│       └── YYYY-MM-DD-knowledge.json
+├── errors/                    # Error tracking
+│   └── YYYY-MM-DD-errors.json
+├── solutions/
+│   └── index.json
+├── config.json               # Global configuration
+├── index.json               # Project registry (test-filtered)
+└── logs/                    # Global logs
+    └── hook.log
 ```
 
-Note: Projects are now organized by name instead of hash for better readability.
+**Key Features:**
+- Projects organized by actual name (e.g., `c0ntextKeeper`, not `a1b2c3d4`)
+- Test projects automatically filtered from index
+- All data stored as formatted JSON (not JSONL)
+- MCP tools tracked in patterns
+- Auto-generated analytics dashboards
 
 ## Configuration Hierarchy
 
@@ -184,29 +219,37 @@ c0ntextkeeper search --global "old query"
 
 ### Session Files
 ```
-archive/sessions/YYYY-MM-DD_HHMM_MT_description.json
+archive/projects/[name]/sessions/YYYY-MM-DD_HHMM_MT_description.json
 ```
 - Date-based naming for chronological ordering
-- Descriptive suffixes for easy identification
-- JSON format for readability
+- Descriptive suffixes for easy identification (e.g., "authentication-implementation")
+- Individual JSON files with full extracted context
+- 2000 character limits for questions/solutions
+- Relevance scoring with multi-factor analysis
 
-### Daily Aggregations
+### Daily Aggregations (Hook Data)
 ```
-prompts/YYYY-MM-DD-prompts.json
-patterns/YYYY-MM-DD-patterns.json
-knowledge/YYYY-MM-DD-knowledge.json
+prompts/[hash]/YYYY-MM-DD-prompts.json     # UserPromptSubmit data
+patterns/[hash]/YYYY-MM-DD-patterns.json   # PostToolUse data (with MCP tools)
+knowledge/[hash]/YYYY-MM-DD-knowledge.json # Stop hook Q&A pairs
+errors/YYYY-MM-DD-errors.json             # Error patterns
 ```
-- Daily files prevent unbounded growth
-- JSON arrays for easy appending
+- Daily JSON arrays (not JSONL) for readability
+- Prevents unbounded file growth
 - Automatic date-based organization
+- MCP tool support in patterns (filesystem, sequential-thinking, etc.)
+- Test data automatically excluded
 
 ### Test Data Separation
 ```
-archive/test/validation-*.json
+archive/projects/[name]/test/validation-*.json
 ```
-- Test sessions isolated from production data
-- Excluded from statistics and indexes
-- Clear separation for debugging
+- Test sessions automatically identified and isolated
+- Excluded from statistics and project indexes
+- Test projects filtered from global index
+- Prevents pollution from `/tmp`, `/var/folders`, test patterns
+- Identified by `isTest: true` flag in metadata
+- Environment variable `CONTEXTKEEPER_TEST_MODE` for test runs
 
 ## Security Considerations
 

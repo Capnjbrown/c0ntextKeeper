@@ -8,7 +8,8 @@ Building an MCP server that intelligently preserves valuable context from Claude
 
 ## Purpose
 c0ntextKeeper addresses the context loss problem in Claude Code by:
-- Extracting valuable patterns, decisions, and solutions from JSONL transcripts
+- Extracting valuable patterns, decisions, and solutions from Claude Code's JSONL transcripts
+- Storing all extracted data as JSON for human readability and consistency
 - Preserving context before compaction hooks trigger
 - Providing searchable access to historical context via MCP tools
 - Building a knowledge graph of project-specific learnings
@@ -36,7 +37,7 @@ c0ntextKeeper v0.7.0 is complete, tested, and ready for release:
 - ✅ **Auto-Load Context** - MCP resources provide immediate project awareness
 - ✅ **Unified Storage Architecture** - Intelligent project-name based organization
 - ✅ **Fully Automatic Operation** - Works with manual and auto compaction
-- ✅ **Claude Code Compatibility** - Handles all JSONL formats correctly
+- ✅ **Claude Code Compatibility** - Parses JSONL transcripts, stores as JSON
 - ✅ **50+ Semantic Patterns** - Superior context extraction
 - ✅ **4 Working Hooks** - Complete lifecycle coverage
 - ✅ **3 MCP Tools + Resources** - Instant context retrieval and auto-loading
@@ -74,6 +75,9 @@ c0ntextKeeper v0.7.0 is complete, tested, and ready for release:
 ### Production Features
 - **Automatic Context Preservation** - Zero manual intervention required
 - **Intelligent Extraction** - 50+ semantic patterns for context detection
+- **JSON Storage Format** - All data stored as readable JSON (not JSONL)
+- **Full MCP Tool Support** - PostToolUse tracks all MCP server tools
+- **Test Project Filtering** - Automatically filters `/tmp/` and `/var/folders/`
 - **Rich Analytics** - Tool usage, patterns, and session insights
 - **Security First** - Automatic filtering of sensitive data
 - **Full TypeScript** - Type-safe with strict mode

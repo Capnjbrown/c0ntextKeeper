@@ -201,9 +201,11 @@ c0ntextkeeper context configure # Configure auto-load settings
 ```
 
 ### State Persistence
-- **Primary Storage**: File-based JSON in `~/.c0ntextkeeper/archive/`
+- **Primary Storage**: File-based JSON in `~/.c0ntextkeeper/archive/projects/[project-name]/`
+- **Storage Format**: JSON arrays for all hooks (not JSONL)
 - **Caching Layer**: None detected
-- **Session Management**: Session-based file organization
+- **Session Management**: Session-based file organization with human-readable names
+- **Test Filtering**: Automatic separation of test/temporary projects
 
 ### Data Flow
 1. Claude Code triggers hook (PreCompact/UserPrompt/PostTool/Stop)

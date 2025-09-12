@@ -64,37 +64,42 @@ c0ntextKeeper stores all data locally on your Mac. The exact location depends on
 │   └── hooks/                          # Hook scripts
 │
 └── .c0ntextkeeper/                     # ← Global preserved context
-    ├── config.json                     # Hook and system configuration
-    ├── archive/                        # PreCompact hook data
-    │   ├── global/                     
-    │   │   └── index.json              # Master index of all archives
-    │   └── projects/                   # Per-project archives
-    │       ├── c0ntextKeeper/          # Project by actual name (not hash!)
-    │       │   ├── README.md           # 📊 Analytics dashboard & navigation
-    │       │   ├── index.json          # Project stats with tool usage
-    │       │   ├── sessions/           # Real development sessions
-    │       │   ├── test/               # Test archives (separated from production)
-    │       │   ├── knowledge/          # Q&A pairs from Stop hook
-    │       │   ├── patterns/           # Tool usage patterns
-    │       │   └── prompts/            # User questions tracked
-    │       └── [other-project-name]/
-    │           └── sessions/
+    ├── config.json                     # Global configuration
+    ├── archive/                        # Main archive storage
+    │   ├── projects/                   # Per-project archives
+    │   │   ├── c0ntextKeeper/          # Actual project names (not hashes!)
+    │   │   │   ├── README.md           # 📊 Rich analytics dashboard
+    │   │   │   ├── index.json          # Project statistics & tool usage
+    │   │   │   ├── sessions/           # Individual JSON session files
+    │   │   │   │   └── YYYY-MM-DD_HHMM_MT_description.json
+    │   │   │   └── test/               # Test data (auto-separated)
+    │   │   └── web-scraper/            # Another project
+    │   └── global/                     
+    │       └── index.json              # Master index (test-filtered)
     ├── prompts/                        # UserPromptSubmit hook data
     │   └── [project-hash]/
-    │       └── 2025-08-28-prompts.json       # Daily prompts array (JSON)
-    ├── patterns/                       # PostToolUse hook data
+    │       └── YYYY-MM-DD-prompts.json       # Daily JSON array (not JSONL)
+    ├── patterns/                       # PostToolUse hook data (includes MCP tools)
     │   └── [project-hash]/
-    │       └── 2025-08-28-patterns.json      # Daily patterns array (JSON)
-    ├── knowledge/                      # Stop hook data
+    │       └── YYYY-MM-DD-patterns.json      # Daily JSON array with MCP support
+    ├── knowledge/                      # Stop hook Q&A pairs
     │   └── [project-hash]/
-    │       └── 2025-08-28-knowledge.json     # Daily Q&A pairs array (JSON)
-    ├── errors/                         # Error patterns
-    │   └── 2025-08-28-errors.json            # Daily error patterns (JSON)
+    │       └── YYYY-MM-DD-knowledge.json     # Daily JSON array
+    ├── errors/                         # Error pattern tracking
+    │   └── YYYY-MM-DD-errors.json            # Daily JSON array
     ├── solutions/                      # Indexed solutions
-    │   └── index.json
+    │   └── index.json                  # Quick solution retrieval
+    ├── index.json                      # Project registry (test-filtered)
     └── logs/                           # Hook execution logs
         └── hook.log                    # Debug information
 ```
+
+**Important Notes:**
+- All data is stored as formatted JSON (not JSONL) for readability
+- Projects use human-readable names (e.g., `c0ntextKeeper`, not `a1b2c3d4`)
+- Test projects are automatically filtered from the global index
+- PostToolUse hook captures all MCP server tools (filesystem, sequential-thinking, etc.)
+- Analytics dashboards are auto-generated with rich statistics
 
 **Note:** Folders starting with `.` (dot) are hidden by default on macOS.
 
@@ -268,10 +273,10 @@ c0ntextKeeper provides 4 hooks for different capture strategies:
 
 | Hook | When It Fires | What It Captures | Storage Location | How to Enable |
 |------|--------------|------------------|------------------|---------------|
-| **PreCompact** | Before compaction (auto + manual) | Full session transcript | `~/.c0ntextkeeper/archive/` | Enabled by default |
-| **UserPromptSubmit** | When you send a message | Your questions | `~/.c0ntextkeeper/prompts/` | `c0ntextkeeper hooks enable userprompt` |
-| **PostToolUse** | After tool execution | Tool results | `~/.c0ntextkeeper/patterns/` | `c0ntextkeeper hooks enable posttool` |
-| **Stop** | After Claude responds | Q&A exchanges | `~/.c0ntextkeeper/knowledge/` | `c0ntextkeeper hooks enable stop` |
+| **PreCompact** | Before compaction (auto + manual) | Full session transcript (55s timeout) | `archive/projects/[name]/sessions/` | Enabled by default |
+| **UserPromptSubmit** | When you send a message | Your questions (JSON array) | `prompts/[hash]/YYYY-MM-DD-prompts.json` | `c0ntextkeeper hooks enable userprompt` |
+| **PostToolUse** | After tool execution | Tool results + MCP tools (JSON array) | `patterns/[hash]/YYYY-MM-DD-patterns.json` | `c0ntextkeeper hooks enable posttool` |
+| **Stop** | After Claude responds | Q&A exchanges (JSON array) | `knowledge/[hash]/YYYY-MM-DD-knowledge.json` | `c0ntextkeeper hooks enable stop` |
 
 ### Managing Hooks
 
@@ -303,24 +308,56 @@ Each descriptively-named `.json` file in `sessions/` contains:
   "timestamp": "2025-08-28T10:00:00Z",
   "projectPath": "/path/to/your/project",
   "problems": [
-    // Problems you encountered and solutions
+    {
+      "question": "How do I implement authentication?",
+      "relevance": 1.0,
+      "solution": {
+        "approach": "Use JWT tokens with refresh mechanism",
+        "files": ["auth.ts", "middleware.ts"],
+        "success": true
+      }
+    }
   ],
   "implementations": [
-    // Code you wrote or modified
+    {
+      "tool": "mcp__filesystem__write_file",
+      "file": "auth.ts",
+      "description": "Implemented JWT authentication"
+    }
   ],
   "decisions": [
-    // Architectural decisions made
+    {
+      "decision": "Use Redis for session storage",
+      "rationale": "Better performance for key-value operations",
+      "impact": "high"
+    }
   ],
   "patterns": [
-    // Recurring commands or approaches
+    {
+      "type": "code",
+      "value": "async/await pattern",
+      "frequency": 15
+    }
   ],
   "metadata": {
-    "trigger": "manual",  // or "auto"
-    "filesModified": ["file1.ts", "file2.js"],
-    "relevanceScore": 0.85
+    "trigger": "manual",
+    "filesModified": ["auth.ts", "middleware.ts"],
+    "relevanceScore": 0.85,
+    "toolsUsed": ["Write", "Edit", "mcp__filesystem__read_file"],
+    "toolCounts": {"Write": 5, "Edit": 3, "mcp__filesystem__read_file": 10},
+    "duration": 3600000,
+    "extractionVersion": "0.7.0",
+    "isTest": false
   }
 }
 ```
+
+**Key Features:**
+- Problems with solutions and 1.0 relevance scoring for user questions
+- Full MCP tool tracking in implementations
+- Rich metadata with tool counts and statistics
+- Test data flagged with `isTest: true`
+- 2000 character limits for questions/solutions
 
 ### How Projects are Organized
 
@@ -444,14 +481,20 @@ The `~` symbol means your home directory (`/Users/yourusername/`)
 Very minimal! Archives are JSON text files:
 
 **With PreCompact only (default)**:
-- Each session: ~5-50 KB
+- Each session: ~5-50 KB (individual JSON files)
 - 100 sessions: ~1-5 MB
 - 1000 sessions: ~10-50 MB
+- Performance: <10ms average operations
+- Timeout protection: 55 seconds for large transcripts
 
-**With all hooks enabled**:
-- Daily usage: ~750KB-1.5MB
-- Monthly: ~22-45 MB
-- Yearly: ~270-550 MB
+**With all hooks enabled (JSON arrays)**:
+- Daily prompts: ~10-50 KB per file
+- Daily patterns: ~20-100 KB per file (includes MCP tools)
+- Daily knowledge: ~15-75 KB per file
+- Monthly total: ~22-45 MB
+- Yearly total: ~270-550 MB
+
+**Test Data**: Automatically separated and excluded from statistics
 
 ### What hooks are available?
 

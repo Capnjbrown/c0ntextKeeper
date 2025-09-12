@@ -54,6 +54,7 @@ c0ntextKeeper implements 4 powerful hooks:
 
 1. **PreCompact** (Enabled by default)
    - Fires before context compaction (both manual `/compact` and automatic)
+   - **55-second timeout protection** prevents 504 errors
    - Captures entire session transcript with v0.5.1 improvements:
      - Configurable content limits (2000 chars for questions/solutions)
      - Smarter session naming with 100+ stopwords
@@ -61,29 +62,36 @@ c0ntextKeeper implements 4 powerful hooks:
      - Enhanced relevance scoring for admin tools
      - Fixed duration calculation (no negatives)
    - v0.5.0 enhancements included:
-     - Proper Claude Code JSONL format parsing
+     - Proper Claude Code JSONL format parsing (handles embedded content arrays)
      - 50+ semantic patterns for problem detection
      - User questions score 1.0 relevance
      - Tool usage counts and frequency
-   - Storage: `archive/` (relative to storage location)
+   - Storage: `archive/projects/[project-name]/sessions/` (JSON format)
    - Generates analytics dashboard in README.md
+   - Test project filtering prevents `/tmp` and `/var/folders` pollution
 
 2. **UserPromptSubmit** (Optional)
    - Fires when you send a message to Claude
    - Tracks your questions and requests
-   - Storage: `archive/projects/[project-name]/prompts/`
+   - Storage: `archive/projects/[project-name]/prompts/` (JSON array format)
    - Enable: `c0ntextkeeper hooks enable userprompt`
 
 3. **PostToolUse** (Optional)
    - Fires after Claude uses tools (Write, Edit, Bash, etc.)
+   - **Full MCP tool support** including:
+     - `mcp__filesystem__*` operations
+     - `mcp__sequential-thinking__*` reasoning
+     - `mcp__github-mcp__*` searches
+     - `mcp__context7__*` documentation
+     - All other MCP server tools
    - Captures tool results and patterns
-   - Storage: `archive/projects/[project-name]/patterns/`
+   - Storage: `archive/projects/[project-name]/patterns/` (JSON array format)
    - Enable: `c0ntextkeeper hooks enable posttool`
 
 4. **Stop** (Optional)
    - Fires after Claude finishes responding
    - Saves complete Q&A exchanges
-   - Storage: `archive/projects/[project-name]/knowledge/`
+   - Storage: `archive/projects/[project-name]/knowledge/` (JSON array format)
    - Enable: `c0ntextkeeper hooks enable stop`
 
 ### Automatic Compaction
@@ -474,7 +482,7 @@ interface HookOutput {
 
 ### Timeout Protection Details (v0.2.0)
 
-The PreCompact hook now includes sophisticated timeout protection:
+The PreCompact hook includes sophisticated timeout protection implemented in `src/hooks/precompact.ts`:
 
 ```typescript
 const TIMEOUT_MS = 55000; // 55 seconds (5 seconds buffer before Claude's 60s timeout)
@@ -496,61 +504,83 @@ This ensures:
 - Most recent context is prioritized
 - No 504 errors during auto-compact
 - Graceful handling of massive transcripts
+- **Performance**: Average operations complete in <10ms
 
 ### Archive Storage Structure
 
 ```
 ~/.c0ntextkeeper/
 ├── config.json              # Hook configuration
-├── archive/                 # PreCompact hook data
+├── archive/                 # Main archive directory
 │   ├── projects/
-│   │   ├── [project-hash]/
+│   │   ├── [project-name]/  # Human-readable project names (not hashes!)
 │   │   │   ├── sessions/
-│   │   │   │   ├── 2025-08-28-session-abc123.json
-│   │   │   │   └── 2025-08-28-session-def456.json
-│   │   │   └── index.json
-│   │   │   └── test/           # Test/validation data
-│   │   └── [another-project-hash]/
+│   │   │   │   ├── 2025-08-28-session-abc123.json  # JSON format
+│   │   │   │   └── 2025-08-28-session-def456.json  # JSON format
+│   │   │   ├── prompts/
+│   │   │   │   └── 2025-08-28.json  # JSON array format
+│   │   │   ├── patterns/
+│   │   │   │   └── 2025-08-28.json  # JSON array format (includes MCP tools)
+│   │   │   ├── knowledge/
+│   │   │   │   └── 2025-08-28.json  # JSON array format
+│   │   │   ├── errors/
+│   │   │   │   └── 2025-08-28.json  # JSON array format
+│   │   │   ├── README.md    # Auto-generated analytics dashboard
+│   │   │   └── index.json   # Project metadata
+│   │   └── [another-project]/
 │   │       └── ...
 │   └── global/
 │       └── index.json
-├── prompts/                 # UserPromptSubmit hook data
-│   └── [project-hash]/
-│       └── 2025-08-28-prompts.json    # JSON array format
-├── patterns/                # PostToolUse hook data
-│   └── [project-hash]/
-│       └── 2025-08-28-patterns.json   # JSON array format
-├── knowledge/               # Stop hook data
-│   └── [project-hash]/
-│       └── 2025-08-28-knowledge.json  # JSON array format
-├── errors/                  # Error patterns
-│   └── 2025-08-28-errors.json         # JSON array format
 ├── solutions/               # Indexed solutions
 │   └── index.json
 └── logs/                    # Hook execution logs
     └── hook.log
 ```
 
+**Key Implementation Details:**
+- Uses human-readable project names from `path.basename(projectPath)`
+- All hook data stored in JSON format (not JSONL)
+- Test projects (in `/tmp`, `/var/folders`) are automatically filtered
+- Each project gets its own analytics dashboard
+- MCP tool patterns are fully tracked
+
 ## Testing the Hook
 
 ### Create Test Transcript
 
-Create `test-transcript.jsonl`:
+Create `test-transcript.jsonl` (Claude Code's actual format with embedded content arrays):
 ```jsonl
-{"type":"user","timestamp":"2025-08-28T10:00:00Z","message":{"role":"user","content":"How do I implement authentication?"}}
-{"type":"assistant","timestamp":"2025-08-28T10:00:01Z","message":{"role":"assistant","content":"Let me help you implement authentication using JWT tokens."}}
-{"type":"tool_use","timestamp":"2025-08-28T10:00:02Z","toolUse":{"name":"Write","input":{"file_path":"auth.ts","content":"// Authentication implementation"}}}
+{"type":"user","timestamp":"2025-08-28T10:00:00Z","message":{"role":"user","content":[{"type":"text","text":"How do I implement authentication?"}]}}
+{"type":"assistant","timestamp":"2025-08-28T10:00:01Z","message":{"role":"assistant","content":[{"type":"text","text":"Let me help you implement authentication using JWT tokens."}]}}
+{"type":"assistant","timestamp":"2025-08-28T10:00:02Z","message":{"role":"assistant","content":[{"type":"tool_use","name":"Write","input":{"file_path":"auth.ts","content":"// Authentication implementation"}}]}}
+{"type":"user","timestamp":"2025-08-28T10:00:03Z","message":{"role":"user","content":[{"type":"tool_result","content":"File written successfully"}]}}
+```
+
+### Test MCP Tool Usage
+
+Create `test-mcp-tools.jsonl` to test MCP tool tracking:
+```jsonl
+{"type":"assistant","timestamp":"2025-08-28T10:00:00Z","message":{"role":"assistant","content":[{"type":"tool_use","name":"mcp__filesystem__read_file","input":{"path":"config.ts"}}]}}
+{"type":"assistant","timestamp":"2025-08-28T10:00:01Z","message":{"role":"assistant","content":[{"type":"tool_use","name":"mcp__sequential-thinking__sequentialthinking","input":{"thought":"Analyzing architecture"}}]}}
+{"type":"assistant","timestamp":"2025-08-28T10:00:02Z","message":{"role":"assistant","content":[{"type":"tool_use","name":"mcp__github-mcp__search_code","input":{"q":"MCP server TypeScript"}}]}}
 ```
 
 ### Run Test
 
 ```bash
 # Test the hook with mock data
-echo '{"hook_event_name":"PreCompact","transcript_path":"./test-transcript.jsonl"}' | \
+echo '{"hook_event_name":"PreCompact","transcript_path":"./test-transcript.jsonl","session_id":"test-123"}' | \
   node /Users/jasonbrown/Projects/c0ntextKeeper/dist/hooks/precompact.js
 
-# Check output
+# Check output (JSON format, not JSONL)
 cat ~/.c0ntextkeeper/archive/projects/*/sessions/*.json | jq '.'
+
+# Test PostToolUse hook with MCP tools
+echo '{"hook_event_name":"PostToolUse","tool":"mcp__filesystem__read_file","input":{"path":"test.ts"},"result":{"content":"test"}}' | \
+  node /Users/jasonbrown/Projects/c0ntextKeeper/dist/hooks/posttool.js
+
+# Check MCP tool patterns
+cat ~/.c0ntextkeeper/archive/projects/*/patterns/*.json | jq '.'
 ```
 
 ## Debugging

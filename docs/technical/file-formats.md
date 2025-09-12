@@ -2,7 +2,7 @@
 
 ## Overview
 
-As of v0.5.3, c0ntextKeeper uses **JSON format exclusively** for all archive files. This provides consistency, readability, and easy inspection of preserved context.
+c0ntextKeeper uses **JSON format exclusively** for all archive files. This provides human readability, consistency across all components, and easy inspection of preserved context. All hook data (prompts, patterns, knowledge, errors) is stored as formatted JSON arrays, not JSONL.
 
 ## Storage Modes (v0.7.0+)
 
@@ -31,15 +31,16 @@ The system automatically finds the appropriate storage:
 
 | Archive Type | Format | File Pattern | Storage Location | Description |
 |-------------|--------|--------------|------------------|-------------|
-| **Sessions** | JSON | `YYYY-MM-DD_HHMM_MT_description.json` | `projects/[name]/sessions/` | Individual session archives with full context |
-| **Test Sessions** | JSON | `validation-*.json` | `projects/[name]/test/` | Test/validation data (separated from real data) |
-| **Prompts** | JSON | `YYYY-MM-DD-prompts.json` | `prompts/[hash]/` | Daily array of user prompts |
-| **Patterns** | JSON | `YYYY-MM-DD-patterns.json` | `patterns/[hash]/` | Daily array of tool usage patterns |
-| **Knowledge** | JSON | `YYYY-MM-DD-knowledge.json` | `knowledge/[hash]/` | Daily array of Q&A pairs |
-| **Errors** | JSON | `YYYY-MM-DD-errors.json` | `errors/` | Daily array of error patterns |
+| **Sessions** | JSON | `YYYY-MM-DD_HHMM_MT_description.json` | `archive/projects/[name]/sessions/` | Individual session archives with full extracted context |
+| **Test Sessions** | JSON | `validation-*.json` | `archive/projects/[name]/test/` | Test/validation data (automatically separated from production) |
+| **Prompts** | JSON | `YYYY-MM-DD-prompts.json` | `prompts/[project-hash]/` | Daily JSON array of UserPromptSubmit hook data |
+| **Patterns** | JSON | `YYYY-MM-DD-patterns.json` | `patterns/[project-hash]/` | Daily JSON array of PostToolUse hook data (includes MCP tools) |
+| **Knowledge** | JSON | `YYYY-MM-DD-knowledge.json` | `knowledge/[project-hash]/` | Daily JSON array of Stop hook Q&A pairs |
+| **Errors** | JSON | `YYYY-MM-DD-errors.json` | `errors/` | Daily JSON array of error patterns from all tools |
 | **Solutions** | JSON | `index.json` | `solutions/` | Indexed solutions for quick retrieval |
-| **Project Index** | JSON | `index.json` | `projects/[name]/` | Project statistics and metadata |
-| **Global Index** | JSON | `index.json` | `global/` | Master index of all projects |
+| **Project Index** | JSON | `index.json` | `archive/projects/[name]/` | Project statistics, tool usage, analytics |
+| **Global Index** | JSON | `index.json` | `archive/global/` | Master index with test project filtering |
+| **README Analytics** | Markdown | `README.md` | `archive/projects/[name]/` | Auto-generated analytics dashboard |
 
 ## Storage Structure
 
@@ -60,13 +61,13 @@ The storage structure is the same for both project-local and global modes, just 
 │           └── test/                     # Test/validation data
 │               └── validation-*.json
 ├── prompts/
-│   └── [project-hash]/
+│   └── [project-name]/
 │       └── YYYY-MM-DD-prompts.json      # Daily prompts array (JSON)
 ├── patterns/
-│   └── [project-hash]/
+│   └── [project-name]/
 │       └── YYYY-MM-DD-patterns.json     # Daily patterns array (JSON)
 ├── knowledge/
-│   └── [project-hash]/
+│   └── [project-name]/
 │       └── YYYY-MM-DD-knowledge.json    # Daily Q&A pairs array (JSON)
 ├── errors/
 │   └── YYYY-MM-DD-errors.json           # Daily error patterns (JSON)
@@ -81,7 +82,7 @@ The storage structure is the same for both project-local and global modes, just 
 ```
 ~/.c0ntextkeeper/                        # In your home directory
 ├── projects/                            # Per-project storage (by hash)
-│   └── [project-hash]/                  # Project-specific archives
+│   └── [project-name]/                  # Project-specific archives
 │       └── (same structure as above)
 ├── global/
 │   └── solutions/                       # Shared solutions
@@ -121,27 +122,59 @@ Individual JSON files containing complete extracted context from a Claude Code s
 
 ### Daily Hook Archives (`prompts/*.json`, `patterns/*.json`, `knowledge/*.json`)
 
-JSON arrays containing entries from throughout the day:
+JSON arrays containing entries from throughout the day. **Important: These are JSON arrays, not JSONL files.**
 
+#### Prompts Format (UserPromptSubmit Hook)
 ```json
 [
   {
     "sessionId": "session-123",
     "timestamp": "2025-09-05T10:00:00Z",
+    "projectPath": "/Users/user/project",
     "prompt": "How do I implement authentication?",
     "promptLength": 35,
     "hasCodeBlock": false,
     "hasQuestion": true,
     "topics": ["authentication"]
+  }
+]
+```
+
+#### Patterns Format (PostToolUse Hook - with MCP Tool Support)
+```json
+[
+  {
+    "tool": "mcp__filesystem__write_file",
+    "success": true,
+    "pattern": "MCP filesystem: write file on src/auth.ts - success",
+    "timestamp": "2025-09-05T10:00:00Z",
+    "sessionId": "session-123",
+    "fileModified": "src/auth.ts"
   },
   {
-    "sessionId": "session-124",
-    "timestamp": "2025-09-05T11:00:00Z",
-    "prompt": "Fix the login error",
-    "promptLength": 20,
-    "hasCodeBlock": false,
-    "hasQuestion": false,
-    "topics": ["debugging", "authentication"]
+    "tool": "TodoWrite",
+    "success": true,
+    "pattern": "TodoWrite: 5 todos - updated",
+    "timestamp": "2025-09-05T10:05:00Z",
+    "sessionId": "session-123"
+  }
+]
+```
+
+#### Knowledge Format (Stop Hook)
+```json
+[
+  {
+    "sessionId": "session-123",
+    "timestamp": "2025-09-05T10:00:00Z",
+    "question": "How do I implement JWT authentication?",
+    "answer": "Use the jsonwebtoken library with refresh tokens...",
+    "toolsUsed": ["Write", "Edit", "mcp__filesystem__read_file"],
+    "filesModified": ["auth.ts", "middleware.ts"],
+    "topics": ["authentication", "security"],
+    "relevanceScore": 0.85,
+    "hasSolution": true,
+    "hasError": false
   }
 ]
 ```
@@ -164,14 +197,34 @@ Test data is identified by the `isTest: true` flag in metadata and excluded from
 5. **Version Control Friendly**: Diff-able and mergeable
 6. **Tool Support**: Wide ecosystem of JSON tools and viewers
 
-## Migration from JSONL
+## Key Implementation Details
 
-Prior to v0.5.3, some archive types used JSONL (JSON Lines) format. The migration to JSON provides:
+### JSON vs JSONL Clarification
 
-- Better readability (formatted with indentation)
-- Easier manual inspection
-- Consistent format across all archive types
-- Simplified retrieval logic
+**All c0ntextKeeper storage uses JSON format:**
+- Session archives: Individual JSON files
+- Hook data: Daily JSON arrays (not JSONL)
+- Indexes: Formatted JSON with statistics
+- Configuration: Standard JSON
+
+**Note:** While Claude Code transcripts use JSONL format, c0ntextKeeper converts and stores everything as formatted JSON for better readability and consistency.
+
+### MCP Tool Support in Patterns
+
+The PostToolUse hook captures ALL tools including MCP server tools:
+- Standard tools: Write, Edit, Read, Bash, Grep, etc.
+- MCP filesystem tools: `mcp__filesystem__write_file`, `mcp__filesystem__read_file`, etc.
+- MCP sequential-thinking: `mcp__sequential-thinking__sequentialthinking`
+- Administrative tools: TodoWrite, ExitPlanMode
+- Web tools: WebSearch, WebFetch
+
+### Test Data Separation
+
+c0ntextKeeper automatically identifies and separates test data:
+- Test sessions stored in `archive/projects/[name]/test/`
+- Test projects filtered from global index
+- Prevents `/tmp`, `/var/folders`, and test pattern pollution
+- Identified by `isTest: true` flag in metadata
 
 ## Viewing Archive Files
 
