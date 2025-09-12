@@ -121,6 +121,14 @@ function mockCLI(command: string, args: string[] = []): { stdout: string; stderr
   
   // Handle dynamic archive paths
   if (command === "archive" && args.length > 0) {
+    // Check if the file is meant to be nonexistent (for error testing)
+    if (args[0].includes("nonexistent")) {
+      return {
+        stdout: "",
+        stderr: `Error: File not found: ${args[0]}`,
+        code: 1
+      };
+    }
     return {
       stdout: "✓ Archived transcript successfully\n",
       stderr: "",

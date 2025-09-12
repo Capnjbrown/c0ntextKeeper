@@ -5,6 +5,27 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2025-09-12
+
+### Fixed
+- CLI archive command now properly handles missing files with clear error messages
+- Added file existence validation in transcript parser to prevent runtime errors
+- Fixed test mock implementations for better test reliability
+- Resolved Jest mocking conflicts with filesystem imports
+
+### Changed
+- Improved error messaging for file not found scenarios
+- Enhanced test coverage for error handling paths
+- Updated import strategy for better Jest compatibility
+
+### Documentation
+- Comprehensive documentation accuracy improvements across all guides
+- Updated storage architecture documentation to reflect actual implementation
+- Corrected file format specifications to show JSON storage (not JSONL)
+- Fixed project naming documentation to show human-readable names instead of hashes
+- Aligned all documentation with actual code behavior
+- Updated README.md with accurate feature descriptions
+
 ## [0.7.0] - 2025-09-10
 
 ### Added

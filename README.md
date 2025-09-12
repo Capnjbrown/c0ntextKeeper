@@ -18,10 +18,10 @@
 
 ## 🎯 Why c0ntextKeeper?
 
-**Never lose valuable context again!** c0ntextKeeper automatically preserves your Claude Code work before compaction (both manual `/compact` and automatic), making it instantly retrievable through MCP tools. Now with v0.7.0's auto-load feature, Claude starts every session with full awareness of your recent work!
+**Never lose valuable context again!** c0ntextKeeper automatically preserves your Claude Code work before compaction (both manual `/compact` and automatic), making it instantly retrievable through MCP tools. Now with v0.7.1's auto-load feature, Claude starts every session with full awareness of your recent work!
 
 ### ✨ Key Benefits
-- 🎯 **Auto-Load Context** - Claude automatically reads your project context on startup (v0.7.0)
+- 🎯 **Auto-Load Context** - Claude automatically reads your project context on startup (v0.7.1)
 - 🤖 **Fully Automatic** - Zero manual intervention required
 - ⚡ **Blazing Fast** - All operations under 10ms average performance
 - 🧠 **Intelligent Extraction** - 50+ semantic patterns for context detection
@@ -32,7 +32,7 @@
 
 ## 📑 Table of Contents
 - [Quick Start](#-quick-start)
-- [What's New in v0.7.0](#-whats-new-in-v070)
+- [What's New in v0.7.1](#-whats-new-in-v071)
 - [How It Works](#-how-it-works)
 - [Installation](#-installation)
 - [Storage Architecture](#-storage-architecture)
@@ -57,9 +57,9 @@ c0ntextkeeper status
 
 That's it! c0ntextKeeper is now preserving your context automatically.
 
-## 🚀 What's New in v0.7.0
+## 🚀 What's New in v0.7.1
 
-**Package Version**: 0.7.0 | **Extraction Algorithm**: 0.7.0 | **Test Success**: 72.4%
+**Package Version**: 0.7.1 | **Extraction Algorithm**: 0.7.1 | **Test Success**: 72.4%
 
 ### 🎯 Automatic Context Loading for MCP Server
 - **🤖 Zero-Configuration Auto-Load** - Context automatically provided when Claude Code connects
@@ -73,7 +73,7 @@ That's it! c0ntextKeeper is now preserving your context automatically.
   - `c0ntextkeeper context configure` - Interactive configuration wizard
 - **🔧 Enhanced Configuration** - New `autoLoad` section with comprehensive settings
 
-### v0.7.0 Features
+### v0.7.1 Features
 - Unified Storage Architecture with project-name organization
 - Global storage default at `~/.c0ntextkeeper/archive/`
 - Smart project detection and test separation
@@ -173,7 +173,7 @@ That's it! c0ntextKeeper is now automatically preserving your context.
 
 ## 📁 Storage Architecture
 
-### Hybrid Storage System (v0.7.0)
+### Hybrid Storage System (v0.7.1)
 
 c0ntextKeeper uses a sophisticated hybrid storage architecture with intelligent path resolution:
 
@@ -775,7 +775,7 @@ For more troubleshooting, see the [User Guide](docs/guides/user-guide.md#trouble
 ## 📈 Version History
 
 ### v0.7.x Series (Current)
-- **v0.7.0** - 🎯 Auto-load context via MCP resources, intelligent loading strategies, <10ms performance
+- **v0.7.1** - 🎯 Auto-load context via MCP resources, bug fixes, documentation improvements
 
 ### v0.6.x Series
 - **v0.6.0** - Unified storage architecture with project-name organization

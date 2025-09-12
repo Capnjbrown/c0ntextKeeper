@@ -31,9 +31,9 @@ project-context.md contains:
 
 ⚠️ **This CLAUDE.md file provides workflow guidelines, but project-context.md is the authoritative technical reference.**
 
-## Current State: Production Ready v0.7.0 🎉
+## Current State: Production Ready v0.7.1 🎉
 
-c0ntextKeeper v0.7.0 is complete, tested, and ready for release:
+c0ntextKeeper v0.7.1 is complete, tested, and ready for release:
 - ✅ **Auto-Load Context** - MCP resources provide immediate project awareness
 - ✅ **Unified Storage Architecture** - Intelligent project-name based organization
 - ✅ **Fully Automatic Operation** - Works with manual and auto compaction
@@ -87,6 +87,7 @@ c0ntextKeeper v0.7.0 is complete, tested, and ready for release:
 ## Completed Development Milestones
 
 ### Version History
+- **v0.7.1** (2025-09-12) - Bug fixes, documentation improvements, test reliability enhancements
 - **v0.7.0** (2025-09-10) - Auto-load context via MCP resources, intelligent loading strategies
 - **v0.6.0** (2025-09-09) - Unified storage architecture with project-name organization
 - **v0.5.x** (2025-09-02 to 09-05) - Claude Code compatibility, JSON format, quality improvements

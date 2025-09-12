@@ -1,7 +1,7 @@
 # Project Context Document
 <!-- Generated: 2025-09-03 -->
 <!-- Generator: Claude Code CLI Context Discovery -->
-<!-- Last Updated: 2025-09-11 for v0.7.0 with comprehensive test results -->
+<!-- Last Updated: 2025-09-12 for v0.7.1 with bug fixes and documentation improvements -->
 
 ## Project Identification
 
@@ -9,7 +9,7 @@
 - **Project Name**: c0ntextKeeper
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
-- **Version**: 0.7.0 (Package) / 0.7.0 (Extraction Algorithm) / 0.7.0 (MCP Server)
+- **Version**: 0.7.1 (Package) / 0.7.1 (Extraction Algorithm) / 0.7.1 (MCP Server)
 - **Repository**: https://github.com/Capnjbrown/c0ntextKeeper
 
 ### Purpose Statement
@@ -342,8 +342,9 @@ c0ntextkeeper setup     # Configure hooks
 - **Release Pattern**: Semantic versioning with CHANGELOG.md
 
 ### Version History
-- **Current Version**: 0.7.0
+- **Current Version**: 0.7.1
 - **Major Milestones**:
+  - v0.7.1: Bug fixes, documentation improvements, test reliability enhancements
   - v0.7.0: Auto-load context via MCP resources, intelligent loading strategies
   - v0.6.0: Unified storage architecture with project-name organization
   - v0.5.3: JSON format standardization and test data separation
@@ -496,4 +497,4 @@ npm publish           # Publish to npm
 
 ---
 
-*This document was generated through automated project analysis and updated to reflect the current state of the c0ntextKeeper project as of 2025-09-11 (v0.7.0). The project is actively maintained and demonstrates professional software engineering practices with comprehensive test coverage (72.4% overall success rate).*
+*This document was generated through automated project analysis and updated to reflect the current state of the c0ntextKeeper project as of 2025-09-12 (v0.7.1). The project is actively maintained and demonstrates professional software engineering practices with comprehensive test coverage (72.4% overall success rate).*

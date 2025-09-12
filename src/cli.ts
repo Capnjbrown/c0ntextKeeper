@@ -24,7 +24,7 @@ const program = new Command();
 program
   .name("c0ntextkeeper")
   .description("Intelligent context preservation for Claude Code")
-  .version("0.7.0")
+  .version("0.7.1")
   .showHelpAfterError("(add --help for additional information)");
 
 // Setup command

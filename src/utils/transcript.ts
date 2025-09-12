@@ -3,6 +3,7 @@
  */
 
 import { createReadStream } from "fs";
+import * as fs from "fs";
 import readline from "readline";
 import { TranscriptEntry } from "../core/types.js";
 
@@ -17,6 +18,11 @@ export async function parseTranscript(
     prioritizeRecent?: boolean;
   } = {},
 ): Promise<TranscriptEntry[]> {
+  // Check if file exists before attempting to read
+  if (!fs.existsSync(transcriptPath)) {
+    throw new Error(`File not found: ${transcriptPath}`);
+  }
+
   const maxEntries = options.maxEntries || 10000; // Default: limit to 10k entries
   const maxTimeMs = options.maxTimeMs || 45000; // Default: 45 seconds max
   const prioritizeRecent = options.prioritizeRecent !== false; // Default: true
