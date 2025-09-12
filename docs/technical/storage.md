@@ -34,13 +34,13 @@ Located at `[project-root]/.c0ntextkeeper/`
 │   └── global/
 │       └── index.json          # Cross-project index
 ├── prompts/                    # UserPromptSubmit hook data
-│   └── [project-hash]/
+│   └── [project-name]/         # Same as archive/projects/
 │       └── YYYY-MM-DD-prompts.json    # Daily JSON arrays
 ├── patterns/                   # PostToolUse hook data
-│   └── [project-hash]/
+│   └── [project-name]/         # Human-readable names
 │       └── YYYY-MM-DD-patterns.json   # Daily JSON arrays (with MCP tools)
 ├── knowledge/                  # Stop hook Q&A pairs
-│   └── [project-hash]/
+│   └── [project-name]/         # Consistent naming
 │       └── YYYY-MM-DD-knowledge.json  # Daily JSON arrays
 ├── errors/                     # Error patterns
 │   └── YYYY-MM-DD-errors.json         # Daily JSON arrays
@@ -66,14 +66,14 @@ Located at `~/.c0ntextkeeper/`
 │   │   └── web-scraper/        # Another project
 │   └── global/
 │       └── index.json         # Master index (test-filtered)
-├── prompts/                   # Hook data by project hash
-│   └── [project-hash]/
+├── prompts/                   # Hook data by project name
+│   └── [project-name]/        # Same names as archive/projects/
 │       └── YYYY-MM-DD-prompts.json
 ├── patterns/                  # Tool patterns (includes MCP)
-│   └── [project-hash]/
+│   └── [project-name]/        # Human-readable names
 │       └── YYYY-MM-DD-patterns.json
 ├── knowledge/                 # Q&A knowledge base
-│   └── [project-hash]/
+│   └── [project-name]/        # Consistent across all hooks
 │       └── YYYY-MM-DD-knowledge.json
 ├── errors/                    # Error tracking
 │   └── YYYY-MM-DD-errors.json
@@ -229,9 +229,9 @@ archive/projects/[name]/sessions/YYYY-MM-DD_HHMM_MT_description.json
 
 ### Daily Aggregations (Hook Data)
 ```
-prompts/[hash]/YYYY-MM-DD-prompts.json     # UserPromptSubmit data
-patterns/[hash]/YYYY-MM-DD-patterns.json   # PostToolUse data (with MCP tools)
-knowledge/[hash]/YYYY-MM-DD-knowledge.json # Stop hook Q&A pairs
+archive/projects/[name]/prompts/YYYY-MM-DD-prompts.json     # UserPromptSubmit data
+archive/projects/[name]/patterns/YYYY-MM-DD-patterns.json   # PostToolUse data (with MCP tools)
+archive/projects/[name]/knowledge/YYYY-MM-DD-knowledge.json # Stop hook Q&A pairs
 errors/YYYY-MM-DD-errors.json             # Error patterns
 ```
 - Daily JSON arrays (not JSONL) for readability

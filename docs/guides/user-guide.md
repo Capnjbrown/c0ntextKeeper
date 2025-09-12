@@ -77,13 +77,13 @@ c0ntextKeeper stores all data locally on your Mac. The exact location depends on
     │   └── global/                     
     │       └── index.json              # Master index (test-filtered)
     ├── prompts/                        # UserPromptSubmit hook data
-    │   └── [project-hash]/
+    │   └── [project-name]/             # Same project names as archive/projects/
     │       └── YYYY-MM-DD-prompts.json       # Daily JSON array (not JSONL)
     ├── patterns/                       # PostToolUse hook data (includes MCP tools)
-    │   └── [project-hash]/
+    │   └── [project-name]/             # Human-readable names
     │       └── YYYY-MM-DD-patterns.json      # Daily JSON array with MCP support
     ├── knowledge/                      # Stop hook Q&A pairs
-    │   └── [project-hash]/
+    │   └── [project-name]/             # Consistent naming across all hooks
     │       └── YYYY-MM-DD-knowledge.json     # Daily JSON array
     ├── errors/                         # Error pattern tracking
     │   └── YYYY-MM-DD-errors.json            # Daily JSON array
@@ -101,6 +101,8 @@ c0ntextKeeper stores all data locally on your Mac. The exact location depends on
 - PostToolUse hook captures all MCP server tools (filesystem, sequential-thinking, etc.)
 - Analytics dashboards are auto-generated with rich statistics
 
+**Storage Consistency**: All hooks (PreCompact, UserPromptSubmit, PostToolUse, Stop) use the same human-readable project name structure. The system uses `path.basename()` of your project directory, with special characters replaced by dashes. For example, a project at `/Users/jane/my-awesome-app/` would be stored as `my-awesome-app`.
+
 **Note:** Folders starting with `.` (dot) are hidden by default on macOS.
 
 ## 🔍 Checking Your Storage Configuration
@@ -116,7 +118,7 @@ Example output:
 C0ntextKeeper Storage Status
 
 Current Directory: /Users/jasonbrown/projects/my-app
-Project Hash: a1b2c3d4e5f6
+Project Name: my-app
 ✓ Storage initialized (local)
   Location: /Users/jasonbrown/projects/my-app/.c0ntextkeeper
   Version: 0.7.0
@@ -274,9 +276,9 @@ c0ntextKeeper provides 4 hooks for different capture strategies:
 | Hook | When It Fires | What It Captures | Storage Location | How to Enable |
 |------|--------------|------------------|------------------|---------------|
 | **PreCompact** | Before compaction (auto + manual) | Full session transcript (55s timeout) | `archive/projects/[name]/sessions/` | Enabled by default |
-| **UserPromptSubmit** | When you send a message | Your questions (JSON array) | `prompts/[hash]/YYYY-MM-DD-prompts.json` | `c0ntextkeeper hooks enable userprompt` |
-| **PostToolUse** | After tool execution | Tool results + MCP tools (JSON array) | `patterns/[hash]/YYYY-MM-DD-patterns.json` | `c0ntextkeeper hooks enable posttool` |
-| **Stop** | After Claude responds | Q&A exchanges (JSON array) | `knowledge/[hash]/YYYY-MM-DD-knowledge.json` | `c0ntextkeeper hooks enable stop` |
+| **UserPromptSubmit** | When you send a message | Your questions (JSON array) | `archive/projects/[name]/prompts/YYYY-MM-DD-prompts.json` | `c0ntextkeeper hooks enable userprompt` |
+| **PostToolUse** | After tool execution | Tool results + MCP tools (JSON array) | `archive/projects/[name]/patterns/YYYY-MM-DD-patterns.json` | `c0ntextkeeper hooks enable posttool` |
+| **Stop** | After Claude responds | Q&A exchanges (JSON array) | `archive/projects/[name]/knowledge/YYYY-MM-DD-knowledge.json` | `c0ntextkeeper hooks enable stop` |
 
 ### Managing Hooks
 
@@ -416,7 +418,7 @@ cp -r ~/.c0ntextkeeper/archive ~/Desktop/c0ntextkeeper-backup
 
 ## Migrating Old Archives
 
-If you have existing archives with hash-based names (like `c77d2fa7`), you can migrate them to the new human-readable structure:
+If you have very old archives from early versions (before v0.6.0) with hash-based names (like `c77d2fa7`), you can migrate them to the current human-readable structure:
 
 ```bash
 # Preview the migration (dry run)

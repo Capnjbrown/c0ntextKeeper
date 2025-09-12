@@ -33,9 +33,9 @@ The system automatically finds the appropriate storage:
 |-------------|--------|--------------|------------------|-------------|
 | **Sessions** | JSON | `YYYY-MM-DD_HHMM_MT_description.json` | `archive/projects/[name]/sessions/` | Individual session archives with full extracted context |
 | **Test Sessions** | JSON | `validation-*.json` | `archive/projects/[name]/test/` | Test/validation data (automatically separated from production) |
-| **Prompts** | JSON | `YYYY-MM-DD-prompts.json` | `prompts/[project-hash]/` | Daily JSON array of UserPromptSubmit hook data |
-| **Patterns** | JSON | `YYYY-MM-DD-patterns.json` | `patterns/[project-hash]/` | Daily JSON array of PostToolUse hook data (includes MCP tools) |
-| **Knowledge** | JSON | `YYYY-MM-DD-knowledge.json` | `knowledge/[project-hash]/` | Daily JSON array of Stop hook Q&A pairs |
+| **Prompts** | JSON | `YYYY-MM-DD-prompts.json` | `archive/projects/[name]/prompts/` | Daily JSON array of UserPromptSubmit hook data |
+| **Patterns** | JSON | `YYYY-MM-DD-patterns.json` | `archive/projects/[name]/patterns/` | Daily JSON array of PostToolUse hook data (includes MCP tools) |
+| **Knowledge** | JSON | `YYYY-MM-DD-knowledge.json` | `archive/projects/[name]/knowledge/` | Daily JSON array of Stop hook Q&A pairs |
 | **Errors** | JSON | `YYYY-MM-DD-errors.json` | `errors/` | Daily JSON array of error patterns from all tools |
 | **Solutions** | JSON | `index.json` | `solutions/` | Indexed solutions for quick retrieval |
 | **Project Index** | JSON | `index.json` | `archive/projects/[name]/` | Project statistics, tool usage, analytics |
@@ -81,7 +81,7 @@ The storage structure is the same for both project-local and global modes, just 
 ### Global Mode
 ```
 ~/.c0ntextkeeper/                        # In your home directory
-├── projects/                            # Per-project storage (by hash)
+├── projects/                            # Per-project storage (by name)
 │   └── [project-name]/                  # Project-specific archives
 │       └── (same structure as above)
 ├── global/
