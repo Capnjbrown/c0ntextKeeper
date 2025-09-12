@@ -371,6 +371,31 @@ Each descriptively-named `.json` file in `sessions/` contains:
 
 ## Quick Reference Commands
 
+### Essential CLI Commands (v0.7.1)
+
+```bash
+# Setup and Status
+c0ntextkeeper setup           # Configure hooks (required after install)
+c0ntextkeeper status          # Check storage and automation status
+c0ntextkeeper validate        # Verify installation
+
+# Search and Analytics
+c0ntextkeeper search "query"  # Search archives for specific content
+c0ntextkeeper search          # Show recent archives (no query needed)
+c0ntextkeeper patterns        # Analyze recurring patterns
+c0ntextkeeper stats           # Show storage statistics
+
+# Context Management (NEW in v0.7.x)
+c0ntextkeeper context preview     # Preview auto-loaded context
+c0ntextkeeper context test        # Test context loading
+c0ntextkeeper context configure --enable --strategy smart  # Configure auto-load
+
+# Hook Management
+c0ntextkeeper hooks list          # Show all hooks and status
+c0ntextkeeper hooks enable Stop   # Enable additional hooks
+c0ntextkeeper hooks test PreCompact  # Test a specific hook
+```
+
 ### View Your Data
 
 ```bash
@@ -591,22 +616,22 @@ Three ways:
 
 ## Troubleshooting
 
-### v0.2.0 Fixes
+### v0.7.1 Improvements
 
-Many common issues have been fixed in v0.2.0:
+Many improvements and fixes in v0.7.1:
 
 #### 504 Timeout Errors (FIXED)
 **Previous Issue**: Hook would timeout during auto-compact with large transcripts
-**v0.2.0 Solution**: Implemented 55-second timeout protection
+**Solution**: Implemented 55-second timeout protection
 ```bash
-# Verify you have v0.2.0
+# Verify you have v0.7.1
 c0ntextkeeper --version
-# Should show: 0.2.0 or later
+# Should show: 0.7.1
 ```
 
 #### "content.toLowerCase is not a function" (FIXED)
 **Previous Issue**: Extraction failed with non-string content
-**v0.2.0 Solution**: Added comprehensive type guards
+**Solution**: Added comprehensive type guards
 ```bash
 # Test extraction works
 node scripts/test-extraction.js
@@ -615,7 +640,7 @@ node scripts/test-extraction.js
 
 #### Generic Folder Names like "project" (FIXED)
 **Previous Issue**: Archives used hash names or generic labels
-**v0.2.0 Solution**: Archives now use actual project names
+**Solution**: Archives now use actual project names
 ```bash
 # Your archives now show:
 ~/.c0ntextkeeper/archive/projects/c0ntextKeeper/  # Not "project"
@@ -677,7 +702,7 @@ tail -f ~/.c0ntextkeeper/logs/hook.log
 
 4. **Check for extraction issues**:
 If archives are created but empty (0 problems, 0 implementations):
-- This is fixed in v0.2.0 with relaxed extraction patterns
+- This is fixed in v0.7.1 with improved extraction patterns
 - Any user question (with "?") is now captured
 - All tool uses are tracked, not just Write/Edit
 
@@ -698,7 +723,7 @@ cat ~/.claude/settings.json | grep -i project
 Run these commands to ensure everything is working:
 
 ```bash
-# 1. Check version (should be 0.2.0 or later)
+# 1. Check version (should be 0.7.1)
 c0ntextkeeper --version
 
 # 2. Validate installation
@@ -724,6 +749,6 @@ ls -la ~/.c0ntextkeeper/archive/projects/
 - **Troubleshooting**: See the comprehensive troubleshooting section above
 - **Issues**: https://github.com/Capnjbrown/c0ntextKeeper/issues
 - **Logs**: Check `~/.c0ntextkeeper/logs/hook.log`
-- **Version**: Ensure you have v0.2.0 or later for all fixes
+- **Version**: Current version is v0.7.1 with all improvements
 
 Remember: Everything is stored locally on your Mac in hidden directories. Use the commands above to access and manage your preserved context!

@@ -356,7 +356,20 @@ c0ntextkeeper setup     # Configure hooks
   - v0.2.0: Critical bug fixes
   - v0.1.0: Initial release
 
-### Recent Changes (v0.7.0)
+### Recent Changes (v0.7.1)
+
+#### Documentation & CLI Improvements
+- **Comprehensive CLI Documentation**: Added all 30+ commands organized in 7 logical categories
+- **Bug Fixes**: Fixed CLI archive command error handling for missing files
+- **Test Reliability**: Resolved Jest mocking conflicts with filesystem imports
+- **Documentation Accuracy**: All guides updated to reflect actual implementation
+- **New CLI Categories Documented**:
+  - Context Management (preview, test, configure)
+  - Maintenance & Migration (cleanup, migrate, migrate:restore)
+  - Development & Testing (test-hook, server)
+- **Quick Examples Section**: Added common workflow examples
+
+### Previous Changes (v0.7.0)
 - **Auto-Load Context**: MCP resources provide immediate project awareness on startup
 - **ContextLoader Module**: Intelligent aggregation from sessions, patterns, knowledge, prompts
 - **Loading Strategies**: Smart, recent, relevant, and custom strategies available

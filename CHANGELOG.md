@@ -25,6 +25,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed project naming documentation to show human-readable names instead of hashes
 - Aligned all documentation with actual code behavior
 - Updated README.md with accurate feature descriptions
+- **Comprehensive CLI Commands documentation** - Added all 30+ commands organized in 7 categories:
+  - Setup & Configuration commands
+  - Storage Management commands
+  - Core Operations (archive, search, patterns, stats)
+  - Context Management (preview, test, configure) - NEW section
+  - Hook Management with all subcommands
+  - Maintenance & Migration (cleanup, migrate, restore)
+  - Development & Testing (test-hook, server)
+  - Added Quick Examples section with common workflows
 
 ## [0.7.0] - 2025-09-10
 

@@ -87,7 +87,11 @@ c0ntextKeeper v0.7.1 is complete, tested, and ready for release:
 ## Completed Development Milestones
 
 ### Version History
-- **v0.7.1** (2025-09-12) - Bug fixes, documentation improvements, test reliability enhancements
+- **v0.7.1** (2025-09-12) - Bug fixes, comprehensive CLI documentation (30+ commands), test reliability
+  - Added complete CLI Commands section with 7 categories
+  - Fixed CLI archive command error handling
+  - Updated all documentation to v0.7.1
+  - Resolved Jest mocking conflicts
 - **v0.7.0** (2025-09-10) - Auto-load context via MCP resources, intelligent loading strategies
 - **v0.6.0** (2025-09-09) - Unified storage architecture with project-name organization
 - **v0.5.x** (2025-09-02 to 09-05) - Claude Code compatibility, JSON format, quality improvements
@@ -702,11 +706,11 @@ When updating documentation:
 
 ## Next Steps
 
-### Release Actions (v0.7.0 Ready!)
-1. **Create GitHub Release** - Tag v0.7.0 with auto-load feature
+### Release Actions (v0.7.1 Ready!)
+1. **Create GitHub Release** - Tag v0.7.1 with bug fixes and CLI documentation
 2. **Publish to npm** - Make available via `npm install c0ntextkeeper`
-3. **Community Announcement** - Share v0.7.0 features with Claude Code users
-4. **Demo Creation** - Show auto-load context and MCP resources
+3. **Community Announcement** - Share v0.7.1 improvements with Claude Code users
+4. **Highlight** - Comprehensive CLI documentation with 30+ commands
 
 > **📋 Pre-Release Checklist**: See [docs/development/pre-release-checklist.md](docs/development/pre-release-checklist.md) for complete release steps.
 
