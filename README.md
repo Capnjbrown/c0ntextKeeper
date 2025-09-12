@@ -2,7 +2,7 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-09-11
+> Last Updated: 2025-09-12
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
@@ -430,51 +430,125 @@ Decision from 2025-08-10:
 
 ## 🛠️ CLI Commands
 
+### Setup & Configuration
+
+```bash
+# Initial setup - REQUIRED after installation
+c0ntextkeeper setup          # Configure hooks for Claude Code (enables PreCompact)
+c0ntextkeeper validate       # Verify installation and hook configuration
+```
+
 ### Storage Management
 
 ```bash
-# Initialize storage
-c0ntextkeeper init           # Initialize project-local storage
-c0ntextkeeper init --global  # Initialize global storage
-c0ntextkeeper status         # Check storage configuration and status
+# Initialize storage locations
+c0ntextkeeper init           # Initialize project-local storage (.c0ntextkeeper/)
+c0ntextkeeper init --global  # Initialize global storage (~/.c0ntextkeeper/)
+c0ntextkeeper status         # Check storage configuration and automation status
 ```
 
-### Core Commands
+### Core Operations
 
 ```bash
-# Setup and configuration
-c0ntextkeeper setup          # Configure hooks for Claude Code
-
-# Manual operations
-c0ntextkeeper archive <file> # Manually archive a JSON transcript
+# Archive and search
+c0ntextkeeper archive <file> # Manually archive a JSONL transcript
 c0ntextkeeper search [query] # Search archives (shows recent if no query)
-c0ntextkeeper patterns       # Analyze recurring patterns
-c0ntextkeeper stats          # Show storage statistics
-c0ntextkeeper validate       # Verify installation
-c0ntextkeeper migrate        # Migrate old hash-based archives to readable names
+                             # Options: --limit <n>, --project <path>
 
-# Options
-c0ntextkeeper --help         # Show all commands
-c0ntextkeeper <cmd> --help   # Show command options
+# Analytics and insights
+c0ntextkeeper patterns       # Analyze recurring patterns across sessions
+                             # Options: --type <code|command|architecture|all>
+                             #         --min <frequency>
+c0ntextkeeper stats          # Show storage statistics and metrics
 ```
 
-### Hook Management (Advanced)
+### Context Management (Auto-Load Features)
 
 ```bash
-# Manage multiple hooks
-c0ntextkeeper hooks list              # Show all available hooks
+# Preview and test auto-loaded context
+c0ntextkeeper context preview      # Preview what will be auto-loaded
+c0ntextkeeper context test         # Test context loading and show statistics
+
+# Configure auto-load settings
+c0ntextkeeper context configure    # Interactive configuration (shows current settings)
+  --enable                         # Enable auto-loading
+  --disable                        # Disable auto-loading
+  --strategy <type>                # Set strategy: smart, recent, relevant, custom
+  --max-size <kb>                  # Set maximum size in KB (default: 50)
+  --session-count <n>              # Number of sessions to include
+  --pattern-count <n>              # Number of patterns to include
+  --format <style>                 # Format: summary, detailed, minimal
+
+# Example: Enable smart loading with 100KB limit
+c0ntextkeeper context configure --enable --strategy smart --max-size 100
+```
+
+### Hook Management
+
+```bash
+# View and manage hooks
+c0ntextkeeper hooks list              # Show all hooks and their status
 c0ntextkeeper hooks enable <hook>     # Enable a specific hook
 c0ntextkeeper hooks disable <hook>    # Disable a specific hook
-c0ntextkeeper hooks test <hook>       # Test a hook
-c0ntextkeeper hooks stats             # Show hook statistics
-c0ntextkeeper hooks config <hook> -m <pattern>  # Configure matcher
+c0ntextkeeper hooks test <hook>       # Test a hook with sample data
+c0ntextkeeper hooks stats             # Show hook execution statistics
+c0ntextkeeper hooks config <hook>     # Configure hook settings
+  --matcher <pattern>                 # Set matcher pattern for the hook
+
+# Available hooks:
+# - PreCompact (enabled by default) - Automatic context preservation
+# - UserPromptSubmit                 - Track questions and prompts
+# - PostToolUse                      - Capture tool patterns (includes MCP tools)
+# - Stop                             - Save complete Q&A exchanges
 ```
 
-Available hooks:
-- **PreCompact** (enabled by default) - Automatic context preservation
-- **UserPromptSubmit** - Track your questions and prompts
-- **PostToolUse** - Capture tool results and patterns
-- **Stop** - Save complete Q&A exchanges
+### Maintenance & Migration
+
+```bash
+# Clean and maintain archives
+c0ntextkeeper cleanup         # Clean invalid/test projects from global index
+  --dry-run                   # Preview changes without modifying
+  --backup                    # Create backup before cleaning (default: true)
+
+# Migrate archives
+c0ntextkeeper migrate         # Migrate old hash-based archives to readable names
+  --dry-run                   # Preview migration without changes
+c0ntextkeeper migrate:restore # Restore from backup after failed migration
+```
+
+### Development & Testing
+
+```bash
+# Testing commands
+c0ntextkeeper test-hook       # Test PreCompact hook with sample data
+c0ntextkeeper server          # Start MCP server manually (for testing)
+
+# Help and version
+c0ntextkeeper --help          # Show all commands with descriptions
+c0ntextkeeper <cmd> --help    # Show detailed help for specific command
+c0ntextkeeper --version       # Show version (currently 0.7.1)
+```
+
+### Quick Examples
+
+```bash
+# After installation
+c0ntextkeeper setup           # Enable automatic preservation
+c0ntextkeeper status          # Verify everything is working
+
+# Configure auto-load for your project
+c0ntextkeeper context configure --enable --strategy smart
+c0ntextkeeper context preview # See what Claude will know on startup
+
+# Search for specific context
+c0ntextkeeper search "authentication bug"
+c0ntextkeeper patterns --type code --min 3
+
+# Enable additional hooks for richer capture
+c0ntextkeeper hooks enable UserPromptSubmit
+c0ntextkeeper hooks enable PostToolUse
+c0ntextkeeper hooks enable Stop
+```
 
 ## 🏗️ Architecture
 
