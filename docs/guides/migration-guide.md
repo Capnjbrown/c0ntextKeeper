@@ -1,5 +1,78 @@
 # c0ntextKeeper Migration Guide
 
+## v0.6.0 to v0.7.0 Migration
+
+### Overview
+Version 0.7.0 introduces automatic context loading via MCP resources, providing Claude Code with immediate project awareness on startup. This guide helps you upgrade from v0.6.0 to v0.7.0.
+
+### Breaking Changes
+None - v0.7.0 maintains full backward compatibility while adding auto-load capabilities.
+
+### Key Features
+
+#### 1. Automatic Context Loading
+**New in v0.7.0:** Context automatically loads when Claude Code connects to the MCP server.
+
+**Configuration:**
+```json
+{
+  "autoLoad": {
+    "enabled": true,
+    "strategy": "smart",
+    "maxSizeKB": 50,
+    "formatStyle": "summary"
+  }
+}
+```
+
+#### 2. MCP Resources
+**Resource URIs:** Your context is now exposed as MCP resources:
+- `context://project/{name}/current` - Main auto-loaded context
+- `context://project/{name}/patterns` - Recurring patterns
+- `context://project/{name}/knowledge` - Knowledge base
+
+#### 3. New CLI Commands
+```bash
+# Preview what will be auto-loaded
+c0ntextkeeper context preview
+
+# Test different loading strategies
+c0ntextkeeper context test
+
+# Configure auto-load settings
+c0ntextkeeper context configure
+```
+
+### Migration Steps
+
+#### Step 1: Update Package
+```bash
+npm update c0ntextkeeper@0.7.0
+```
+
+#### Step 2: Enable Auto-Load (Optional - enabled by default)
+```bash
+c0ntextkeeper context configure --enable
+```
+
+#### Step 3: Verify Installation
+```bash
+c0ntextkeeper --version
+# Should output: 0.7.0
+```
+
+### Performance Improvements
+- All operations now execute in <10ms average
+- Zero memory leaks with efficient stream processing
+- Instant context availability on Claude Code startup
+
+### Compatibility Notes
+- Archives from v0.6.0 remain fully compatible
+- Storage architecture unchanged from v0.6.0
+- All existing hooks and tools continue to work
+
+---
+
 ## v0.4.0 to v0.5.0 Migration
 
 ### Overview

@@ -12,7 +12,7 @@ scripts/validate-public-ready.sh
 CONTRIBUTING.md
 CODE_OF_CONDUCT.md
 SECURITY.md
-PRE-RELEASE-CHECKLIST.md
+pre-release-checklist.md
 
 # Documentation source
 docs/development/

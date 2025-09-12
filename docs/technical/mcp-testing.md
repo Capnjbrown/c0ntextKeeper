@@ -192,7 +192,26 @@ Run these commands immediately after starting Claude Code to verify all servers 
 
 ### 6. c0ntextKeeper Server Tests (v0.7.0)
 
-#### Context Retrieval
+#### Auto-Load Resource Tests (New in v0.7.0)
+```typescript
+// Test 1: List available resources
+"List MCP resources for c0ntextkeeper"
+// Expected: Shows context://project/{name}/current and other resources
+
+// Test 2: Read auto-loaded context
+"Read resource context://project/c0ntextKeeper/current"
+// Expected: Auto-loaded context with recent sessions, patterns, and knowledge
+
+// Test 3: Test context configuration
+c0ntextkeeper context preview
+// Expected: Preview of what will be auto-loaded
+
+// Test 4: Test loading strategies
+c0ntextkeeper context test
+// Expected: Results from different loading strategies
+```
+
+#### Context Retrieval Tools
 ```typescript
 // Test 1: Fetch relevant context
 "Use mcp__c0ntextkeeper__fetch_context with query='authentication implementation'"

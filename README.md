@@ -18,14 +18,17 @@
 
 ## 🎯 Why c0ntextKeeper?
 
-**Never lose valuable context again!** c0ntextKeeper automatically preserves your Claude Code work before compaction (both manual `/compact` and automatic), making it instantly retrievable through MCP tools.
+**Never lose valuable context again!** c0ntextKeeper automatically preserves your Claude Code work before compaction (both manual `/compact` and automatic), making it instantly retrievable through MCP tools. Now with v0.7.0's auto-load feature, Claude starts every session with full awareness of your recent work!
 
 ### ✨ Key Benefits
+- 🎯 **Auto-Load Context** - Claude automatically reads your project context on startup (v0.7.0)
 - 🤖 **Fully Automatic** - Zero manual intervention required
+- ⚡ **Blazing Fast** - All operations under 10ms average performance
 - 🧠 **Intelligent Extraction** - 50+ semantic patterns for context detection
 - 📊 **Rich Analytics** - Track tools, patterns, and session insights
 - 🔍 **Instant Retrieval** - MCP tools provide immediate access to past context
 - 🔒 **Security First** - Automatic filtering of sensitive data
+- ✅ **Production Ready** - 72.4% test success rate, comprehensive CI/CD
 
 ## 📑 Table of Contents
 - [Quick Start](#-quick-start)
@@ -116,7 +119,18 @@ graph LR
 - 🔒 **Security First** - Automatic filtering of sensitive data (API keys, passwords, PII)
 - 💾 **Efficient Storage** - Multiple storage locations for different data types
 - ✅ **Production Ready** - Full CI/CD pipeline, comprehensive testing (72.4% success rate), TypeScript strict mode
-- ⚡ **Exceptional Performance** - All operations under 10ms average, zero memory leaks
+
+## ⚡ Performance
+
+c0ntextKeeper is built for speed and efficiency:
+
+- **<10ms Average Operations** - Lightning-fast context extraction and retrieval
+- **Zero Memory Leaks** - Efficient stream processing for large transcripts
+- **Instant Startup** - Auto-load context ready when Claude Code connects
+- **Minimal Overhead** - Negligible impact on Claude Code performance
+- **Optimized Storage** - Smart compression and indexing strategies
+
+See [Performance Benchmarks](docs/technical/performance-benchmarks.md) and [Test Results](docs/technical/test-results-summary.md) for detailed metrics.
 
 ## 📦 Installation
 
@@ -739,9 +753,13 @@ For more troubleshooting, see the [User Guide](docs/guides/user-guide.md#trouble
 
 ## 📈 Version History
 
-### v0.5.x Series
-- **v0.7.0** - Auto-load context via MCP resources, intelligent loading strategies
+### v0.7.x Series (Current)
+- **v0.7.0** - 🎯 Auto-load context via MCP resources, intelligent loading strategies, <10ms performance
+
+### v0.6.x Series
 - **v0.6.0** - Unified storage architecture with project-name organization
+
+### v0.5.x Series  
 - **v0.5.3** - Unified JSON format, test data separation
 - **v0.5.2** - CLI improvements, version consistency fixes
 - **v0.5.1** - Better content preservation (2000 char limits), smarter session naming

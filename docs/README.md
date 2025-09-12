@@ -4,8 +4,8 @@ Welcome to the c0ntextKeeper documentation! This directory contains all technica
 
 ## 📊 Latest Updates (v0.7.0)
 
-- **[Performance Benchmarks](performance-benchmarks.md)** - Comprehensive performance analysis showing <10ms operations
-- **[Test Results Summary](test-results-summary.md)** - Complete test suite results (72.4% overall success)
+- **[Performance Benchmarks](technical/performance-benchmarks.md)** - Comprehensive performance analysis showing <10ms operations
+- **[Test Results Summary](technical/test-results-summary.md)** - Complete test suite results (72.4% overall success)
 - **[Auto-Load Guide](guides/auto-load-guide.md)** - New automatic context loading feature
 
 ## 📁 Documentation Structure
@@ -20,6 +20,8 @@ Core technical specifications and integration guides:
 - **[MCP Testing](technical/mcp-testing.md)** - Comprehensive MCP server testing procedures
 - **[MCP Usage](technical/mcp-usage.md)** - Detailed MCP tool usage patterns
 - **[Storage Architecture](technical/storage.md)** - Hybrid storage system documentation (v0.7.0)
+- **[Performance Benchmarks](technical/performance-benchmarks.md)** - Performance analysis (<10ms operations)
+- **[Test Results Summary](technical/test-results-summary.md)** - Test suite results (72.4% success rate)
 
 ### 📖 User Guides (`/guides`)
 End-user documentation and tutorials:
@@ -32,6 +34,7 @@ End-user documentation and tutorials:
 Internal development guidelines and project context:
 
 - **[Project Context](development/project-context.md)** - **AUTHORITATIVE SOURCE** - Complete technical specifications (Updated with v0.7.0 test results)
+- **[Pre-Release Checklist](development/pre-release-checklist.md)** - Complete checklist for v0.7.0 release preparation
 - **[Public Migration Report](development/public-migration-report.md)** - Open-source migration documentation
 
 **Claude Code CLI Files** (at project root):
