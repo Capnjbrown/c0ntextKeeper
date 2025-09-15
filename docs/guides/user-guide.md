@@ -715,7 +715,7 @@ tail -f ~/.c0ntextkeeper/logs/hook.log
 
 4. **Check for extraction issues**:
 If archives are created but empty (0 problems, 0 implementations):
-- This is fixed in v0.7.1 with improved extraction patterns
+- This is fixed in v0.7.2 with improved extraction patterns
 - Any user question (with "?") is now captured
 - All tool uses are tracked, not just Write/Edit
 
@@ -736,7 +736,7 @@ cat ~/.claude/settings.json | grep -i project
 Run these commands to ensure everything is working:
 
 ```bash
-# 1. Check version (should be 0.7.1)
+# 1. Check version (should be 0.7.2)
 c0ntextkeeper --version
 
 # 2. Validate installation
@@ -762,6 +762,6 @@ ls -la ~/.c0ntextkeeper/archive/projects/
 - **Troubleshooting**: See the comprehensive troubleshooting section above
 - **Issues**: https://github.com/Capnjbrown/c0ntextKeeper/issues
 - **Logs**: Check `~/.c0ntextkeeper/logs/hook.log`
-- **Version**: Current version is v0.7.1 with all improvements
+- **Version**: Current version is v0.7.2 with all improvements
 
 Remember: Everything is stored locally on your Mac in hidden directories. Use the commands above to access and manage your preserved context!
