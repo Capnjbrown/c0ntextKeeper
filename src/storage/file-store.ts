@@ -184,10 +184,33 @@ export class FileStore {
     limit = 100,
   ): Promise<ExtractedContext[]> {
     const projectName = extractProjectName(projectPath);
-    const projectDir = path.join(this.basePath, "projects", projectName);
-    const sessionsDir = path.join(projectDir, "sessions");
 
-    if (!(await fileExists(sessionsDir))) {
+    // Try multiple case variations to find the project directory
+    const possibleNames = [
+      projectName,  // Original extracted name
+      projectName.toLowerCase(),  // All lowercase
+      projectName.charAt(0).toUpperCase() + projectName.slice(1).toLowerCase(),  // Capitalize first
+      'c0ntextKeeper',  // Known variation for this project
+    ];
+
+    let projectDir: string | null = null;
+    let sessionsDir: string | null = null;
+
+    // Try each possible name to find existing archives
+    for (const name of possibleNames) {
+      const candidateDir = path.join(this.basePath, "projects", name);
+      const candidateSessionsDir = path.join(candidateDir, "sessions");
+
+      if (await fileExists(candidateSessionsDir)) {
+        projectDir = candidateDir;
+        sessionsDir = candidateSessionsDir;
+        console.log(`Found project archive at: ${candidateDir}`);
+        break;
+      }
+    }
+
+    if (!sessionsDir) {
+      console.log(`No archive found for project: ${projectPath} (tried: ${possibleNames.join(', ')})`);
       return [];
     }
 

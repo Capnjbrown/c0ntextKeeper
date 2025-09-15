@@ -1,5 +1,158 @@
 # c0ntextKeeper Migration Guide
 
+> Last Updated: 2025-09-15 for v0.7.2
+
+## v0.7.1 to v0.7.2 Migration
+
+### Overview
+Version 0.7.2 introduces critical improvements to MCP tools reliability, fixing relevance scoring and sessionId generation issues.
+
+### Key Improvements
+- **Relevance Scoring**: Now properly capped at 100% (was showing up to 129%)
+- **SessionId Generation**: No more "unknown" sessions
+- **Natural Language Processing**: Better query understanding with tokenization
+- **Output Formatting**: Cleaner results with content snippets
+
+### Migration Steps
+
+#### Step 1: Update Package
+```bash
+npm update -g c0ntextkeeper@0.7.2
+```
+
+#### Step 2: Fix Existing Archives
+If you have archives with "unknown" sessionIds:
+```bash
+node $(npm root -g)/c0ntextkeeper/scripts/fix-unknown-sessions.js
+```
+
+#### Step 3: Verify
+```bash
+# Test MCP tools
+c0ntextkeeper search "recent work"
+
+# Should show:
+# - Relevance scores 0-100%
+# - Proper sessionIds
+# - Content snippets
+```
+
+### Detailed Migration Instructions
+
+#### Clean Archive (Optional)
+
+If you want to clean up your archive structure before migration:
+
+```bash
+# Run cleanup script
+node $(npm root -g)/c0ntextkeeper/scripts/cleanup-archive.js
+```
+
+This removes:
+- Corrupted `.bak` files
+- `.DS_Store` files
+- Empty directories
+- Malformed date folders
+
+#### Understanding the Migration Script
+
+The `fix-unknown-sessions.js` script:
+- Scans all archives in `~/.c0ntextkeeper/archive/`
+- Identifies sessions with "unknown" IDs
+- Generates deterministic IDs based on content hash
+- Creates format: `session-YYYYMMDD-hashcode`
+- Saves a migration log for rollback if needed
+
+#### Verify MCP Tools
+
+After migration, test that MCP tools are working correctly:
+
+```bash
+# Test with dedicated script
+node $(npm root -g)/c0ntextkeeper/scripts/test-mcp-tools.js
+```
+
+Expected output:
+- Relevance scores between 0-100% (not 129%!)
+- SessionIds like `session-20250915-a1b2c3d4`
+- Natural language queries working
+- Content snippets in results
+
+### Troubleshooting
+
+#### Issue: Still Seeing "Unknown" Sessions
+
+If you still see "unknown" sessions after migration:
+
+1. **Check Archive Location**
+   ```bash
+   c0ntextkeeper status
+   ```
+   Verify archives are in the expected location.
+
+2. **Run Migration with Force**
+   ```bash
+   node $(npm root -g)/c0ntextkeeper/scripts/fix-unknown-sessions.js --force
+   ```
+
+3. **Check Permissions**
+   Ensure you have write permissions to archive files.
+
+#### Issue: Relevance Scores Still Over 100%
+
+This indicates old code is still running:
+
+1. **Clear npm cache and reinstall**
+   ```bash
+   npm cache clean --force
+   npm uninstall -g c0ntextkeeper
+   npm install -g c0ntextkeeper@0.7.2
+   ```
+
+2. **Restart Claude Code**
+   Exit and restart Claude Code CLI to load updated MCP server.
+
+#### Issue: Natural Language Queries Not Working
+
+The new tokenization requires the updated build:
+
+1. **Verify version**
+   ```bash
+   c0ntextkeeper --version
+   # Should show: 0.7.2
+   ```
+
+2. **Test with simple query**
+   ```bash
+   c0ntextkeeper search "what have we been working on lately"
+   ```
+
+### What to Expect After Migration
+
+#### Improved Query Matching
+- Queries like "what have we been working on lately" now work
+- Stop words (the, a, an, etc.) are automatically filtered
+- Common terms are expanded (fix → fixed, fixes, fixing)
+- Better matching with 60-day temporal decay
+
+#### Better Output Quality
+- SessionIds like `session-20250915-a1b2c3d4` instead of "unknown"
+- Relevance scores properly displayed (e.g., 87%, not 129%)
+- Content snippets included in results for context
+- Clean truncation of long text with "..."
+
+### Rolling Back (If Needed)
+
+If you need to rollback to v0.7.1:
+
+```bash
+# Downgrade package
+npm install -g c0ntextkeeper@0.7.1
+
+# Note: Archives modified by migration script will retain new sessionIds
+# This is harmless and actually beneficial
+```
+
 ## v0.6.0 to v0.7.0 Migration
 
 ### Overview

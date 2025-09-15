@@ -2,7 +2,7 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-09-12
+> Last Updated: 2025-09-15
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
@@ -18,7 +18,7 @@
 
 ## 🎯 Why c0ntextKeeper?
 
-**Never lose valuable context again!** c0ntextKeeper automatically preserves your Claude Code work before compaction (both manual `/compact` and automatic), making it instantly retrievable through MCP tools. Now with v0.7.1's auto-load feature, Claude starts every session with full awareness of your recent work!
+**Never lose valuable context again!** c0ntextKeeper automatically preserves your Claude Code work before compaction (both manual `/compact` and automatic), making it instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding. Now with v0.7.2's improvements, context retrieval is more accurate and reliable than ever!
 
 ### ✨ Key Benefits
 - 🎯 **Auto-Load Context** - Claude automatically reads your project context on startup (v0.7.1)
@@ -32,7 +32,7 @@
 
 ## 📑 Table of Contents
 - [Quick Start](#-quick-start)
-- [What's New in v0.7.1](#-whats-new-in-v071)
+- [What's New in v0.7.2](#-whats-new-in-v072)
 - [How It Works](#-how-it-works)
 - [Installation](#-installation)
 - [Storage Architecture](#-storage-architecture)
@@ -57,11 +57,19 @@ c0ntextkeeper status
 
 That's it! c0ntextKeeper is now preserving your context automatically.
 
-## 🚀 What's New in v0.7.1
+## 🚀 What's New in v0.7.2
 
-**Package Version**: 0.7.1 | **Extraction Algorithm**: 0.7.1 | **Test Success**: 72.4%
+**Package Version**: 0.7.2 | **Extraction Algorithm**: 0.7.2 | **Test Success**: 72.4%
 
-### 🎯 Automatic Context Loading for MCP Server
+### 🔧 MCP Tools Reliability Improvements
+- **✅ Fixed Relevance Scoring** - Now properly capped at 100% (no more impossible 129% scores!)
+- **🆔 Deterministic SessionIds** - No more "unknown" sessions - every session gets a proper ID
+- **🧠 Natural Language Processing** - Better query understanding with stop word filtering
+- **📝 Enhanced Output** - Cleaner, more readable results with smart truncation
+- **🔄 Migration Script** - Automatically fix existing archives with unknown sessions
+- **🎯 Improved Query Matching** - Tokenization and word expansion for better results
+
+### Previous Release (v0.7.1): Automatic Context Loading for MCP Server
 - **🤖 Zero-Configuration Auto-Load** - Context automatically provided when Claude Code connects
 - **📊 Smart Loading Strategies** - Choose from smart, recent, relevant, or custom strategies
 - **⚡ MCP Resource Support** - Exposes context as `context://project/{name}/current`

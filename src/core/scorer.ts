@@ -88,28 +88,34 @@ export class RelevanceScorer {
   }): number {
     let score = 0;
 
-    // Base scoring based on content type
+    // Base scoring based on content type - increased base scores
     if (item.type === "exchange") {
       if (item.metadata?.hasSolution) score += this.weights.problemSolution;
       if (item.metadata?.hasError) score += this.weights.errorResolution;
       if (item.metadata?.hasCode) score += this.weights.codeChanges * 0.5;
       if (item.metadata?.hasDecision) score += this.weights.decisions;
       if (item.metadata?.toolsUsed > 0)
-        score += this.weights.toolComplexity * 0.3;
+        score += this.weights.toolComplexity * 0.4;  // Increased from 0.3
     } else if (item.type === "prompt") {
-      score += this.weights.userEngagement * 0.5;
+      score += this.weights.userEngagement * 0.6;  // Increased from 0.5
     } else if (item.type === "tool") {
-      score += this.weights.toolComplexity * 0.4;
+      score += this.weights.toolComplexity * 0.5;  // Increased from 0.4
     }
 
-    // Check content for valuable patterns
+    // Check content for valuable patterns - more lenient scoring
     const contentStr =
       typeof item.content === "string"
         ? item.content
         : JSON.stringify(item.content);
     const content = contentStr.toLowerCase();
-    if (this.containsProblemIndicators(content)) score += 0.2;
-    if (this.containsDecisionIndicators(content)) score += 0.1;
+    if (this.containsProblemIndicators(content)) score += 0.3;  // Increased from 0.2
+    if (this.containsDecisionIndicators(content)) score += 0.2;  // Increased from 0.1
+
+    // Add bonus for MCP-related content
+    if (content.includes('mcp') || content.includes('contextkeeper') ||
+        content.includes('fetch_context') || content.includes('search_archive')) {
+      score += 0.2;
+    }
 
     // Normalize to 0-1 range
     return Math.min(score, 1);

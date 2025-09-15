@@ -31,16 +31,16 @@ project-context.md contains:
 
 ⚠️ **This CLAUDE.md file provides workflow guidelines, but project-context.md is the authoritative technical reference.**
 
-## Current State: Production Ready v0.7.1 🎉
+## Current State: Production Ready v0.7.2 🎉
 
-c0ntextKeeper v0.7.1 is complete, tested, and ready for release:
+c0ntextKeeper v0.7.2 is complete, tested, and ready for release:
 - ✅ **Auto-Load Context** - MCP resources provide immediate project awareness
 - ✅ **Unified Storage Architecture** - Intelligent project-name based organization
 - ✅ **Fully Automatic Operation** - Works with manual and auto compaction
 - ✅ **Claude Code Compatibility** - Parses JSONL transcripts, stores as JSON
 - ✅ **50+ Semantic Patterns** - Superior context extraction
 - ✅ **4 Working Hooks** - Complete lifecycle coverage
-- ✅ **3 MCP Tools + Resources** - Instant context retrieval and auto-loading
+- ✅ **3 MCP Tools + Resources** - Highly reliable context retrieval with natural language understanding
 - ✅ **Analytics Dashboard** - Rich insights in every archive
 - ✅ **Security Filtering** - Automatic sensitive data protection
 - ✅ **72.4% Test Success Rate** - Comprehensive testing completed
@@ -53,18 +53,18 @@ c0ntextKeeper v0.7.1 is complete, tested, and ready for release:
 
 **19 Core Modules:**
 - `extractor.ts` - Intelligent context extraction with problem/solution mapping
-- `scorer.ts` - Multi-factor relevance scoring engine with scoreContent method
+- `scorer.ts` - Multi-factor relevance scoring engine with scoreContent method (v0.7.2: capped at 100%)
 - `archiver.ts` - Context archival management
-- `retriever.ts` - Fast context retrieval and search
+- `retriever.ts` - Fast context retrieval and search (v0.7.2: natural language tokenization)
 - `patterns.ts` - Pattern recognition and analysis
-- `file-store.ts` - Efficient file-based storage with getBasePath method
+- `file-store.ts` - Efficient file-based storage with getBasePath method (v0.7.2)
 - `precompact.ts` - PreCompact hook handler (automatic + manual compaction)
 - `userprompt.ts` - UserPromptSubmit hook for tracking questions
 - `posttool.ts` - PostToolUse hook for tool patterns
 - `stop.ts` - Stop hook for Q&A knowledge base
 - `hooks-manager.ts` - CLI hook management system
 - `config.ts` - Configuration management system
-- `transcript.ts` - JSONL streaming parser
+- `transcript.ts` - JSONL streaming parser (v0.7.2: sessionId generation)
 - `logger.ts` - Logging utility for MCP servers
 - `filesystem.ts` - File system utilities
 - `index.ts` - MCP server entry point
@@ -87,6 +87,12 @@ c0ntextKeeper v0.7.1 is complete, tested, and ready for release:
 ## Completed Development Milestones
 
 ### Version History
+- **v0.7.2** (2025-09-15) - MCP tools reliability improvements, natural language processing, migration scripts
+  - Fixed relevance scoring to cap at 100%
+  - Eliminated "unknown" sessionIds with deterministic generation
+  - Added natural language query tokenization with stop words
+  - Enhanced output formatting for better readability
+  - Created migration script for existing archives
 - **v0.7.1** (2025-09-12) - Bug fixes, comprehensive CLI documentation (30+ commands), test reliability
   - Added complete CLI Commands section with 7 categories
   - Fixed CLI archive command error handling

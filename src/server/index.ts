@@ -54,7 +54,7 @@ const FetchContextSchema = z.object({
       to: z.string(),
     })
     .optional(),
-  minRelevance: z.number().min(0).max(1).default(0.5),
+  minRelevance: z.number().min(0).max(1).default(0.3),  // Lowered for better natural language matching
 });
 
 const SearchArchiveSchema = z.object({
@@ -365,50 +365,113 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
+// Helper function to truncate text
+function truncateText(text: string, maxLength: number = 200): string {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
+}
+
+// Helper function to format session ID
+function formatSessionId(sessionId: string): string {
+  if (!sessionId || sessionId === 'unknown') {
+    return 'Session-' + Date.now().toString(36).toUpperCase();
+  }
+  // If it's a long hash, show first 8 chars
+  if (sessionId.length > 12) {
+    return sessionId.substring(0, 8) + '...';
+  }
+  return sessionId;
+}
+
 // Format functions for better output
 function formatContextResults(contexts: any[]): string {
   if (!contexts || contexts.length === 0) {
-    return "No relevant context found for your query.";
+    return `No relevant context found for your query.
+
+🔍 Troubleshooting:
+- Ensure archives exist at: ~/.c0ntextkeeper/archive/projects/
+- Try running: c0ntextkeeper status
+- Check if PreCompact hook is enabled
+- Archives may be under different project names (case-sensitive)
+
+💡 Tips:
+- Use broader search terms
+- Remove the query to see all recent contexts
+- Try scope: "global" instead of "project"`;
   }
 
   let output = `Found ${contexts.length} relevant context${contexts.length > 1 ? "s" : ""}:\n\n`;
 
   contexts.forEach((ctx, index) => {
-    output += `## Context ${index + 1} (Relevance: ${(ctx.relevance * 100).toFixed(0)}%)\n`;
-    output += `Session: ${ctx.sessionId} | ${ctx.timestamp}\n\n`;
+    const relevanceScore = ctx.metadata?.relevanceScore || ctx.relevance || 0;
+    const sessionId = formatSessionId(ctx.sessionId);
+    
+    output += `## Context ${index + 1}\n`;
+    output += `📊 Relevance: ${(relevanceScore * 100).toFixed(0)}% | Session: ${sessionId}\n`;
+    output += `📅 Date: ${new Date(ctx.timestamp).toLocaleString()}\n`;
+    
+    // Show project path if available
+    if (ctx.projectPath) {
+      const projectName = ctx.projectPath.split('/').pop() || 'unknown';
+      output += `📁 Project: ${projectName}\n`;
+    }
+    
+    output += `\n`;
 
+    // Show first problem/solution pair with truncation
     if (ctx.problems && ctx.problems.length > 0) {
-      output += `### Problems & Solutions:\n`;
-      ctx.problems.forEach((p: any) => {
-        output += `- **Problem**: ${p.question}\n`;
-        if (p.solution) {
-          output += `  **Solution**: ${p.solution.approach}\n`;
-        }
-      });
-      output += "\n";
+      const firstProblem = ctx.problems[0];
+      output += `### 🎯 Main Problem:\n`;
+      output += `${truncateText(firstProblem.question, 300)}\n\n`;
+      
+      if (firstProblem.solution) {
+        output += `### ✅ Solution:\n`;
+        output += `${truncateText(firstProblem.solution.approach, 300)}\n\n`;
+      }
+      
+      if (ctx.problems.length > 1) {
+        output += `*(...and ${ctx.problems.length - 1} more problem${ctx.problems.length > 2 ? 's' : ''})*\n\n`;
+      }
     }
 
+    // Show first few implementations with better formatting
     if (ctx.implementations && ctx.implementations.length > 0) {
-      output += `### Implementations:\n`;
-      ctx.implementations.forEach((impl: any) => {
-        output += `- **${impl.tool}** on ${impl.file}\n`;
+      output += `### 🛠️ Key Implementations:\n`;
+      const maxImpl = Math.min(3, ctx.implementations.length);
+      
+      for (let i = 0; i < maxImpl; i++) {
+        const impl = ctx.implementations[i];
+        output += `- **${impl.tool || 'Tool'}**: ${impl.file || 'unknown file'}\n`;
         if (impl.description) {
-          output += `  ${impl.description}\n`;
+          output += `  ${truncateText(impl.description, 150)}\n`;
         }
-      });
+      }
+      
+      if (ctx.implementations.length > maxImpl) {
+        output += `*(...and ${ctx.implementations.length - maxImpl} more)*\n`;
+      }
       output += "\n";
     }
 
+    // Show first decision if available
     if (ctx.decisions && ctx.decisions.length > 0) {
-      output += `### Decisions:\n`;
-      ctx.decisions.forEach((d: any) => {
-        output += `- **${d.decision}** (Impact: ${d.impact})\n`;
-        if (d.rationale) {
-          output += `  Rationale: ${d.rationale}\n`;
-        }
-      });
+      const firstDecision = ctx.decisions[0];
+      output += `### 💡 Key Decision:\n`;
+      output += `${truncateText(firstDecision.decision, 200)}\n`;
+      
+      if (ctx.decisions.length > 1) {
+        output += `*(...and ${ctx.decisions.length - 1} more decision${ctx.decisions.length > 2 ? 's' : ''})*\n`;
+      }
       output += "\n";
     }
+    
+    // Show metadata tags if available
+    if (ctx.metadata?.tags && ctx.metadata.tags.length > 0) {
+      output += `🏷️ Tags: ${ctx.metadata.tags.join(', ')}\n\n`;
+    }
+    
+    output += `---\n\n`;
   });
 
   return output;

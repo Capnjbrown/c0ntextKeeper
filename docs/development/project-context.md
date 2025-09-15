@@ -1,7 +1,7 @@
 # Project Context Document
 <!-- Generated: 2025-09-03 -->
 <!-- Generator: Claude Code CLI Context Discovery -->
-<!-- Last Updated: 2025-09-12 for v0.7.1 with bug fixes and documentation improvements -->
+<!-- Last Updated: 2025-09-15 for v0.7.2 with MCP tools reliability improvements -->
 
 ## Project Identification
 
@@ -9,11 +9,11 @@
 - **Project Name**: c0ntextKeeper
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
-- **Version**: 0.7.1 (Package) / 0.7.1 (Extraction Algorithm) / 0.7.1 (MCP Server)
+- **Version**: 0.7.2 (Package) / 0.7.2 (Extraction Algorithm) / 0.7.2 (MCP Server)
 - **Repository**: https://github.com/Capnjbrown/c0ntextKeeper
 
 ### Purpose Statement
-c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 50+ semantic patterns, making them instantly retrievable through MCP tools. The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.0 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.0 adds automatic context loading via MCP resources**, providing Claude with immediate project awareness on startup through configurable strategies (smart, recent, relevant, custom) with sensible defaults that work out-of-the-box. The system works fully automatically, requiring zero manual intervention after initial setup.
+c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 50+ semantic patterns, making them instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding (v0.7.2). The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.0 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.0 adds automatic context loading via MCP resources**, providing Claude with immediate project awareness on startup through configurable strategies (smart, recent, relevant, custom) with sensible defaults that work out-of-the-box. The system works fully automatically, requiring zero manual intervention after initial setup.
 
 ## Discovery Findings
 
@@ -74,12 +74,15 @@ c0ntextKeeper/
 │   │   ├── path-resolver.ts   # Hybrid storage path resolution (v0.7.0)
 │   │   ├── security-filter.ts # Sensitive data filtering
 │   │   ├── session-namer.ts   # Session naming (v0.5.1: 100+ stopwords)
-│   │   └── transcript.ts      # JSONL transcript parser
+│   │   └── transcript.ts      # JSONL transcript parser (v0.7.2: sessionId generation)
 │   └── cli.ts                 # CLI entry point
 ├── scripts/                   # Utility and setup scripts
 │   ├── setup-hooks.js         # Hook installation
 │   ├── test-extraction.js     # Extraction testing
-│   └── validate-public-ready.sh # Public release validation
+│   ├── validate-public-ready.sh # Public release validation
+│   ├── fix-unknown-sessions.js # Migration script to fix 'unknown' sessionIds (v0.7.2)
+│   ├── cleanup-archive.js     # Archive maintenance utility (v0.7.2)
+│   └── test-mcp-tools.js      # MCP tools testing script (v0.7.2)
 ├── tests/                     # Test suite
 │   ├── unit/                  # Unit tests
 │   ├── integration/           # Integration tests
@@ -94,10 +97,12 @@ c0ntextKeeper/
 - **Main Entry**: `dist/cli.js` (CLI) and `dist/server/index.js` (MCP server)
 - **Core Modules**:
   - **Extractor**: Analyzes JSONL transcripts with 50+ semantic patterns (v0.5.1: configurable content limits up to 2000 chars)
-  - **Scorer**: Multi-factor relevance scoring (v0.5.1: TodoWrite 0.5, Bash 0.4, improved admin tools)
+  - **Scorer**: Multi-factor relevance scoring (v0.7.2: Added scoreContent() method, capped at 100%)
   - **Archiver**: Manages context storage with analytics
-  - **Retriever**: Fast context search and retrieval
+  - **Retriever**: Fast context search and retrieval (v0.7.2: Natural language query tokenization with stop words)
   - **Patterns**: Identifies recurring solutions and approaches
+  - **Transcript**: JSONL parser (v0.7.2: generateSessionId() prevents 'unknown' sessions)
+  - **FileStore**: Storage implementation (v0.7.2: getBasePath() method for path resolution)
   - **ContextLoader**: Intelligent auto-loading of relevant context (v0.7.0)
 - **Configuration Loading**: Via `config.ts` with contentLimits (v0.5.1), autoLoad (v0.7.0) and `~/.c0ntextkeeper/config.json`
 
@@ -342,7 +347,7 @@ c0ntextkeeper setup     # Configure hooks
 - **Release Pattern**: Semantic versioning with CHANGELOG.md
 
 ### Version History
-- **Current Version**: 0.7.1
+- **Current Version**: 0.7.2
 - **Major Milestones**:
   - v0.7.1: Bug fixes, documentation improvements, test reliability enhancements
   - v0.7.0: Auto-load context via MCP resources, intelligent loading strategies
@@ -356,7 +361,24 @@ c0ntextkeeper setup     # Configure hooks
   - v0.2.0: Critical bug fixes
   - v0.1.0: Initial release
 
-### Recent Changes (v0.7.1)
+### Recent Changes (v0.7.2)
+
+#### MCP Tools Reliability Improvements
+- **Relevance Scoring Fix**: Properly capped at 100% using Math.min() to prevent mathematically impossible scores
+- **SessionId Generation**: Implemented deterministic ID generation using crypto.createHash() to eliminate 'unknown' sessions
+- **Natural Language Processing**: Added query tokenization with stop word filtering and word expansion for better matching
+- **Output Formatting**: Enhanced with truncateText() and formatSessionId() helpers for cleaner, more readable results
+- **Migration Script**: Created fix-unknown-sessions.js to repair existing archives with 'unknown' sessionIds
+- **Enhanced Methods**:
+  - `scoreContent()` method in scorer.ts for better content scoring
+  - `getBasePath()` method in file-store.ts for reliable path resolution
+  - `tokenizeQuery()` and `calculateWordMatchScore()` in retriever.ts for NLP
+  - `generateSessionId()` in transcript.ts for deterministic ID creation
+- **Query Processing**: Lowered minRelevance threshold to 0.3 for better natural language matching
+- **Word Expansion**: Automatically expands common terms (e.g., 'fix' → 'fixed', 'fixes', 'fixing')
+- **Temporal Decay**: Adjusted to 60-day half-life for more recent context bias
+
+### Previous Changes (v0.7.1)
 
 #### Documentation & CLI Improvements
 - **Comprehensive CLI Documentation**: Added all 30+ commands organized in 7 logical categories

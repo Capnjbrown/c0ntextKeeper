@@ -1,5 +1,7 @@
 # Auto-Load Context Guide
 
+> Last Updated: 2025-09-15 for v0.7.2
+
 ## Overview
 
 c0ntextKeeper v0.7.0+ introduces **automatic context loading** - a powerful feature that proactively provides relevant project context when Claude Code sessions begin. This ensures Claude has immediate awareness of your project's recent work, patterns, and knowledge without requiring manual tool calls.
@@ -11,6 +13,12 @@ When the c0ntextKeeper MCP server starts, it:
 2. Loads relevant context based on your configured strategy
 3. Exposes this context as MCP resources
 4. Claude automatically reads these resources on startup
+
+**v0.7.2 Enhancement**: The context retrieval is now more reliable with:
+- Relevance scores properly capped at 100%
+- No more "unknown" sessionIds
+- Better natural language query understanding
+- Cleaner output formatting with content snippets
 
 ## Configuration
 

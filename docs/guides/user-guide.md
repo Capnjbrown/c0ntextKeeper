@@ -1,5 +1,18 @@
 # 📚 c0ntextKeeper User Guide
 
+> Last Updated: 2025-09-15 for v0.7.2
+
+## 🎯 What's New in v0.7.2
+
+### Enhanced MCP Tools Reliability
+- **✅ Fixed Relevance Scoring** - Now properly capped at 100%
+- **🆔 No More "Unknown" Sessions** - Every session gets a proper ID
+- **🧠 Natural Language Queries** - Better understanding with stop word filtering
+- **📝 Cleaner Output** - Results include meaningful content snippets
+- **🔄 Migration Script** - Fix existing archives with unknown sessions
+
+Run `node scripts/fix-unknown-sessions.js` to migrate existing archives.
+
 ## 🏗️ Storage Modes (v0.7.0+)
 
 c0ntextKeeper v0.7.0 introduces flexible storage options to match your workflow:

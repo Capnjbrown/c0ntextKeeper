@@ -5,6 +5,38 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2025-09-15
+
+### Fixed
+- **Relevance Scoring**: Properly capped at 100% using Math.min() to prevent mathematically impossible scores (was showing up to 129%)
+- **SessionId Generation**: Eliminated "unknown" sessions by implementing deterministic ID generation using crypto.createHash()
+- **Natural Language Queries**: Improved query matching with stop word filtering and word tokenization
+- **Output Formatting**: Enhanced readability with truncateText() and formatSessionId() helpers
+- **Temporal Decay**: Adjusted to 60-day half-life for better recent context bias
+
+### Added
+- **Query Tokenization**: Natural language processing with stop word filtering for better query understanding
+- **Word Expansion**: Automatically expands common terms (e.g., 'fix' → 'fixed', 'fixes', 'fixing')
+- **Migration Script**: `scripts/fix-unknown-sessions.js` to repair existing archives with "unknown" sessionIds
+- **Cleanup Script**: `scripts/cleanup-archive.js` for archive maintenance
+- **Test Script**: `scripts/test-mcp-tools.js` for comprehensive MCP tools testing
+- **Helper Methods**:
+  - `scoreContent()` in scorer.ts for improved content scoring
+  - `getBasePath()` in file-store.ts for reliable path resolution
+  - `tokenizeQuery()` and `calculateWordMatchScore()` in retriever.ts for NLP
+  - `generateSessionId()` in transcript.ts for deterministic ID creation
+
+### Changed
+- Lowered minRelevance threshold from 0.5 to 0.3 for better natural language matching
+- Improved context result formatting to show meaningful content snippets
+- Enhanced error messages with helpful troubleshooting guidance
+
+### Documentation
+- Updated all documentation to reflect v0.7.2 improvements
+- Added comprehensive MCP tools fixes documentation
+- Created migration guide for fixing existing archives
+- Enhanced troubleshooting sections with common issues
+
 ## [0.7.1] - 2025-09-12
 
 ### Fixed

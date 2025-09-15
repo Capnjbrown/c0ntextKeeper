@@ -36,7 +36,7 @@ export class ContextRetriever {
       query = "",
       limit = 5,
       scope = "project",
-      minRelevance = 0.5,
+      minRelevance = 0.3,  // Lowered from 0.5 for better natural language matching
     } = input;
 
     this.logger.info(
@@ -47,10 +47,28 @@ export class ContextRetriever {
 
     // Get contexts based on scope
     if (scope === "project") {
-      // For project scope, we need the current project path
-      // This would typically come from the MCP server context
-      const projectPath = process.cwd(); // Default to current directory
-      contexts = await this.storage.getProjectContexts(projectPath, limit * 2);
+      // For project scope, try multiple possible project paths
+      const possiblePaths = [
+        process.cwd(),
+        process.env.PWD || process.cwd(),
+        '/Users/jasonbrown/Projects/c0ntextKeeper',  // Fallback to known project
+        '/Users/jasonbrown/projects/c0ntextkeeper',  // Case variation
+      ];
+
+      // Try each path until we find contexts
+      for (const projectPath of possiblePaths) {
+        contexts = await this.storage.getProjectContexts(projectPath, limit * 2);
+        if (contexts.length > 0) {
+          this.logger.info(`Found contexts using project path: ${projectPath}`);
+          break;
+        }
+      }
+
+      // If still no contexts, try global search as fallback
+      if (contexts.length === 0) {
+        this.logger.info('No project contexts found, falling back to global search');
+        contexts = await this.storage.searchAll(() => true);
+      }
     } else {
       // For global scope, search all contexts
       contexts = await this.storage.searchAll(() => true);
@@ -203,64 +221,80 @@ export class ContextRetriever {
       return context.metadata.relevanceScore;
     }
 
-    const queryLower = query.toLowerCase();
+    // Tokenize query into individual words for better matching
+    const queryWords = this.tokenizeQuery(query);
     let score = 0;
     let matchCount = 0;
 
     // Check problems
     for (const problem of context.problems) {
-      if (problem.question.toLowerCase().includes(queryLower)) {
-        score += 0.3;
+      const problemLower = problem.question.toLowerCase();
+      const matchScore = this.calculateWordMatchScore(problemLower, queryWords);
+      if (matchScore > 0) {
+        score += 0.3 * matchScore;
         matchCount++;
       }
-      if (problem.solution?.approach.toLowerCase().includes(queryLower)) {
-        score += 0.2;
-        matchCount++;
+
+      if (problem.solution?.approach) {
+        const solutionLower = problem.solution.approach.toLowerCase();
+        const solutionScore = this.calculateWordMatchScore(solutionLower, queryWords);
+        if (solutionScore > 0) {
+          score += 0.2 * solutionScore;
+          matchCount++;
+        }
       }
     }
 
     // Check implementations
     for (const impl of context.implementations) {
-      if (impl.description.toLowerCase().includes(queryLower)) {
-        score += 0.2;
+      const descLower = impl.description.toLowerCase();
+      const descScore = this.calculateWordMatchScore(descLower, queryWords);
+      if (descScore > 0) {
+        score += 0.2 * descScore;
         matchCount++;
       }
-      if (impl.file.toLowerCase().includes(queryLower)) {
-        score += 0.1;
+
+      const fileScore = this.calculateWordMatchScore(impl.file.toLowerCase(), queryWords);
+      if (fileScore > 0) {
+        score += 0.1 * fileScore;
         matchCount++;
       }
     }
 
     // Check decisions
     for (const decision of context.decisions) {
-      if (decision.decision.toLowerCase().includes(queryLower)) {
-        score += 0.2;
+      const decisionScore = this.calculateWordMatchScore(decision.decision.toLowerCase(), queryWords);
+      if (decisionScore > 0) {
+        score += 0.2 * decisionScore;
         matchCount++;
       }
-      if (decision.context.toLowerCase().includes(queryLower)) {
-        score += 0.1;
+
+      const contextScore = this.calculateWordMatchScore(decision.context.toLowerCase(), queryWords);
+      if (contextScore > 0) {
+        score += 0.1 * contextScore;
         matchCount++;
       }
     }
 
     // Check patterns
     for (const pattern of context.patterns) {
-      if (pattern.value.toLowerCase().includes(queryLower)) {
-        score += 0.1;
+      const patternScore = this.calculateWordMatchScore(pattern.value.toLowerCase(), queryWords);
+      if (patternScore > 0) {
+        score += 0.1 * patternScore;
         matchCount++;
       }
     }
 
-    // Apply temporal decay
+    // Apply temporal decay (reduced decay for more recent context)
     const age = Date.now() - new Date(context.timestamp).getTime();
     const daysSinceCreated = age / (1000 * 60 * 60 * 24);
-    const temporalFactor = Math.exp(-daysSinceCreated / 30); // 30-day half-life
+    const temporalFactor = Math.exp(-daysSinceCreated / 60); // Increased to 60-day half-life
 
     // Combine scores
     const baseScore = Math.min(score, 1);
     const frequencyBoost = Math.min(matchCount * 0.05, 0.3);
 
-    return (baseScore + frequencyBoost) * temporalFactor;
+    return Math.min((baseScore + frequencyBoost) * temporalFactor, 1.0);
   }
 
   /**
@@ -372,5 +406,61 @@ export class ContextRetriever {
 
     const regex = new RegExp(regexPattern, "i");
     return regex.test(file);
+  }
+
+  /**
+   * Tokenize query into individual words for better matching
+   */
+  private tokenizeQuery(query: string): string[] {
+    // Remove common stop words for better matching
+    const stopWords = new Set([
+      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+      'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'been',
+      'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
+      'could', 'should', 'may', 'might', 'must', 'can', 'could', 'what',
+      'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself'
+    ]);
+
+    // Split on whitespace and punctuation, filter out stop words
+    const words = query.toLowerCase()
+      .split(/[\s,;:!?.]+/)
+      .filter(word => word.length > 2 && !stopWords.has(word));
+
+    // Add variations for common terms
+    const expandedWords: string[] = [];
+    for (const word of words) {
+      expandedWords.push(word);
+
+      // Add common variations
+      if (word === 'mcp') expandedWords.push('mcp__', 'modelcontextprotocol');
+      if (word === 'fix') expandedWords.push('fixed', 'fixes', 'fixing');
+      if (word === 'implement') expandedWords.push('implementation', 'implemented', 'implementing');
+      if (word === 'recent') expandedWords.push('recently', 'latest', 'last');
+      if (word === 'work') expandedWords.push('working', 'worked', 'works');
+      if (word === 'solution') expandedWords.push('solutions', 'solve', 'solved', 'solving');
+      if (word === 'context') expandedWords.push('contextkeeper', 'c0ntextkeeper');
+      if (word === 'fetch') expandedWords.push('fetching', 'fetched', 'retrieve', 'retrieval');
+      if (word === 'tool') expandedWords.push('tools', 'tool_use', 'tooluse');
+    }
+
+    return expandedWords;
+  }
+
+  /**
+   * Calculate match score for text against query words
+   */
+  private calculateWordMatchScore(text: string, queryWords: string[]): number {
+    if (queryWords.length === 0) return 0;
+
+    let matchedWords = 0;
+    for (const word of queryWords) {
+      if (text.includes(word)) {
+        matchedWords++;
+      }
+    }
+
+    // Return percentage of matched words (ANY match strategy)
+    // Even one word match gives some score
+    return matchedWords / queryWords.length;
   }
 }

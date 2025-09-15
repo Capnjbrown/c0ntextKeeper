@@ -67,9 +67,19 @@ export class PatternAnalyzer {
       }
     }
 
-    // Filter by minimum frequency and sort
+    // Filter by minimum frequency and exclude error patterns
     const patterns = Array.from(patternMap.values())
-      .filter((p) => p.frequency >= minFrequency)
+      .filter((p) => {
+        // Exclude error patterns unless specifically requested
+        if (type !== 'error-handling' && p.type === 'error-handling') {
+          return false;
+        }
+        // Exclude patterns that are just "not-found" or similar unhelpful values
+        if (p.value === 'error:not-found' || p.value === 'error:type-error') {
+          return false;
+        }
+        return p.frequency >= minFrequency;
+      })
       .sort((a, b) => b.frequency - a.frequency)
       .slice(0, limit);
 

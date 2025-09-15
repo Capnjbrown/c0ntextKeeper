@@ -5,6 +5,7 @@
 import { createReadStream } from "fs";
 import * as fs from "fs";
 import readline from "readline";
+import crypto from "crypto";
 import { TranscriptEntry } from "../core/types.js";
 
 /**
@@ -115,15 +116,33 @@ export function parseTranscriptContent(content: string): TranscriptEntry[] {
 }
 
 /**
+ * Generate a deterministic session ID from content
+ */
+function generateSessionId(entry: any): string {
+  const timestamp = entry.timestamp || new Date().toISOString();
+  const content = JSON.stringify(entry);
+  const hash = crypto.createHash('sha256').update(content).digest('hex');
+  
+  // Format: session-YYYYMMDD-HASH8
+  const date = timestamp.split('T')[0].replace(/-/g, '');
+  const shortHash = hash.substring(0, 8);
+  
+  return `session-${date}-${shortHash}`;
+}
+
+/**
  * Normalize a transcript entry to ensure consistent structure
  * Handles both old format and new Claude Code format with embedded content arrays
  */
 function normalizeEntry(entry: any): TranscriptEntry {
+  // Generate a proper sessionId if missing
+  const sessionId = entry.sessionId || entry.session_id || generateSessionId(entry);
+  
   // Handle different entry formats that might exist
   const normalized: TranscriptEntry = {
     type: entry.type || "unknown",
     timestamp: entry.timestamp || new Date().toISOString(),
-    sessionId: entry.sessionId || entry.session_id || "unknown",
+    sessionId: sessionId,
   };
 
   // Add optional fields if present
