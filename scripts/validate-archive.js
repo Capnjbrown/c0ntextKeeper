@@ -1,242 +1,335 @@
 #!/usr/bin/env node
 
 /**
- * Validation script to verify archive extraction quality
- * 
- * Version Compatibility: v0.5.0+
- * - Validates archives created with extraction algorithm v0.5.0
- * - Checks for proper content extraction from Claude Code format
- * - Verifies relevance scoring (user questions should score ~1.0)
- * 
- * Note: Update the archivePath variable to point to the archive to validate
+ * Archive Validation Script
+ * Validates the c0ntextKeeper archive structure and reports issues
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// Read the archive
-const archivePath = '/Users/jasonbrown/.c0ntextkeeper/archive/projects/c0ntextKeeper/sessions/2025-09-02_1707_MT_fix-typescript.json';
-const archive = JSON.parse(fs.readFileSync(archivePath, 'utf8'));
-
-console.log('=== ARCHIVE VALIDATION REPORT ===\n');
-console.log('Archive file:', path.basename(archivePath));
-console.log('Session ID:', archive.sessionId);
-console.log('Extraction Version:', archive.metadata.extractionVersion);
-console.log('');
-
-// Validation results
-let validationResults = {
-  passed: [],
-  failed: [],
-  warnings: []
-};
-
-// 1. Check basic structure
-console.log('📋 STRUCTURE VALIDATION');
-console.log('------------------------');
-
-// Required fields
-const requiredFields = ['sessionId', 'projectPath', 'timestamp', 'problems', 'implementations', 'decisions', 'patterns', 'metadata'];
-requiredFields.forEach(field => {
-  if (archive[field] !== undefined) {
-    validationResults.passed.push(`✅ Field '${field}' exists`);
-  } else {
-    validationResults.failed.push(`❌ Missing required field: ${field}`);
+class ArchiveValidator {
+  constructor(archivePath) {
+    this.archivePath = archivePath;
+    this.issues = [];
+    this.stats = {
+      projects: 0,
+      sessions: 0,
+      prompts: 0,
+      patterns: 0,
+      knowledge: 0,
+      errors: 0,
+      totalSize: 0
+    };
   }
-});
 
-// 2. Check metadata completeness
-console.log('\n📊 METADATA VALIDATION');
-console.log('----------------------');
+  validate() {
+    console.log('🔍 c0ntextKeeper Archive Validation');
+    console.log('━'.repeat(50));
+    console.log(`📁 Archive Path: ${this.archivePath}\n`);
 
-const metadataFields = ['entryCount', 'duration', 'toolsUsed', 'toolCounts', 'filesModified', 'relevanceScore', 'extractionVersion'];
-metadataFields.forEach(field => {
-  if (archive.metadata[field] !== undefined) {
-    validationResults.passed.push(`✅ Metadata '${field}' exists`);
-  } else {
-    validationResults.failed.push(`❌ Missing metadata: ${field}`);
-  }
-});
-
-// 3. Content Quality Checks
-console.log('\n🎯 CONTENT QUALITY');
-console.log('------------------');
-
-// Problems validation
-console.log('\nProblems (${archive.problems.length} extracted):');
-if (archive.problems.length > 0) {
-  validationResults.passed.push(`✅ Problems extracted: ${archive.problems.length}`);
-  
-  archive.problems.forEach((p, i) => {
-    console.log(`  ${i + 1}. Question: "${p.question.substring(0, 60)}..."`);
-    
-    // Check if question is actually a question
-    if (p.question.includes('?')) {
-      console.log(`     ✅ Contains question mark`);
-    } else if (p.question.toLowerCase().includes('error')) {
-      console.log(`     ✅ Contains error indicator`);
-    } else {
-      console.log(`     ⚠️  May not be a real problem`);
-      validationResults.warnings.push(`Problem ${i + 1} may not be a real problem`);
+    if (!fs.existsSync(this.archivePath)) {
+      console.log('❌ Archive path does not exist');
+      return false;
     }
-    
-    if (p.solution) {
-      console.log(`     ✅ Has solution: "${p.solution.approach.substring(0, 50)}..."`);
-      if (p.solution.files && p.solution.files.length > 0) {
-        console.log(`     ✅ Solution references files: ${p.solution.files.join(', ')}`);
+
+    // Check main structure
+    this.checkMainStructure();
+
+    // Validate projects
+    const projectsPath = path.join(this.archivePath, 'archive', 'projects');
+    if (fs.existsSync(projectsPath)) {
+      this.validateProjects(projectsPath);
+    }
+
+    // Report findings
+    this.reportFindings();
+    return this.issues.length === 0;
+  }
+
+  checkMainStructure() {
+    const expectedDirs = ['archive'];
+    const optionalDirs = ['logs', 'errors', 'solutions'];
+
+    console.log('📋 Main Structure Check:');
+    for (const dir of expectedDirs) {
+      const dirPath = path.join(this.archivePath, dir);
+      if (fs.existsSync(dirPath)) {
+        console.log(`  ✅ ${dir}/`);
+      } else {
+        console.log(`  ❌ ${dir}/ (missing)`);
+        this.issues.push(`Missing required directory: ${dir}`);
       }
-    } else {
-      console.log(`     ℹ️  No solution (might be unresolved)`);
     }
-    
-    console.log(`     Relevance: ${p.relevance}`);
-  });
-} else {
-  validationResults.warnings.push('⚠️ No problems extracted');
-}
 
-// Implementations validation
-console.log(`\nImplementations (${archive.implementations.length} extracted):`);
-if (archive.implementations.length > 0) {
-  validationResults.passed.push(`✅ Implementations extracted: ${archive.implementations.length}`);
-  
-  const toolUsage = {};
-  archive.implementations.forEach((impl, i) => {
-    console.log(`  ${i + 1}. ${impl.tool} on ${impl.file}`);
-    toolUsage[impl.tool] = (toolUsage[impl.tool] || 0) + 1;
-    
-    if (impl.changes && impl.changes.length > 0) {
-      console.log(`     ✅ Has code changes`);
+    for (const dir of optionalDirs) {
+      const dirPath = path.join(this.archivePath, dir);
+      if (fs.existsSync(dirPath)) {
+        console.log(`  ✅ ${dir}/ (optional)`);
+      }
     }
-    
-    if (impl.description) {
-      console.log(`     ✅ Has description`);
-    }
-  });
-  
-  console.log('\n  Tool usage summary:', toolUsage);
-} else {
-  validationResults.failed.push('❌ No implementations extracted');
-}
-
-// Decisions validation
-console.log(`\nDecisions (${archive.decisions.length} extracted):`);
-if (archive.decisions.length > 0) {
-  validationResults.passed.push(`✅ Decisions extracted: ${archive.decisions.length}`);
-  
-  archive.decisions.forEach((d, i) => {
-    console.log(`  ${i + 1}. "${d.decision.substring(0, 60)}..."`);
-    console.log(`     Impact: ${d.impact}`);
-    if (d.rationale) {
-      console.log(`     ✅ Has rationale`);
-    }
-  });
-} else {
-  validationResults.warnings.push('⚠️ No decisions extracted (may be normal)');
-}
-
-// Patterns validation
-console.log(`\nPatterns (${archive.patterns.length} extracted):`);
-if (archive.patterns.length > 0) {
-  validationResults.passed.push(`✅ Patterns extracted: ${archive.patterns.length}`);
-  archive.patterns.forEach((p, i) => {
-    console.log(`  ${i + 1}. ${p.type}: ${p.value} (${p.frequency}x)`);
-  });
-} else {
-  console.log('  ℹ️ No patterns (requires repeated actions)');
-}
-
-// 4. Tool tracking validation
-console.log('\n🔧 TOOL TRACKING');
-console.log('----------------');
-
-if (archive.metadata.toolsUsed.length > 0) {
-  validationResults.passed.push(`✅ Tools tracked: ${archive.metadata.toolsUsed.join(', ')}`);
-  console.log('Tools used:', archive.metadata.toolsUsed.join(', '));
-  console.log('Tool counts:', JSON.stringify(archive.metadata.toolCounts));
-  
-  // Verify counts match
-  const actualToolCount = Object.values(archive.metadata.toolCounts).reduce((a, b) => a + b, 0);
-  const implToolCount = archive.implementations.length;
-  
-  if (actualToolCount === implToolCount) {
-    validationResults.passed.push('✅ Tool counts match implementations');
-  } else {
-    validationResults.warnings.push(`⚠️ Tool count mismatch: ${actualToolCount} vs ${implToolCount} implementations`);
+    console.log();
   }
+
+  validateProjects(projectsPath) {
+    const projects = fs.readdirSync(projectsPath);
+    this.stats.projects = projects.length;
+
+    console.log(`📦 Projects (${projects.length}):`);
+    for (const project of projects) {
+      if (project.startsWith('.')) continue;
+
+      const projectPath = path.join(projectsPath, project);
+      const stat = fs.statSync(projectPath);
+
+      if (stat.isDirectory()) {
+        console.log(`\n  📁 ${project}/`);
+        this.validateProjectStructure(projectPath, project);
+      }
+    }
+  }
+
+  validateProjectStructure(projectPath, projectName) {
+    const expectedDirs = ['sessions', 'prompts', 'patterns', 'knowledge'];
+    const issues = [];
+
+    for (const dir of expectedDirs) {
+      const dirPath = path.join(projectPath, dir);
+      if (fs.existsSync(dirPath)) {
+        const files = this.validateHookDirectory(dirPath, dir);
+        console.log(`    ✅ ${dir}/ (${files.length} files)`);
+
+        // Update stats
+        this.stats[dir] += files.length;
+
+        // Check for issues
+        const dirIssues = this.checkDirectoryIssues(dirPath, dir, files);
+        if (dirIssues.length > 0) {
+          issues.push(...dirIssues);
+        }
+      } else {
+        console.log(`    ⚠️ ${dir}/ (missing)`);
+      }
+    }
+
+    if (issues.length > 0) {
+      console.log(`    ⚠️ Issues found:`);
+      for (const issue of issues) {
+        console.log(`      - ${issue}`);
+        this.issues.push(`${projectName}: ${issue}`);
+      }
+    }
+  }
+
+  validateHookDirectory(dirPath, hookType) {
+    const files = fs.readdirSync(dirPath);
+    const validFiles = [];
+
+    for (const file of files) {
+      const filePath = path.join(dirPath, file);
+      const stat = fs.statSync(filePath);
+
+      if (stat.isFile() && file.endsWith('.json')) {
+        validFiles.push(file);
+        this.stats.totalSize += stat.size;
+      }
+    }
+
+    return validFiles;
+  }
+
+  checkDirectoryIssues(dirPath, hookType, files) {
+    const issues = [];
+    const datePattern = /^\d{4}-\d{2}-\d{2}-/;
+
+    // Check for subdirectories (shouldn't exist after fix)
+    const entries = fs.readdirSync(dirPath);
+    for (const entry of entries) {
+      const entryPath = path.join(dirPath, entry);
+      const stat = fs.statSync(entryPath);
+
+      if (stat.isDirectory()) {
+        issues.push(`Unexpected subdirectory: ${hookType}/${entry}`);
+      }
+    }
+
+    // Check naming conventions
+    for (const file of files) {
+      if (hookType !== 'sessions' && !datePattern.test(file)) {
+        issues.push(`Invalid naming convention: ${hookType}/${file} (should start with YYYY-MM-DD-)`);
+      }
+    }
+
+    // Check for old/stale files (optional warning)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    for (const file of files) {
+      const filePath = path.join(dirPath, file);
+      const stat = fs.statSync(filePath);
+      if (stat.mtime < thirtyDaysAgo) {
+        // Just a warning, not an issue
+        console.log(`      📅 Old file (>30 days): ${file}`);
+      }
+    }
+
+    // Check for duplicate patterns
+    if (hookType === 'prompts' || hookType === 'patterns' || hookType === 'knowledge') {
+      const dateFiles = {};
+      for (const file of files) {
+        const match = file.match(/^(\d{4}-\d{2}-\d{2})-/);
+        if (match) {
+          const date = match[1];
+          if (!dateFiles[date]) {
+            dateFiles[date] = [];
+          }
+          dateFiles[date].push(file);
+        }
+      }
+
+      // Check for multiple files per date (shouldn't happen)
+      for (const [date, dateFileList] of Object.entries(dateFiles)) {
+        if (dateFileList.length > 1) {
+          issues.push(`Multiple ${hookType} files for ${date}: ${dateFileList.join(', ')}`);
+        }
+      }
+    }
+
+    return issues;
+  }
+
+  reportFindings() {
+    console.log('\n' + '═'.repeat(50));
+    console.log('📊 Validation Summary\n');
+
+    // Stats
+    console.log('📈 Archive Statistics:');
+    console.log(`  • Projects: ${this.stats.projects}`);
+    console.log(`  • Sessions: ${this.stats.sessions}`);
+    console.log(`  • Prompts files: ${this.stats.prompts}`);
+    console.log(`  • Patterns files: ${this.stats.patterns}`);
+    console.log(`  • Knowledge files: ${this.stats.knowledge}`);
+    console.log(`  • Total Size: ${(this.stats.totalSize / 1024 / 1024).toFixed(2)} MB`);
+
+    // Hook activity check
+    console.log('\n📅 Hook Activity:');
+    this.checkHookActivity();
+
+    // Issues
+    console.log(`\n${this.issues.length === 0 ? '✅' : '❌'} Issues Found: ${this.issues.length}`);
+    if (this.issues.length > 0) {
+      console.log('\n⚠️ Issues to Address:');
+      for (const issue of this.issues) {
+        console.log(`  • ${issue}`);
+      }
+    }
+
+    // Recommendations
+    console.log('\n💡 Recommendations:');
+    const recommendations = this.getRecommendations();
+    for (const rec of recommendations) {
+      console.log(`  • ${rec}`);
+    }
+  }
+
+  checkHookActivity() {
+    const projectsPath = path.join(this.archivePath, 'archive', 'projects', 'c0ntextKeeper');
+    if (!fs.existsSync(projectsPath)) return;
+
+    const hooks = ['sessions', 'prompts', 'patterns', 'knowledge'];
+    const today = new Date().toISOString().split('T')[0];
+
+    for (const hook of hooks) {
+      const hookPath = path.join(projectsPath, hook);
+      if (!fs.existsSync(hookPath)) {
+        console.log(`  ❌ ${hook}: Directory missing`);
+        continue;
+      }
+
+      const files = fs.readdirSync(hookPath);
+      let latestDate = null;
+      let latestMtime = null;
+
+      for (const file of files) {
+        const filePath = path.join(hookPath, file);
+        const stat = fs.statSync(filePath);
+
+        if (!latestMtime || stat.mtime > latestMtime) {
+          latestMtime = stat.mtime;
+          const match = file.match(/(\d{4}-\d{2}-\d{2})/);
+          latestDate = match ? match[1] : 'unknown';
+        }
+      }
+
+      const daysSince = latestMtime ?
+        Math.floor((new Date() - latestMtime) / (1000 * 60 * 60 * 24)) : null;
+
+      if (latestDate === today) {
+        console.log(`  ✅ ${hook}: Active today`);
+      } else if (daysSince !== null && daysSince <= 1) {
+        console.log(`  ✅ ${hook}: Active yesterday`);
+      } else if (daysSince !== null) {
+        console.log(`  ⚠️ ${hook}: Last updated ${daysSince} days ago (${latestDate})`);
+      } else {
+        console.log(`  ❌ ${hook}: No files found`);
+      }
+    }
+  }
+
+  getRecommendations() {
+    const recs = [];
+
+    // Check patterns/knowledge activity
+    const patternsPath = path.join(this.archivePath, 'archive', 'projects', 'c0ntextKeeper', 'patterns');
+    const knowledgePath = path.join(this.archivePath, 'archive', 'projects', 'c0ntextKeeper', 'knowledge');
+
+    if (fs.existsSync(patternsPath)) {
+      const files = fs.readdirSync(patternsPath);
+      const latest = files.sort().pop();
+      if (latest) {
+        const date = latest.match(/(\d{4}-\d{2}-\d{2})/)?.[1];
+        const daysSince = Math.floor((new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
+        if (daysSince > 2) {
+          recs.push('PostToolUse hook may need attention - no patterns captured recently');
+        }
+      }
+    }
+
+    if (fs.existsSync(knowledgePath)) {
+      const files = fs.readdirSync(knowledgePath);
+      const latest = files.sort().pop();
+      if (latest) {
+        const date = latest.match(/(\d{4}-\d{2}-\d{2})/)?.[1];
+        const daysSince = Math.floor((new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
+        if (daysSince > 2) {
+          recs.push('Stop hook may need attention - no Q&A captured recently');
+        }
+      }
+    }
+
+    if (this.stats.totalSize > 100 * 1024 * 1024) {
+      recs.push(`Consider archiving old data - total size is ${(this.stats.totalSize / 1024 / 1024).toFixed(0)} MB`);
+    }
+
+    if (this.issues.length === 0) {
+      recs.push('Archive structure is healthy - no action needed');
+    } else {
+      recs.push('Run cleanup scripts to fix identified issues');
+    }
+
+    return recs;
+  }
+}
+
+// Run validation
+const archivePath = path.join(process.env.HOME, '.c0ntextkeeper');
+const validator = new ArchiveValidator(archivePath);
+const isValid = validator.validate();
+
+console.log('\n' + '═'.repeat(50));
+if (isValid) {
+  console.log('✅ Archive validation PASSED');
 } else {
-  validationResults.failed.push('❌ No tools tracked');
+  console.log('❌ Archive validation FAILED - issues need attention');
+  process.exit(1);
 }
-
-// 5. Files modified validation
-console.log('\n📁 FILES MODIFIED');
-console.log('-----------------');
-
-if (archive.metadata.filesModified.length > 0) {
-  validationResults.passed.push(`✅ Files tracked: ${archive.metadata.filesModified.length}`);
-  console.log('Files:', archive.metadata.filesModified.join(', '));
-} else {
-  validationResults.warnings.push('⚠️ No files marked as modified');
-}
-
-// 6. Security filtering
-console.log('\n🔒 SECURITY');
-console.log('-----------');
-
-if (archive.metadata.securityFiltered) {
-  validationResults.passed.push('✅ Security filtering applied');
-  console.log(`Security filtered: Yes (${archive.metadata.redactedCount} items redacted)`);
-} else {
-  validationResults.warnings.push('⚠️ Security filtering not applied');
-}
-
-// Final Summary
-console.log('\n' + '='.repeat(50));
-console.log('📊 VALIDATION SUMMARY');
-console.log('='.repeat(50));
-
-console.log(`\n✅ PASSED: ${validationResults.passed.length} checks`);
-validationResults.passed.slice(0, 5).forEach(p => console.log(`  ${p}`));
-if (validationResults.passed.length > 5) {
-  console.log(`  ... and ${validationResults.passed.length - 5} more`);
-}
-
-if (validationResults.warnings.length > 0) {
-  console.log(`\n⚠️  WARNINGS: ${validationResults.warnings.length}`);
-  validationResults.warnings.forEach(w => console.log(`  ${w}`));
-}
-
-if (validationResults.failed.length > 0) {
-  console.log(`\n❌ FAILED: ${validationResults.failed.length}`);
-  validationResults.failed.forEach(f => console.log(`  ${f}`));
-} else {
-  console.log('\n🎉 No critical failures!');
-}
-
-// Overall assessment
-console.log('\n' + '='.repeat(50));
-console.log('🏆 OVERALL ASSESSMENT');
-console.log('='.repeat(50));
-
-const score = (validationResults.passed.length / (validationResults.passed.length + validationResults.failed.length)) * 100;
-console.log(`\nValidation Score: ${score.toFixed(1)}%`);
-
-if (score === 100) {
-  console.log('Result: EXCELLENT - All extraction features working perfectly! 🎉');
-} else if (score >= 90) {
-  console.log('Result: VERY GOOD - Extraction working well with minor issues');
-} else if (score >= 80) {
-  console.log('Result: GOOD - Most features working correctly');
-} else {
-  console.log('Result: NEEDS IMPROVEMENT - Some extraction features not working');
-}
-
-console.log('\n✨ The c0ntextKeeper extraction system is successfully:');
-console.log('  • Parsing Claude Code\'s actual JSONL format');
-console.log('  • Extracting problems from user questions');
-console.log('  • Capturing implementations with tool details');
-console.log('  • Identifying architectural decisions');
-console.log('  • Tracking tool usage and counts');
-console.log('  • Recording modified files');
-console.log('  • Applying security filtering');
-console.log('  • Creating fully populated session archives');

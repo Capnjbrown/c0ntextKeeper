@@ -51,7 +51,7 @@ c0ntextKeeper uses multiple Claude Code hooks to capture context at different po
   - Tool usage statistics (enhanced scoring for admin tools)
   - Session duration (fixed calculation, no negatives)
   - Files modified during session
-  - Most relevant problems (50+ semantic patterns)
+  - Most relevant problems (185 semantic patterns)
   - Decisions and patterns
   - Meaningful session names (100+ stopwords filtered)
 - **Analytics Generated**:

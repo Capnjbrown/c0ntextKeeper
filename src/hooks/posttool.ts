@@ -72,20 +72,20 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
     // Store patterns for analysis in JSON format
     const dateString = new Date().toISOString().split("T")[0];
     const workingDir = input.project_path || process.cwd();
-    
+
     // Use proper storage resolution (respects env vars and storage hierarchy)
-    const basePath = getStoragePath({ 
+    const basePath = getStoragePath({
       projectPath: workingDir,
-      createIfMissing: true
+      createIfMissing: true,
     });
-    
+
     // Use unified project-based storage structure
     const storagePath = getHookStoragePath(
       basePath,
-      'patterns',
+      "patterns",
       workingDir,
       dateString,
-      'patterns.json'
+      "patterns.json",
     );
 
     // Ensure directory exists
@@ -98,7 +98,7 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
     let patterns: ToolPattern[] = [];
     if (fs.existsSync(storagePath)) {
       try {
-        const existingData = fs.readFileSync(storagePath, 'utf-8');
+        const existingData = fs.readFileSync(storagePath, "utf-8");
         patterns = JSON.parse(existingData);
         // Ensure it's an array
         if (!Array.isArray(patterns)) {
@@ -114,7 +114,7 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
     patterns.push(toolPattern);
 
     // Write back as formatted JSON
-    fs.writeFileSync(storagePath, JSON.stringify(patterns, null, 2), 'utf-8');
+    fs.writeFileSync(storagePath, JSON.stringify(patterns, null, 2), "utf-8");
 
     // Track error patterns for learning
     if (!success && toolPattern.error) {
@@ -147,7 +147,7 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
 
 function extractToolPattern(input: PostToolHookInput): string {
   const { tool, input: toolInput, result } = input;
-  
+
   // Determine if the operation was successful
   const isSuccess = !result?.error && result?.success !== false;
 
@@ -156,7 +156,7 @@ function extractToolPattern(input: PostToolHookInput): string {
     const parts = tool.split("__");
     const server = parts[1] || "unknown";
     const method = parts[2] || "unknown";
-    
+
     // Extract meaningful details based on common MCP tools
     if (tool.includes("filesystem")) {
       const operation = method.replace(/_/g, " ");
@@ -259,7 +259,7 @@ async function trackErrorPattern(
   let errors: any[] = [];
   if (fs.existsSync(errorPath)) {
     try {
-      const existingData = fs.readFileSync(errorPath, 'utf-8');
+      const existingData = fs.readFileSync(errorPath, "utf-8");
       errors = JSON.parse(existingData);
       // Ensure it's an array
       if (!Array.isArray(errors)) {
@@ -275,7 +275,7 @@ async function trackErrorPattern(
   errors.push(errorEntry);
 
   // Write back as formatted JSON
-  fs.writeFileSync(errorPath, JSON.stringify(errors, null, 2), 'utf-8');
+  fs.writeFileSync(errorPath, JSON.stringify(errors, null, 2), "utf-8");
 }
 
 // Main execution

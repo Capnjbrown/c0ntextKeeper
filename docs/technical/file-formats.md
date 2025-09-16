@@ -4,9 +4,9 @@
 
 c0ntextKeeper uses **JSON format exclusively** for all archive files. This provides human readability, consistency across all components, and easy inspection of preserved context. All hook data (prompts, patterns, knowledge, errors) is stored as formatted JSON arrays, not JSONL.
 
-## Storage Modes (v0.7.0+)
+## Storage Modes (v0.7.2+)
 
-c0ntextKeeper v0.7.0 introduces hybrid storage with flexible location options:
+c0ntextKeeper v0.7.2 introduces hybrid storage with flexible location options:
 
 ### Project-Local Storage
 - **Location**: `.c0ntextkeeper/` within your project directory
@@ -273,4 +273,4 @@ All files are:
 
 ---
 
-*Last Updated: 2025-09-10 | c0ntextKeeper v0.7.0*
+*Last Updated: 2025-09-10 | c0ntextKeeper v0.7.2*

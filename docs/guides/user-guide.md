@@ -13,9 +13,9 @@
 
 Run `node scripts/fix-unknown-sessions.js` to migrate existing archives.
 
-## 🏗️ Storage Modes (v0.7.0+)
+## 🏗️ Storage Modes (v0.7.2+)
 
-c0ntextKeeper v0.7.0 introduces flexible storage options to match your workflow:
+c0ntextKeeper v0.7.2 introduces flexible storage options to match your workflow:
 
 ### Project-Local Storage (Recommended)
 ```bash
@@ -134,7 +134,7 @@ Current Directory: /Users/jasonbrown/projects/my-app
 Project Name: my-app
 ✓ Storage initialized (local)
   Location: /Users/jasonbrown/projects/my-app/.c0ntextkeeper
-  Version: 0.7.0
+  Version: 0.7.2
   Created: 2025-09-09
   Type: project
 ```
@@ -160,7 +160,7 @@ c0ntextkeeper search "query"     # Search for specific content
 
 ## 📊 Understanding Your Analytics Dashboard
 
-Starting with v0.7.0, every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy, better session naming, and organized storage structure. Here's what you'll find:
+Starting with v0.7.2, every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy, better session naming, and organized storage structure. Here's what you'll find:
 
 ### Project Analytics Section
 - **Total Sessions**: Number of times context was preserved
@@ -179,7 +179,7 @@ Starting with v0.7.0, every project archive includes a comprehensive analytics d
 - **Average Relevance Score**: How valuable your preserved context is (0-100%)
   - v0.5.0+: User questions now properly score 100% relevance
   - v0.5.1+: Administrative tools (TodoWrite, Bash) have enhanced scoring
-  - Improved with 50+ semantic patterns for better detection
+  - Improved with 185 semantic patterns for better detection
 - **Files Modified**: Total unique files changed across sessions
 - **Archive Version**: Version of c0ntextKeeper that created the archive
   - Note: The extraction algorithm version tracks improvements to context detection
@@ -361,7 +361,7 @@ Each descriptively-named `.json` file in `sessions/` contains:
     "toolsUsed": ["Write", "Edit", "mcp__filesystem__read_file"],
     "toolCounts": {"Write": 5, "Edit": 3, "mcp__filesystem__read_file": 10},
     "duration": 3600000,
-    "extractionVersion": "0.7.0",
+    "extractionVersion": "0.7.2",
     "isTest": false
   }
 }
@@ -384,7 +384,7 @@ Each descriptively-named `.json` file in `sessions/` contains:
 
 ## Quick Reference Commands
 
-### Essential CLI Commands (v0.7.1)
+### Essential CLI Commands (v0.7.2)
 
 ```bash
 # Setup and Status
@@ -629,17 +629,17 @@ Three ways:
 
 ## Troubleshooting
 
-### v0.7.1 Improvements
+### v0.7.2 Improvements
 
-Many improvements and fixes in v0.7.1:
+Many improvements and fixes in v0.7.2:
 
 #### 504 Timeout Errors (FIXED)
 **Previous Issue**: Hook would timeout during auto-compact with large transcripts
 **Solution**: Implemented 55-second timeout protection
 ```bash
-# Verify you have v0.7.1
+# Verify you have v0.7.2
 c0ntextkeeper --version
-# Should show: 0.7.1
+# Should show: 0.7.2
 ```
 
 #### "content.toLowerCase is not a function" (FIXED)

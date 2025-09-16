@@ -38,20 +38,20 @@ c0ntextKeeper v0.7.2 is complete, tested, and ready for release:
 - ✅ **Unified Storage Architecture** - Intelligent project-name based organization
 - ✅ **Fully Automatic Operation** - Works with manual and auto compaction
 - ✅ **Claude Code Compatibility** - Parses JSONL transcripts, stores as JSON
-- ✅ **50+ Semantic Patterns** - Superior context extraction
+- ✅ **185 Semantic Patterns** - Superior context extraction
 - ✅ **4 Working Hooks** - Complete lifecycle coverage
 - ✅ **3 MCP Tools + Resources** - Highly reliable context retrieval with natural language understanding
 - ✅ **Analytics Dashboard** - Rich insights in every archive
 - ✅ **Security Filtering** - Automatic sensitive data protection
-- ✅ **72.4% Test Success Rate** - Comprehensive testing completed
+- ✅ **87.3% Test Pass Rate** - Comprehensive testing (172/197 tests passing)
 - ✅ **<10ms Performance** - Exceptional operation speed
 - ✅ **Open Source Ready** - Complete documentation and pre-release checklist
 
 ## Implementation Summary
 
-### Core System (19 Modules)
+### Core System (25 Modules)
 
-**19 Core Modules:**
+**25 Core Modules:**
 - `extractor.ts` - Intelligent context extraction with problem/solution mapping
 - `scorer.ts` - Multi-factor relevance scoring engine with scoreContent method (v0.7.2: capped at 100%)
 - `archiver.ts` - Context archival management
@@ -70,24 +70,30 @@ c0ntextKeeper v0.7.2 is complete, tested, and ready for release:
 - `index.ts` - MCP server entry point
 - `cli.ts` - Enhanced CLI with hook commands
 - `types.ts` - Comprehensive TypeScript definitions
-- `context-loader.ts` - Auto-load context system (v0.7.0)
+- `context-loader.ts` - Auto-load context system (v0.7.2)
+- `formatter.ts` - Output formatting utilities
+- `init.ts` - Storage initialization command
+- `migrate.ts` - Archive migration utilities
+- `path-resolver.ts` - Hybrid storage path resolution
+- `project-utils.ts` - Project name/path utilities
+- `session-namer.ts` - Intelligent session naming
 
 ### Production Features
 - **Automatic Context Preservation** - Zero manual intervention required
-- **Intelligent Extraction** - 50+ semantic patterns for context detection
+- **Intelligent Extraction** - 185 semantic patterns for context detection
 - **JSON Storage Format** - All data stored as readable JSON (not JSONL)
 - **Full MCP Tool Support** - PostToolUse tracks all MCP server tools
 - **Test Project Filtering** - Automatically filters `/tmp/` and `/var/folders/`
 - **Rich Analytics** - Tool usage, patterns, and session insights
 - **Security First** - Automatic filtering of sensitive data
 - **Full TypeScript** - Type-safe with strict mode
-- **Comprehensive Testing** - 72.4% overall success rate with benchmarks
+- **Comprehensive Testing** - 87.3% test pass rate (172/197 tests passing)
 - **CI/CD Pipeline** - GitHub Actions with multi-version testing
 
 ## Completed Development Milestones
 
 ### Version History
-- **v0.7.2** (2025-09-15) - MCP tools reliability improvements, natural language processing, migration scripts
+- **v0.7.2** (2025-09-16) - MCP tools reliability improvements, natural language processing, bug fixes, path resolution fixes
   - Fixed relevance scoring to cap at 100%
   - Eliminated "unknown" sessionIds with deterministic generation
   - Added natural language query tokenization with stop words
@@ -581,11 +587,12 @@ When updating documentation:
 
 ## Implementation Notes
 
-### JSONL Processing
-- Use Node.js readline for streaming
-- Parse each line as JSON
-- Extract tool uses, responses, and decisions
-- Build context objects progressively
+### JSONL Processing (Input) → JSON Storage (Output)
+- **Input**: Read JSONL transcripts from Claude Code (one JSON object per line)
+- **Processing**: Use Node.js readline for streaming large files efficiently
+- **Extraction**: Parse each line as JSON, extract patterns and context
+- **Output**: Store as formatted JSON files (not JSONL) for human readability
+- Build context objects progressively during streaming
 
 ### Relevance Scoring Factors
 1. Problem-solution pairs
@@ -602,7 +609,7 @@ When updating documentation:
 - Potential vector DB integration later
 
 ## Testing Strategy & Results
-- ✅ Unit tests for each module (72.4% success rate)
+- ✅ Unit tests for each module (87.3% test pass rate)
 - ✅ Integration tests for MCP server (all tools operational)
 - ✅ Mock JSONL transcripts for testing (7 comprehensive test scripts)
 - ✅ Performance benchmarks (<10ms average operations)
@@ -708,14 +715,14 @@ When updating documentation:
 - ✅ **CI/CD Pipeline**: GitHub Actions with multi-version testing
 - ✅ **Open Source Ready**: CONTRIBUTING.md with guidelines
 - ✅ **Code Quality**: ESLint v9, TypeScript strict mode, Prettier
-- ✅ **Test Coverage**: 72.4% overall success rate, all critical paths tested
+- ✅ **Test Coverage**: 87.3% test pass rate (172/197 tests), all critical paths tested
 
 ## Next Steps
 
-### Release Actions (v0.7.1 Ready!)
-1. **Create GitHub Release** - Tag v0.7.1 with bug fixes and CLI documentation
+### Release Actions (v0.7.2 Ready!)
+1. **Create GitHub Release** - Tag v0.7.2 with reliability improvements and fixes
 2. **Publish to npm** - Make available via `npm install c0ntextkeeper`
-3. **Community Announcement** - Share v0.7.1 improvements with Claude Code users
+3. **Community Announcement** - Share v0.7.2 improvements with Claude Code users
 4. **Highlight** - Comprehensive CLI documentation with 30+ commands
 
 > **📋 Pre-Release Checklist**: See [docs/development/pre-release-checklist.md](docs/development/pre-release-checklist.md) for complete release steps.

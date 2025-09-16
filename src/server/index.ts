@@ -33,7 +33,7 @@ import {
 const server = new Server(
   {
     name: "c0ntextkeeper",
-    version: "0.7.1",
+    version: "0.7.2",
   },
   {
     capabilities: {
@@ -54,7 +54,7 @@ const FetchContextSchema = z.object({
       to: z.string(),
     })
     .optional(),
-  minRelevance: z.number().min(0).max(1).default(0.3),  // Lowered for better natural language matching
+  minRelevance: z.number().min(0).max(1).default(0.3), // Lowered for better natural language matching
 });
 
 const SearchArchiveSchema = z.object({
@@ -186,7 +186,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 server.setRequestHandler(ListResourcesRequestSchema, async () => {
   const configManager = new ConfigManager();
   const autoLoadSettings = configManager.getAutoLoadSettings();
-  
+
   // Only expose resources if auto-load is enabled
   if (!autoLoadSettings.enabled) {
     return { resources: [] };
@@ -203,7 +203,7 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => {
   ];
 
   // Add additional resources based on configuration
-  if (autoLoadSettings.includeTypes.includes('patterns')) {
+  if (autoLoadSettings.includeTypes.includes("patterns")) {
     resources.push({
       uri: `context://project/${projectName}/patterns`,
       name: "Recurring Patterns",
@@ -212,7 +212,7 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => {
     });
   }
 
-  if (autoLoadSettings.includeTypes.includes('knowledge')) {
+  if (autoLoadSettings.includeTypes.includes("knowledge")) {
     resources.push({
       uri: `context://project/${projectName}/knowledge`,
       name: "Knowledge Base",
@@ -228,68 +228,77 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => {
 server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
   const { uri } = request.params;
   const projectName = getProjectName(process.cwd());
-  
+
   try {
     // Main project context
     if (uri === `context://project/${projectName}/current`) {
       const context = await contextLoader.getAutoLoadContext();
       return {
-        contents: [{
-          uri,
-          mimeType: "text/markdown",
-          text: context.content,
-        }],
+        contents: [
+          {
+            uri,
+            mimeType: "text/markdown",
+            text: context.content,
+          },
+        ],
       };
     }
-    
+
     // Patterns resource
     if (uri === `context://project/${projectName}/patterns`) {
       const analyzer = new PatternAnalyzer();
       const patterns = await analyzer.getPatterns({
-        type: 'all',
+        type: "all",
         minFrequency: 2,
         limit: 10,
       });
-      
+
       const formatted = formatPatternResults(patterns);
       return {
-        contents: [{
-          uri,
-          mimeType: "text/markdown",
-          text: `# Recurring Patterns for ${projectName}\n\n${formatted}`,
-        }],
+        contents: [
+          {
+            uri,
+            mimeType: "text/markdown",
+            text: `# Recurring Patterns for ${projectName}\n\n${formatted}`,
+          },
+        ],
       };
     }
-    
+
     // Knowledge base resource
     if (uri === `context://project/${projectName}/knowledge`) {
       const retriever = new ContextRetriever();
       const knowledge = await retriever.fetchRelevantContext({
-        scope: 'project',
+        scope: "project",
         limit: 20,
       });
-      
+
       const formatted = formatContextResults(knowledge);
       return {
-        contents: [{
-          uri,
-          mimeType: "text/markdown",
-          text: `# Knowledge Base for ${projectName}\n\n${formatted}`,
-        }],
+        contents: [
+          {
+            uri,
+            mimeType: "text/markdown",
+            text: `# Knowledge Base for ${projectName}\n\n${formatted}`,
+          },
+        ],
       };
     }
-    
+
     throw new Error(`Unknown resource URI: ${uri}`);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     console.error(`Resource read error for ${uri}:`, errorMessage);
-    
+
     return {
-      contents: [{
-        uri,
-        mimeType: "text/plain",
-        text: `Error reading resource: ${errorMessage}`,
-      }],
+      contents: [
+        {
+          uri,
+          mimeType: "text/plain",
+          text: `Error reading resource: ${errorMessage}`,
+        },
+      ],
     };
   }
 });
@@ -367,19 +376,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // Helper function to truncate text
 function truncateText(text: string, maxLength: number = 200): string {
-  if (!text) return '';
+  if (!text) return "";
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
+  return text.slice(0, maxLength) + "...";
 }
 
 // Helper function to format session ID
 function formatSessionId(sessionId: string): string {
-  if (!sessionId || sessionId === 'unknown') {
-    return 'Session-' + Date.now().toString(36).toUpperCase();
+  if (!sessionId || sessionId === "unknown") {
+    return "Session-" + Date.now().toString(36).toUpperCase();
   }
   // If it's a long hash, show first 8 chars
   if (sessionId.length > 12) {
-    return sessionId.substring(0, 8) + '...';
+    return sessionId.substring(0, 8) + "...";
   }
   return sessionId;
 }
@@ -406,17 +415,17 @@ function formatContextResults(contexts: any[]): string {
   contexts.forEach((ctx, index) => {
     const relevanceScore = ctx.metadata?.relevanceScore || ctx.relevance || 0;
     const sessionId = formatSessionId(ctx.sessionId);
-    
+
     output += `## Context ${index + 1}\n`;
     output += `📊 Relevance: ${(relevanceScore * 100).toFixed(0)}% | Session: ${sessionId}\n`;
     output += `📅 Date: ${new Date(ctx.timestamp).toLocaleString()}\n`;
-    
+
     // Show project path if available
     if (ctx.projectPath) {
-      const projectName = ctx.projectPath.split('/').pop() || 'unknown';
+      const projectName = ctx.projectPath.split("/").pop() || "unknown";
       output += `📁 Project: ${projectName}\n`;
     }
-    
+
     output += `\n`;
 
     // Show first problem/solution pair with truncation
@@ -424,14 +433,14 @@ function formatContextResults(contexts: any[]): string {
       const firstProblem = ctx.problems[0];
       output += `### 🎯 Main Problem:\n`;
       output += `${truncateText(firstProblem.question, 300)}\n\n`;
-      
+
       if (firstProblem.solution) {
         output += `### ✅ Solution:\n`;
         output += `${truncateText(firstProblem.solution.approach, 300)}\n\n`;
       }
-      
+
       if (ctx.problems.length > 1) {
-        output += `*(...and ${ctx.problems.length - 1} more problem${ctx.problems.length > 2 ? 's' : ''})*\n\n`;
+        output += `*(...and ${ctx.problems.length - 1} more problem${ctx.problems.length > 2 ? "s" : ""})*\n\n`;
       }
     }
 
@@ -439,15 +448,15 @@ function formatContextResults(contexts: any[]): string {
     if (ctx.implementations && ctx.implementations.length > 0) {
       output += `### 🛠️ Key Implementations:\n`;
       const maxImpl = Math.min(3, ctx.implementations.length);
-      
+
       for (let i = 0; i < maxImpl; i++) {
         const impl = ctx.implementations[i];
-        output += `- **${impl.tool || 'Tool'}**: ${impl.file || 'unknown file'}\n`;
+        output += `- **${impl.tool || "Tool"}**: ${impl.file || "unknown file"}\n`;
         if (impl.description) {
           output += `  ${truncateText(impl.description, 150)}\n`;
         }
       }
-      
+
       if (ctx.implementations.length > maxImpl) {
         output += `*(...and ${ctx.implementations.length - maxImpl} more)*\n`;
       }
@@ -459,18 +468,18 @@ function formatContextResults(contexts: any[]): string {
       const firstDecision = ctx.decisions[0];
       output += `### 💡 Key Decision:\n`;
       output += `${truncateText(firstDecision.decision, 200)}\n`;
-      
+
       if (ctx.decisions.length > 1) {
-        output += `*(...and ${ctx.decisions.length - 1} more decision${ctx.decisions.length > 2 ? 's' : ''})*\n`;
+        output += `*(...and ${ctx.decisions.length - 1} more decision${ctx.decisions.length > 2 ? "s" : ""})*\n`;
       }
       output += "\n";
     }
-    
+
     // Show metadata tags if available
     if (ctx.metadata?.tags && ctx.metadata.tags.length > 0) {
-      output += `🏷️ Tags: ${ctx.metadata.tags.join(', ')}\n\n`;
+      output += `🏷️ Tags: ${ctx.metadata.tags.join(", ")}\n\n`;
     }
-    
+
     output += `---\n\n`;
   });
 

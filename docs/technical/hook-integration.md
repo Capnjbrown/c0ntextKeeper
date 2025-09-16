@@ -4,7 +4,7 @@
 
 c0ntextKeeper uses Claude Code's hook system to automatically capture and preserve valuable context at multiple points in your workflow. The primary PreCompact hook works **completely automatically** - capturing context both when you manually run `/compact` and when Claude Code automatically compacts context due to size limits.
 
-### 🏗️ v0.7.0 Hybrid Storage Architecture
+### 🏗️ v0.7.2 Hybrid Storage Architecture
 - **📁 Project-Local Storage** - Initialize with `c0ntextkeeper init` in your project
 - **🌍 Global Storage** - Use `c0ntextkeeper init --global` for shared storage
 - **🔍 Smart Path Resolution** - Automatically finds the right storage location
@@ -63,7 +63,7 @@ c0ntextKeeper implements 4 powerful hooks:
      - Fixed duration calculation (no negatives)
    - v0.5.0 enhancements included:
      - Proper Claude Code JSONL format parsing (handles embedded content arrays)
-     - 50+ semantic patterns for problem detection
+     - 185 semantic patterns for problem detection
      - User questions score 1.0 relevance
      - Tool usage counts and frequency
    - Storage: `archive/projects/[project-name]/sessions/` (JSON format)

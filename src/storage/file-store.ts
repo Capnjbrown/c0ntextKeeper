@@ -28,21 +28,26 @@ import {
   truncateText,
   getPackageVersion,
 } from "../utils/formatter.js";
-import { getStoragePath, getProjectStorageInfo } from "../utils/path-resolver.js";
+import {
+  getStoragePath,
+  getProjectStorageInfo,
+} from "../utils/path-resolver.js";
 
 export class FileStore {
   private basePath: string;
   private config: C0ntextKeeperConfig["storage"];
   private isGlobal: boolean;
 
-  constructor(config?: Partial<C0ntextKeeperConfig["storage"]> & { global?: boolean }) {
+  constructor(
+    config?: Partial<C0ntextKeeperConfig["storage"]> & { global?: boolean },
+  ) {
     // Use path resolver to determine storage location
     this.isGlobal = config?.global || false;
     const resolvedPath = getStoragePath({
       global: this.isGlobal,
-      createIfMissing: true
+      createIfMissing: true,
     });
-    
+
     this.config = {
       basePath: path.join(resolvedPath, "archive"),
       maxArchiveSize: 100, // MB
@@ -54,10 +59,22 @@ export class FileStore {
   }
 
   /**
-   * Get the base storage path
+   * Get the base storage path (includes archive subdirectory)
    */
   getBasePath(): string {
     return this.basePath;
+  }
+
+  /**
+   * Get the root storage path (without archive subdirectory)
+   * Used for non-archive items like solutions, logs, etc.
+   */
+  getRootPath(): string {
+    const storagePath = getStoragePath({
+      global: this.isGlobal,
+      createIfMissing: false,
+    });
+    return storagePath;
   }
 
   /**
@@ -117,9 +134,9 @@ export class FileStore {
     // Use actual project name instead of hash
     const projectName = extractProjectName(context.projectPath);
     const projectDir = path.join(this.basePath, "projects", projectName);
-    
+
     // Store test data separately for clarity
-    const sessionsDir = context.metadata.isTest 
+    const sessionsDir = context.metadata.isTest
       ? path.join(projectDir, "test")
       : path.join(projectDir, "sessions");
 
@@ -187,13 +204,12 @@ export class FileStore {
 
     // Try multiple case variations to find the project directory
     const possibleNames = [
-      projectName,  // Original extracted name
-      projectName.toLowerCase(),  // All lowercase
-      projectName.charAt(0).toUpperCase() + projectName.slice(1).toLowerCase(),  // Capitalize first
-      'c0ntextKeeper',  // Known variation for this project
+      projectName, // Original extracted name
+      projectName.toLowerCase(), // All lowercase
+      projectName.charAt(0).toUpperCase() + projectName.slice(1).toLowerCase(), // Capitalize first
+      "c0ntextKeeper", // Known variation for this project
     ];
 
-    let projectDir: string | null = null;
     let sessionsDir: string | null = null;
 
     // Try each possible name to find existing archives
@@ -202,7 +218,7 @@ export class FileStore {
       const candidateSessionsDir = path.join(candidateDir, "sessions");
 
       if (await fileExists(candidateSessionsDir)) {
-        projectDir = candidateDir;
+        // projectDir variable removed - was unused
         sessionsDir = candidateSessionsDir;
         console.log(`Found project archive at: ${candidateDir}`);
         break;
@@ -210,7 +226,9 @@ export class FileStore {
     }
 
     if (!sessionsDir) {
-      console.log(`No archive found for project: ${projectPath} (tried: ${possibleNames.join(', ')})`);
+      console.log(
+        `No archive found for project: ${projectPath} (tried: ${possibleNames.join(", ")})`,
+      );
       return [];
     }
 
@@ -413,10 +431,12 @@ export class FileStore {
     let analyticsSection = "";
     if (projectIndex) {
       const toolStats = projectIndex.mostUsedTools?.length
-        ? projectIndex.mostUsedTools.map(tool => {
-            const count = projectIndex.totalToolUsage?.[tool] || 0;
-            return `${tool} (${count}x)`;
-          }).join(", ")
+        ? projectIndex.mostUsedTools
+            .map((tool) => {
+              const count = projectIndex.totalToolUsage?.[tool] || 0;
+              return `${tool} (${count}x)`;
+            })
+            .join(", ")
         : "No tools tracked yet";
 
       analyticsSection = `
@@ -461,33 +481,43 @@ ${sessions
     // Extract description from filename
     const match = session.match(/\d{4}-\d{2}-\d{2}_\d{4}_MT_(.+)\.json$/);
     const description = match ? match[1].replace(/-/g, " ") : "session";
-    
+
     // Try to find session stats
-    const sessionSummary = projectIndex?.sessions.find(s => s.file === session);
-    
+    const sessionSummary = projectIndex?.sessions.find(
+      (s) => s.file === session,
+    );
+
     let statsLine = "";
     if (sessionSummary) {
       const statsParts = [];
-      if (sessionSummary.stats.problems > 0) statsParts.push(`${sessionSummary.stats.problems} problems`);
-      if (sessionSummary.stats.implementations > 0) statsParts.push(`${sessionSummary.stats.implementations} implementations`);
-      if (sessionSummary.stats.decisions > 0) statsParts.push(`${sessionSummary.stats.decisions} decisions`);
-      if (sessionSummary.relevanceScore > 0) statsParts.push(`relevance: ${formatRelevance(sessionSummary.relevanceScore)}`);
-      
+      if (sessionSummary.stats.problems > 0)
+        statsParts.push(`${sessionSummary.stats.problems} problems`);
+      if (sessionSummary.stats.implementations > 0)
+        statsParts.push(
+          `${sessionSummary.stats.implementations} implementations`,
+        );
+      if (sessionSummary.stats.decisions > 0)
+        statsParts.push(`${sessionSummary.stats.decisions} decisions`);
+      if (sessionSummary.relevanceScore > 0)
+        statsParts.push(
+          `relevance: ${formatRelevance(sessionSummary.relevanceScore)}`,
+        );
+
       if (statsParts.length > 0) {
         statsLine = `\n  - Stats: ${statsParts.join(", ")}`;
       }
-      
+
       // Add tool usage if available
       if (sessionSummary.toolsUsed && sessionSummary.toolsUsed.length > 0) {
         statsLine += `\n  - Tools: ${sessionSummary.toolsUsed.slice(0, 5).join(", ")}`;
       }
-      
+
       // Add top problem if available
       if (sessionSummary.topProblem) {
         statsLine += `\n  - Key Issue: "${sessionSummary.topProblem}"`;
       }
     }
-    
+
     return `### 📄 ${session}
 - **Description**: ${description}${statsLine}`;
   })
@@ -616,11 +646,10 @@ Each session JSON file contains:
     }
 
     // Find the most relevant problem
-    const topProblem = context.problems.length > 0
-      ? context.problems
-          .sort((a, b) => b.relevance - a.relevance)[0]
-          .question
-      : undefined;
+    const topProblem =
+      context.problems.length > 0
+        ? context.problems.sort((a, b) => b.relevance - a.relevance)[0].question
+        : undefined;
 
     // Add session summary with enhanced fields
     const summary: SessionSummary = {

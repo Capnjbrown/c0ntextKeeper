@@ -31,37 +31,64 @@ export class RelevanceScorer {
           ? entry.message.content
           : JSON.stringify(entry.message.content);
       const lowerContent = contentStr.toLowerCase();
-      
+
       // Any user message with a question mark gets maximum relevance
       if (contentStr.includes("?")) {
         return 1.0;
       }
-      
+
       // User requests and commands also get high relevance
       const requestIndicators = [
-        "implement", "create", "build", "add", "fix",
-        "refactor", "optimize", "migrate", "deploy",
-        "write", "test", "setup", "configure", "install",
-        "document", "explain", "help", "debug", "solve"
+        "implement",
+        "create",
+        "build",
+        "add",
+        "fix",
+        "refactor",
+        "optimize",
+        "migrate",
+        "deploy",
+        "write",
+        "test",
+        "setup",
+        "configure",
+        "install",
+        "document",
+        "explain",
+        "help",
+        "debug",
+        "solve",
       ];
-      
+
       // Check for imperative/request patterns
-      if (requestIndicators.some(ind => lowerContent.includes(ind))) {
+      if (requestIndicators.some((ind) => lowerContent.includes(ind))) {
         return 0.9; // High relevance for user requests
       }
-      
+
       // Check for problem statements
       const problemIndicators = [
-        "error", "issue", "problem", "broken", "crash",
-        "fail", "wrong", "bug", "doesn't work", "not working",
-        "confused", "stuck", "slow", "vulnerability", "leak"
+        "error",
+        "issue",
+        "problem",
+        "broken",
+        "crash",
+        "fail",
+        "wrong",
+        "bug",
+        "doesn't work",
+        "not working",
+        "confused",
+        "stuck",
+        "slow",
+        "vulnerability",
+        "leak",
       ];
-      
-      if (problemIndicators.some(ind => lowerContent.includes(ind))) {
+
+      if (problemIndicators.some((ind) => lowerContent.includes(ind))) {
         return 0.9; // High relevance for problem reports
       }
     }
-    
+
     let score = 0;
     const factors = this.extractFactors(entry);
 
@@ -95,11 +122,11 @@ export class RelevanceScorer {
       if (item.metadata?.hasCode) score += this.weights.codeChanges * 0.5;
       if (item.metadata?.hasDecision) score += this.weights.decisions;
       if (item.metadata?.toolsUsed > 0)
-        score += this.weights.toolComplexity * 0.4;  // Increased from 0.3
+        score += this.weights.toolComplexity * 0.4; // Increased from 0.3
     } else if (item.type === "prompt") {
-      score += this.weights.userEngagement * 0.6;  // Increased from 0.5
+      score += this.weights.userEngagement * 0.6; // Increased from 0.5
     } else if (item.type === "tool") {
-      score += this.weights.toolComplexity * 0.5;  // Increased from 0.4
+      score += this.weights.toolComplexity * 0.5; // Increased from 0.4
     }
 
     // Check content for valuable patterns - more lenient scoring
@@ -108,12 +135,16 @@ export class RelevanceScorer {
         ? item.content
         : JSON.stringify(item.content);
     const content = contentStr.toLowerCase();
-    if (this.containsProblemIndicators(content)) score += 0.3;  // Increased from 0.2
-    if (this.containsDecisionIndicators(content)) score += 0.2;  // Increased from 0.1
+    if (this.containsProblemIndicators(content)) score += 0.3; // Increased from 0.2
+    if (this.containsDecisionIndicators(content)) score += 0.2; // Increased from 0.1
 
     // Add bonus for MCP-related content
-    if (content.includes('mcp') || content.includes('contextkeeper') ||
-        content.includes('fetch_context') || content.includes('search_archive')) {
+    if (
+      content.includes("mcp") ||
+      content.includes("contextkeeper") ||
+      content.includes("fetch_context") ||
+      content.includes("search_archive")
+    ) {
       score += 0.2;
     }
 

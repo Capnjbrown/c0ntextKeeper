@@ -62,15 +62,18 @@ export class ContextExtractor {
     // Debug logging
     if (process.env.C0NTEXTKEEPER_DEBUG === "true") {
       console.log(`[Extractor] Processing ${entries.length} entries`);
-      const typeCounts = entries.reduce((acc, e) => {
-        acc[e.type] = (acc[e.type] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const typeCounts = entries.reduce(
+        (acc, e) => {
+          acc[e.type] = (acc[e.type] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
       console.log("[Extractor] Entry types:", typeCounts);
     }
 
     // Ensure proper timestamp ordering for duration calculation
-    const timestamps = entries.map(e => new Date(e.timestamp).getTime());
+    const timestamps = entries.map((e) => new Date(e.timestamp).getTime());
     const startTime = Math.min(...timestamps);
     const endTime = Math.max(...timestamps);
 
@@ -114,7 +117,9 @@ export class ContextExtractor {
       console.log(`  - Decisions: ${context.decisions.length}`);
       console.log(`  - Patterns: ${context.patterns.length}`);
       console.log(`  - Tools used: ${context.metadata.toolsUsed.join(", ")}`);
-      console.log(`  - Files modified: ${context.metadata.filesModified.length}`);
+      console.log(
+        `  - Files modified: ${context.metadata.filesModified.length}`,
+      );
     }
 
     // Limit items to maxContextItems
@@ -156,12 +161,19 @@ export class ContextExtractor {
       const relevance = this.scorer.scoreEntry(entry);
 
       if (process.env.C0NTEXTKEEPER_DEBUG === "true" && entry.type === "user") {
-        console.log(`[extractProblems] User entry: relevance=${relevance}, threshold=${this.relevanceThreshold}`);
+        console.log(
+          `[extractProblems] User entry: relevance=${relevance}, threshold=${this.relevanceThreshold}`,
+        );
       }
 
       if (relevance < this.relevanceThreshold) {
-        if (process.env.C0NTEXTKEEPER_DEBUG === "true" && entry.type === "user") {
-          console.log(`[extractProblems] Skipping user entry due to low relevance`);
+        if (
+          process.env.C0NTEXTKEEPER_DEBUG === "true" &&
+          entry.type === "user"
+        ) {
+          console.log(
+            `[extractProblems] Skipping user entry due to low relevance`,
+          );
         }
         continue;
       }
@@ -170,18 +182,21 @@ export class ContextExtractor {
       if (entry.type === "user" && entry.message?.content) {
         const rawContent = entry.message.content;
         // Normalize content to string for processing
-        const content = typeof rawContent === "string" 
-          ? rawContent 
-          : Array.isArray(rawContent) 
-            ? rawContent.map(item => item.text || '').join(' ')
-            : JSON.stringify(rawContent);
+        const content =
+          typeof rawContent === "string"
+            ? rawContent
+            : Array.isArray(rawContent)
+              ? rawContent.map((item) => item.text || "").join(" ")
+              : JSON.stringify(rawContent);
         const isProblem = this.isProblemIndicator(content);
-        
+
         if (process.env.C0NTEXTKEEPER_DEBUG === "true") {
-          console.log(`[extractProblems] User message: "${content.substring(0, 50)}..."`);
+          console.log(
+            `[extractProblems] User message: "${content.substring(0, 50)}..."`,
+          );
           console.log(`[extractProblems] isProblemIndicator: ${isProblem}`);
         }
-        
+
         if (isProblem) {
           currentProblem = {
             id: this.generateId(),
@@ -190,9 +205,11 @@ export class ContextExtractor {
             tags: this.extractTags(content),
             relevance: relevance,
           };
-          
+
           if (process.env.C0NTEXTKEEPER_DEBUG === "true") {
-            console.log(`[extractProblems] Created problem: ${currentProblem.question.substring(0, 50)}...`);
+            console.log(
+              `[extractProblems] Created problem: ${currentProblem.question.substring(0, 50)}...`,
+            );
           }
         }
       }
@@ -215,7 +232,10 @@ export class ContextExtractor {
       }
 
       // Check tool results for success/failure
-      if (potentialSolution && (entry.type === "tool_result" || entry.toolResult)) {
+      if (
+        potentialSolution &&
+        (entry.type === "tool_result" || entry.toolResult)
+      ) {
         if (entry.toolResult?.error) {
           potentialSolution.successful = false;
         }
@@ -229,15 +249,19 @@ export class ContextExtractor {
       ) {
         const rawContent = entry.message.content;
         // Normalize content to string for processing
-        const content = typeof rawContent === "string" 
-          ? rawContent 
-          : Array.isArray(rawContent)
-            ? rawContent.map(item => item.text || '').join(' ')
-            : JSON.stringify(rawContent);
+        const content =
+          typeof rawContent === "string"
+            ? rawContent
+            : Array.isArray(rawContent)
+              ? rawContent.map((item) => item.text || "").join(" ")
+              : JSON.stringify(rawContent);
 
         // If we have a potential solution from tool use, enhance it
         if (potentialSolution) {
-          potentialSolution.approach = content.slice(0, this.contentLimits.solution);
+          potentialSolution.approach = content.slice(
+            0,
+            this.contentLimits.solution,
+          );
           currentProblem.solution = potentialSolution;
         } else if (this.isSolutionIndicator(content)) {
           currentProblem.solution = {
@@ -283,17 +307,17 @@ export class ContextExtractor {
             entry.toolUse.input?.path ||
             entry.toolUse.input?.notebook_path ||
             "";
-          
+
           // For Bash commands, try to extract cwd or use project path
           if (toolName === "Bash" && !file) {
             file = entry.cwd || entry.toolUse.input?.cwd || "bash_session";
           }
-          
+
           // For TodoWrite, use a descriptive placeholder
           if (toolName === "TodoWrite" && !file) {
             file = "todo_management";
           }
-          
+
           // Default to tool name if still no file
           if (!file) {
             file = toolName.toLowerCase();
@@ -307,7 +331,10 @@ export class ContextExtractor {
               typeof prevContent === "string"
                 ? prevContent
                 : JSON.stringify(prevContent);
-            description = prevContentStr.slice(0, this.contentLimits.implementation);
+            description = prevContentStr.slice(
+              0,
+              this.contentLimits.implementation,
+            );
           }
 
           const implementation: Implementation = {
@@ -443,78 +470,196 @@ export class ContextExtractor {
     // Comprehensive problem indicators for Claude Code conversations
     const problemIndicators = [
       // Error-related
-      "error", "issue", "problem", "bug", "crash", "exception",
-      "failed", "failing", "broken", "wrong", "incorrect",
-      "undefined", "null", "nan", "invalid", "missing",
-      "timeout", "404", "500", "503", "cors",
-      
+      "error",
+      "issue",
+      "problem",
+      "bug",
+      "crash",
+      "exception",
+      "failed",
+      "failing",
+      "broken",
+      "wrong",
+      "incorrect",
+      "undefined",
+      "null",
+      "nan",
+      "invalid",
+      "missing",
+      "timeout",
+      "404",
+      "500",
+      "503",
+      "cors",
+
       // Debugging
-      "debug", "fix", "solve", "troubleshoot", "diagnose",
-      "not working", "doesn't work", "won't work", "stopped working",
-      
+      "debug",
+      "fix",
+      "solve",
+      "troubleshoot",
+      "diagnose",
+      "not working",
+      "doesn't work",
+      "won't work",
+      "stopped working",
+
       // Questions
-      "why", "how do", "how can", "how to", "how should",
-      "what is", "what are", "what should", "what would",
-      "where is", "where are", "where do", "where should",
-      "when should", "when do", "when to",
-      "which", "who", "whose",
-      
+      "why",
+      "how do",
+      "how can",
+      "how to",
+      "how should",
+      "what is",
+      "what are",
+      "what should",
+      "what would",
+      "where is",
+      "where are",
+      "where do",
+      "where should",
+      "when should",
+      "when do",
+      "when to",
+      "which",
+      "who",
+      "whose",
+
       // Common dev tasks
-      "implement", "create", "build", "develop", "add",
-      "integrate", "setup", "configure", "install",
-      "migrate", "upgrade", "update", "refactor",
-      "optimize", "improve", "enhance", "extend",
-      
+      "implement",
+      "create",
+      "build",
+      "develop",
+      "add",
+      "integrate",
+      "setup",
+      "configure",
+      "install",
+      "migrate",
+      "upgrade",
+      "update",
+      "refactor",
+      "optimize",
+      "improve",
+      "enhance",
+      "extend",
+
       // Architecture & design
-      "design", "architect", "structure", "organize",
-      "pattern", "approach", "strategy", "best practice",
-      
+      "design",
+      "architect",
+      "structure",
+      "organize",
+      "pattern",
+      "approach",
+      "strategy",
+      "best practice",
+
       // Testing & deployment
-      "test", "deploy", "publish", "release", "launch",
-      "ci/cd", "pipeline", "workflow", "automation",
-      
+      "test",
+      "deploy",
+      "publish",
+      "release",
+      "launch",
+      "ci/cd",
+      "pipeline",
+      "workflow",
+      "automation",
+
       // Documentation & understanding
-      "explain", "understand", "clarify", "document",
-      "confused", "unclear", "stuck", "lost",
-      
+      "explain",
+      "understand",
+      "clarify",
+      "document",
+      "confused",
+      "unclear",
+      "stuck",
+      "lost",
+
       // Security & performance
-      "secure", "vulnerability", "authentication", "authorization",
-      "performance", "slow", "optimize", "memory leak",
-      
+      "secure",
+      "vulnerability",
+      "authentication",
+      "authorization",
+      "performance",
+      "slow",
+      "optimize",
+      "memory leak",
+
       // Data & API
-      "database", "api", "endpoint", "query", "fetch",
-      "store", "retrieve", "parse", "transform",
-      
+      "database",
+      "api",
+      "endpoint",
+      "query",
+      "fetch",
+      "store",
+      "retrieve",
+      "parse",
+      "transform",
+
       // UI/UX
-      "display", "render", "style", "layout", "responsive",
-      "accessibility", "user experience", "interface"
+      "display",
+      "render",
+      "style",
+      "layout",
+      "responsive",
+      "accessibility",
+      "user experience",
+      "interface",
     ];
 
     // Request indicators (user is asking for help)
     const requestIndicators = [
       // Polite requests
-      "can you", "could you", "would you", "will you",
-      "please", "kindly", "help me", "assist me",
-      
+      "can you",
+      "could you",
+      "would you",
+      "will you",
+      "please",
+      "kindly",
+      "help me",
+      "assist me",
+
       // Direct requests
-      "i need", "i want", "i'd like", "i would like",
-      "i'm trying", "i'm attempting", "i'm looking",
-      
+      "i need",
+      "i want",
+      "i'd like",
+      "i would like",
+      "i'm trying",
+      "i'm attempting",
+      "i'm looking",
+
       // Imperative requests
-      "show me", "tell me", "teach me", "guide me",
-      "walk me through", "explain to me",
-      
+      "show me",
+      "tell me",
+      "teach me",
+      "guide me",
+      "walk me through",
+      "explain to me",
+
       // Planning requests
-      "let's", "we should", "we need to", "we must",
-      "shall we", "should we",
-      
+      "let's",
+      "we should",
+      "we need to",
+      "we must",
+      "shall we",
+      "should we",
+
       // Seeking advice
-      "recommend", "suggest", "advise", "propose",
-      "what's the best", "which is better",
-      
+      "recommend",
+      "suggest",
+      "advise",
+      "propose",
+      "what's the best",
+      "which is better",
+
       // Common dev requests
-      "prepare", "convert", "transform", "translate",
-      "extract", "analyze", "review", "check"
+      "prepare",
+      "convert",
+      "transform",
+      "translate",
+      "extract",
+      "analyze",
+      "review",
+      "check",
     ];
 
     // Questions always indicate problems to solve
@@ -595,7 +740,7 @@ export class ContextExtractor {
       // DO NOT use process.cwd() as it's unreliable for npm packages
       // process.cwd() might return the package installation directory
       // instead of the user's actual project directory
-      
+
       // Try to infer from tool uses (Write/Edit commands often have paths)
       for (const entry of entries) {
         if (entry.toolUse?.name === "Write" || entry.toolUse?.name === "Edit") {

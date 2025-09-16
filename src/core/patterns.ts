@@ -71,11 +71,11 @@ export class PatternAnalyzer {
     const patterns = Array.from(patternMap.values())
       .filter((p) => {
         // Exclude error patterns unless specifically requested
-        if (type !== 'error-handling' && p.type === 'error-handling') {
+        if (type !== "error-handling" && p.type === "error-handling") {
           return false;
         }
         // Exclude patterns that are just "not-found" or similar unhelpful values
-        if (p.value === 'error:not-found' || p.value === 'error:type-error') {
+        if (p.value === "error:not-found" || p.value === "error:type-error") {
           return false;
         }
         return p.frequency >= minFrequency;

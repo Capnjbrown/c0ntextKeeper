@@ -5,6 +5,27 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2+] - 2025-09-16
+
+### Fixed
+- **Path Resolution Bug**: Fixed `getHookStoragePath` creating date subdirectories instead of date-prefixed filenames
+- **Lint Errors**: Removed unused variables `isValidProject` in cli.ts and `projectDir` in file-store.ts
+- **Version Consistency**: Updated CLI and server versions from 0.7.1 to 0.7.2 to match package.json
+- **Stop Hook**: Fixed solutions storage path to use root directory instead of archive
+- **Code Formatting**: Applied Prettier formatting to 19 source files for consistency
+
+### Changed
+- Consolidated duplicate prompts folders into single directory with date-prefixed files
+- Updated PostToolUse hook matcher from specific tools to wildcard for better capture
+- Enhanced Stop hook with debug logging for troubleshooting
+
+### Added
+- `scripts/cleanup-prompts-folders.js` - Script to consolidate duplicate prompts storage
+- `scripts/test-stop-hook.js` - Test script for Stop hook validation
+- `scripts/validate-archive.js` - Comprehensive archive structure validator
+- `tests/unit/project-utils.test.ts` - Unit tests for path generation functions
+- `docs/technical/testing-report-v0.7.2.md` - Comprehensive testing report
+
 ## [0.7.2] - 2025-09-15
 
 ### Fixed

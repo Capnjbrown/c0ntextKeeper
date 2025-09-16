@@ -67,20 +67,20 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
     // Store in JSON format for better readability
     const dateString = new Date().toISOString().split("T")[0];
     const workingDir = context.projectPath || process.cwd();
-    
+
     // Use proper storage resolution (respects env vars and storage hierarchy)
-    const basePath = getStoragePath({ 
+    const basePath = getStoragePath({
       projectPath: workingDir,
-      createIfMissing: true
+      createIfMissing: true,
     });
-    
+
     // Use unified project-based storage structure
     const storagePath = getHookStoragePath(
       basePath,
-      'prompts',
+      "prompts",
       workingDir,
       dateString,
-      'prompts.json'
+      "prompts.json",
     );
 
     // Ensure directory exists
@@ -93,7 +93,7 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
     let prompts: UserPromptContext[] = [];
     if (fs.existsSync(storagePath)) {
       try {
-        const existingData = fs.readFileSync(storagePath, 'utf-8');
+        const existingData = fs.readFileSync(storagePath, "utf-8");
         prompts = JSON.parse(existingData);
         // Ensure it's an array
         if (!Array.isArray(prompts)) {
@@ -109,7 +109,7 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
     prompts.push(context);
 
     // Write back as formatted JSON
-    fs.writeFileSync(storagePath, JSON.stringify(prompts, null, 2), 'utf-8');
+    fs.writeFileSync(storagePath, JSON.stringify(prompts, null, 2), "utf-8");
 
     console.log(
       JSON.stringify({

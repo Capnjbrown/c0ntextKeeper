@@ -2,7 +2,7 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-09-15
+> Last Updated: 2025-09-16
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
@@ -32,7 +32,7 @@
 - 🎯 **Auto-Load Context** - Claude automatically reads your project context on startup
 - 🤖 **Fully Automatic** - Preserves context without any manual intervention
 - ⚡ **Blazing Fast** - All operations under 10ms average performance
-- 🧠 **Intelligent Extraction** - 50+ semantic patterns for context detection
+- 🧠 **Intelligent Extraction** - 185 semantic patterns for context detection
 - 📊 **Rich Analytics** - Track tools, patterns, and session insights
 - 🔍 **Natural Language Search** - Enhanced query understanding in v0.7.2
 - 🔒 **Security First** - Automatic filtering of sensitive data
@@ -586,7 +586,6 @@ c0ntextkeeper migrate         # Migrate old archives to latest format
   --fix-sessions              # Fix "unknown" sessionIds (v0.7.2)
   --fix-relevance             # Fix scores exceeding 100% (v0.7.2)
 c0ntextkeeper migrate:restore # Restore from backup after failed migration
-c0ntextkeeper migrate:status  # Check migration history and available backups
 ```
 
 ### Development & Testing
@@ -937,7 +936,7 @@ For more troubleshooting, see the [User Guide](docs/guides/user-guide.md#trouble
 - **v0.5.3** - Unified JSON format, test data separation
 - **v0.5.2** - CLI improvements, version consistency fixes
 - **v0.5.1** - Better content preservation (2000 char limits), smarter session naming
-- **v0.5.0** - Critical Claude Code compatibility, 50+ semantic patterns
+- **v0.5.0** - Critical Claude Code compatibility, 185 semantic patterns
 
 ### v0.4.0 and Earlier
 - **v0.4.0** - Open source migration, security hardening

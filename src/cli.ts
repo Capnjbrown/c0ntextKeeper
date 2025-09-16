@@ -24,7 +24,7 @@ const program = new Command();
 program
   .name("c0ntextkeeper")
   .description("Intelligent context preservation for Claude Code")
-  .version("0.7.1")
+  .version("0.7.2")
   .showHelpAfterError("(add --help for additional information)");
 
 // Setup command
@@ -73,7 +73,9 @@ program
 // Archive command
 program
   .command("archive <transcript>")
-  .description("Manually archive a JSONL transcript file (e.g., path/to/transcript.jsonl)")
+  .description(
+    "Manually archive a JSONL transcript file (e.g., path/to/transcript.jsonl)",
+  )
   .action(async (transcriptPath: string) => {
     try {
       logger.info(`Archiving transcript: ${transcriptPath}`);
@@ -111,46 +113,56 @@ program
   .action(async (query: string | undefined, options: any) => {
     try {
       const retriever = new ContextRetriever();
-      
+
       // If no query provided, show recent archives
       if (!query) {
-        console.log("📚 Recent Archives (use a search query to find specific content)\n");
-        
+        console.log(
+          "📚 Recent Archives (use a search query to find specific content)\n",
+        );
+
         const storage = new FileStore();
         const stats = await storage.getStats();
-        
+
         if (stats.totalSessions === 0) {
           console.log("No archives found yet.");
           console.log("\n💡 Tips:");
-          console.log("  • Archives are created automatically during compaction");
-          console.log("  • Use 'c0ntextkeeper archive <file>' to manually archive");
-          console.log("  • Try 'c0ntextkeeper search authentication' to search for specific topics");
+          console.log(
+            "  • Archives are created automatically during compaction",
+          );
+          console.log(
+            "  • Use 'c0ntextkeeper archive <file>' to manually archive",
+          );
+          console.log(
+            "  • Try 'c0ntextkeeper search authentication' to search for specific topics",
+          );
           return;
         }
-        
+
         // Get recent contexts without a specific query
         const results = await retriever.searchArchive({
           query: "",
           limit: 5,
           projectPath: options.project,
         });
-        
-        console.log(`Showing ${Math.min(5, results.length)} most recent archives:\n`);
-        
+
+        console.log(
+          `Showing ${Math.min(5, results.length)} most recent archives:\n`,
+        );
+
         results.slice(0, 5).forEach((result, index) => {
           console.log(`${index + 1}. Session: ${result.context.sessionId}`);
           console.log(`   Project: ${result.context.projectPath}`);
           console.log(`   Date: ${formatTimestamp(result.context.timestamp)}`);
           console.log();
         });
-        
+
         console.log("💡 Search examples:");
         console.log("  • c0ntextkeeper search 'authentication'");
         console.log("  • c0ntextkeeper search 'error' --limit 20");
         console.log("  • c0ntextkeeper search 'bug fix' --project ~/myproject");
         return;
       }
-      
+
       // Original search logic when query is provided
       const results = await retriever.searchArchive({
         query,
@@ -237,9 +249,7 @@ program
       console.log("📊 c0ntextKeeper Statistics\n");
       console.log(`Total Projects: ${stats.totalProjects}`);
       console.log(`Total Sessions: ${stats.totalSessions}`);
-      console.log(
-        `Storage Size: ${formatFileSize(stats.totalSize)}`,
-      );
+      console.log(`Storage Size: ${formatFileSize(stats.totalSize)}`);
 
       if (stats.oldestSession) {
         console.log(`Oldest Session: ${formatTimestamp(stats.oldestSession)}`);
@@ -275,7 +285,9 @@ hooks
 // Enable hook
 hooks
   .command("enable <hook>")
-  .description("Enable a specific hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)")
+  .description(
+    "Enable a specific hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)",
+  )
   .action(async (hookName: string) => {
     try {
       const HooksManager = (await import("./cli/hooks-manager.js"))
@@ -291,7 +303,9 @@ hooks
 // Disable hook
 hooks
   .command("disable <hook>")
-  .description("Disable a specific hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)")
+  .description(
+    "Disable a specific hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)",
+  )
   .action(async (hookName: string) => {
     try {
       const HooksManager = (await import("./cli/hooks-manager.js"))
@@ -307,7 +321,9 @@ hooks
 // Configure hook
 hooks
   .command("config <hook>")
-  .description("Configure a hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)")
+  .description(
+    "Configure a hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)",
+  )
   .option("-m, --matcher <pattern>", "Set matcher pattern")
   .action(async (hookName: string, options: any) => {
     try {
@@ -324,7 +340,9 @@ hooks
 // Test hook
 hooks
   .command("test <hook>")
-  .description("Test a specific hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)")
+  .description(
+    "Test a specific hook (PreCompact, UserPromptSubmit, PostToolUse, or Stop)",
+  )
   .action(async (hookName: string) => {
     try {
       const HooksManager = (await import("./cli/hooks-manager.js"))
@@ -360,7 +378,7 @@ program
   .action(async () => {
     // Show storage status from new implementation
     await statusCommand();
-    
+
     // Also show automation/hook status
     try {
       console.log("\n🤖 c0ntextKeeper Automation Status\n");
@@ -411,40 +429,46 @@ program
   .option("--backup", "Create backup before cleaning (default: true)", true)
   .action(async () => {
     try {
-      const cleanupScript = path.join(__dirname, "..", "scripts", "cleanup-index.js");
+      const cleanupScript = path.join(
+        __dirname,
+        "..",
+        "scripts",
+        "cleanup-index.js",
+      );
       if (!fs.existsSync(cleanupScript)) {
-        logger.error("Cleanup script not found. Please ensure scripts/cleanup-index.js exists.");
+        logger.error(
+          "Cleanup script not found. Please ensure scripts/cleanup-index.js exists.",
+        );
         process.exit(1);
       }
 
-      const { cleanIndex, isValidProject } = require(cleanupScript);
-      
+      const { cleanIndex } = require(cleanupScript);
+
       console.log("\n🧹 c0ntextKeeper Index Cleanup");
       console.log("=".repeat(50));
-      
+
       const globalPath = path.join(os.homedir(), ".c0ntextkeeper");
       const indexPath = path.join(globalPath, "index.json");
-      
+
       if (!fs.existsSync(indexPath)) {
         console.log("No index file found. Nothing to clean.");
         return;
       }
-      
+
       // Read current index
       const index = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
       const projects = index.projects || {};
       const totalCount = Object.keys(projects).length;
-      
+
       if (totalCount === 0) {
         console.log("No projects in index. Nothing to clean.");
         return;
       }
-      
+
       console.log(`\nFound ${totalCount} project(s) in index`);
-      
+
       // Perform cleanup
       cleanIndex();
-      
     } catch (error) {
       logger.error("Cleanup failed:", error);
       process.exit(1);
@@ -620,7 +644,9 @@ program
   });
 
 // Context command group for auto-load features
-const context = program.command("context").description("Manage auto-loaded context");
+const context = program
+  .command("context")
+  .description("Manage auto-loaded context");
 
 // Preview context command
 context
@@ -645,13 +671,13 @@ context
     try {
       const { contextLoader } = await import("./core/context-loader.js");
       const context = await contextLoader.getAutoLoadContext();
-      
+
       console.log("✅ Context Loading Test Results\n");
       console.log(`Strategy: ${context.strategy}`);
       console.log(`Size: ${context.sizeKB.toFixed(2)} KB`);
       console.log(`Items: ${context.itemCount}`);
       console.log(`Timestamp: ${new Date(context.timestamp).toLocaleString()}`);
-      
+
       if (context.content) {
         console.log("\n📄 Sample (first 500 chars):");
         console.log("-".repeat(50));
@@ -684,17 +710,19 @@ context
       const { ConfigManager } = await import("./core/config.js");
       const configManager = new ConfigManager();
       const currentSettings = configManager.getAutoLoadSettings();
-      
+
       // Apply changes
       const updates: any = {};
       if (options.enable) updates.enabled = true;
       if (options.disable) updates.enabled = false;
       if (options.strategy) updates.strategy = options.strategy;
       if (options.maxSize) updates.maxSizeKB = parseInt(options.maxSize);
-      if (options.sessionCount) updates.sessionCount = parseInt(options.sessionCount);
-      if (options.patternCount) updates.patternCount = parseInt(options.patternCount);
+      if (options.sessionCount)
+        updates.sessionCount = parseInt(options.sessionCount);
+      if (options.patternCount)
+        updates.patternCount = parseInt(options.patternCount);
       if (options.format) updates.formatStyle = options.format;
-      
+
       if (Object.keys(updates).length > 0) {
         configManager.updateAutoLoadSettings(updates);
         console.log("✅ Auto-load settings updated:");

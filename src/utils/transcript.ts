@@ -121,12 +121,12 @@ export function parseTranscriptContent(content: string): TranscriptEntry[] {
 function generateSessionId(entry: any): string {
   const timestamp = entry.timestamp || new Date().toISOString();
   const content = JSON.stringify(entry);
-  const hash = crypto.createHash('sha256').update(content).digest('hex');
-  
+  const hash = crypto.createHash("sha256").update(content).digest("hex");
+
   // Format: session-YYYYMMDD-HASH8
-  const date = timestamp.split('T')[0].replace(/-/g, '');
+  const date = timestamp.split("T")[0].replace(/-/g, "");
   const shortHash = hash.substring(0, 8);
-  
+
   return `session-${date}-${shortHash}`;
 }
 
@@ -136,8 +136,9 @@ function generateSessionId(entry: any): string {
  */
 function normalizeEntry(entry: any): TranscriptEntry {
   // Generate a proper sessionId if missing
-  const sessionId = entry.sessionId || entry.session_id || generateSessionId(entry);
-  
+  const sessionId =
+    entry.sessionId || entry.session_id || generateSessionId(entry);
+
   // Handle different entry formats that might exist
   const normalized: TranscriptEntry = {
     type: entry.type || "unknown",
@@ -153,7 +154,7 @@ function normalizeEntry(entry: any): TranscriptEntry {
   // Handle Claude Code's actual format with embedded content arrays
   if (entry.message) {
     const message = entry.message;
-    
+
     // Extract content from array format (Claude's actual format)
     if (Array.isArray(message.content)) {
       // Process each content item
@@ -178,7 +179,9 @@ function normalizeEntry(entry: any): TranscriptEntry {
           normalized.type = "tool_result";
           normalized.toolResult = {
             output: extractToolResultContent(contentItem),
-            error: contentItem.is_error ? extractToolResultContent(contentItem) : undefined,
+            error: contentItem.is_error
+              ? extractToolResultContent(contentItem)
+              : undefined,
           };
           // Don't override user type for actual user messages
           if (message.role === "user" && !contentItem.tool_use_id) {
@@ -196,9 +199,13 @@ function normalizeEntry(entry: any): TranscriptEntry {
           }
         }
       }
-      
+
       // If no specific content was extracted, try to get text
-      if (!normalized.message && !normalized.toolUse && !normalized.toolResult) {
+      if (
+        !normalized.message &&
+        !normalized.toolUse &&
+        !normalized.toolResult
+      ) {
         const textContent = message.content
           .filter((c: any) => c.type === "text")
           .map((c: any) => c.text || "")

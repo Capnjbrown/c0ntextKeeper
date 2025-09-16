@@ -19,16 +19,16 @@ export interface HookSettings {
 
 export interface AutoLoadSettings {
   enabled: boolean;
-  strategy: 'recent' | 'relevant' | 'smart' | 'custom';
+  strategy: "recent" | "relevant" | "smart" | "custom";
   maxSizeKB: number;
   sessionCount: number;
   patternCount: number;
   knowledgeCount: number;
   promptCount: number;
-  includeTypes: ('sessions' | 'patterns' | 'knowledge' | 'prompts')[];
+  includeTypes: ("sessions" | "patterns" | "knowledge" | "prompts")[];
   timeWindowDays: number;
   priorityKeywords: string[];
-  formatStyle: 'summary' | 'detailed' | 'minimal';
+  formatStyle: "summary" | "detailed" | "minimal";
 }
 
 export interface C0ntextKeeperConfig {
@@ -107,16 +107,16 @@ const DEFAULT_CONFIG: C0ntextKeeperConfig = {
   },
   autoLoad: {
     enabled: true,
-    strategy: 'smart',
+    strategy: "smart",
     maxSizeKB: 10,
     sessionCount: 3,
     patternCount: 5,
     knowledgeCount: 10,
     promptCount: 5,
-    includeTypes: ['sessions', 'patterns', 'knowledge', 'prompts'],
+    includeTypes: ["sessions", "patterns", "knowledge", "prompts"],
     timeWindowDays: 7,
     priorityKeywords: [],
-    formatStyle: 'summary',
+    formatStyle: "summary",
   },
 };
 
@@ -127,14 +127,14 @@ export class ConfigManager {
 
   constructor(options: { global?: boolean } = {}) {
     this.isGlobal = options.global || false;
-    
+
     // Skip file operations in test environment
-    if (process.env.NODE_ENV === 'test') {
-      this.configPath = '/tmp/test-config.json';
+    if (process.env.NODE_ENV === "test") {
+      this.configPath = "/tmp/test-config.json";
       this.config = DEFAULT_CONFIG;
       return;
     }
-    
+
     const basePath = getStoragePath({ global: this.isGlobal });
     this.configPath = path.join(basePath, "config.json");
     this.config = this.loadConfig();
@@ -145,10 +145,10 @@ export class ConfigManager {
    */
   private loadConfig(): C0ntextKeeperConfig {
     // Skip file operations in test environment
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === "test") {
       return DEFAULT_CONFIG;
     }
-    
+
     if (fs.existsSync(this.configPath)) {
       try {
         const content = fs.readFileSync(this.configPath, "utf-8");
@@ -171,16 +171,16 @@ export class ConfigManager {
    */
   static getMergedConfig(): C0ntextKeeperConfig {
     // Return defaults in test environment
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === "test") {
       return DEFAULT_CONFIG;
     }
-    
+
     const projectPath = getStoragePath({ global: false });
     const globalPath = getStoragePath({ global: true });
-    
+
     let globalConfig: Partial<C0ntextKeeperConfig> = {};
     let projectConfig: Partial<C0ntextKeeperConfig> = {};
-    
+
     const globalConfigPath = path.join(globalPath, "config.json");
     if (fs.existsSync(globalConfigPath)) {
       try {
@@ -189,7 +189,7 @@ export class ConfigManager {
         console.error("Error loading global config:", error);
       }
     }
-    
+
     const projectConfigPath = path.join(projectPath, "config.json");
     if (fs.existsSync(projectConfigPath)) {
       try {
@@ -198,12 +198,12 @@ export class ConfigManager {
         console.error("Error loading project config:", error);
       }
     }
-    
+
     // Project config overrides global, both override defaults
     const manager = new ConfigManager();
     return manager.mergeConfigs(
       manager.mergeConfigs(DEFAULT_CONFIG, globalConfig),
-      projectConfig
+      projectConfig,
     );
   }
 
@@ -212,10 +212,10 @@ export class ConfigManager {
    */
   private saveConfig(config: C0ntextKeeperConfig): void {
     // Skip file operations in test environment
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === "test") {
       return;
     }
-    
+
     const dir = path.dirname(this.configPath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });

@@ -13,7 +13,7 @@
 - **Repository**: https://github.com/Capnjbrown/c0ntextKeeper
 
 ### Purpose Statement
-c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 50+ semantic patterns, making them instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding (v0.7.2). The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.0 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.0 adds automatic context loading via MCP resources**, providing Claude with immediate project awareness on startup through configurable strategies (smart, recent, relevant, custom) with sensible defaults that work out-of-the-box. The system works fully automatically, requiring zero manual intervention after initial setup.
+c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 185 semantic patterns, making them instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding (v0.7.2). The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.2 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.2 adds automatic context loading via MCP resources**, providing Claude with immediate project awareness on startup through configurable strategies (smart, recent, relevant, custom) with sensible defaults that work out-of-the-box. The system works fully automatically, requiring zero manual intervention after initial setup.
 
 ## Discovery Findings
 
@@ -32,7 +32,7 @@ c0ntextKeeper is an intelligent context preservation and retrieval system for Cl
   - tsx v4.19.2: Development runtime
   - npm: Package management
 - **Package Managers**: npm (with package-lock.json)
-- **Database/Storage**: File-based JSON storage with hybrid architecture (v0.7.0)
+- **Database/Storage**: File-based JSON storage with hybrid architecture (v0.7.2)
   - Project-local: `.c0ntextkeeper/` within project directories
   - Global: `~/.c0ntextkeeper/` for shared context
   - Intelligent path resolution with directory tree walking
@@ -50,8 +50,8 @@ c0ntextKeeper/
 │   │   └── init.ts            # Storage initialization commands
 │   ├── core/                  # Core business logic
 │   │   ├── archiver.ts        # Context archival logic
-│   │   ├── config.ts          # Configuration management (v0.7.0: autoLoad settings)
-│   │   ├── context-loader.ts  # Auto-load context preparation (v0.7.0)
+│   │   ├── config.ts          # Configuration management (v0.7.2: autoLoad settings)
+│   │   ├── context-loader.ts  # Auto-load context preparation (v0.7.2)
 │   │   ├── extractor.ts       # Context extraction engine (v0.5.1: 2000 char limits)
 │   │   ├── patterns.ts        # Pattern recognition and analysis
 │   │   ├── retriever.ts       # Context retrieval and search
@@ -71,7 +71,7 @@ c0ntextKeeper/
 │   │   ├── filesystem.ts      # File system operations
 │   │   ├── formatter.ts       # Display formatting utilities
 │   │   ├── logger.ts          # Logging infrastructure
-│   │   ├── path-resolver.ts   # Hybrid storage path resolution (v0.7.0)
+│   │   ├── path-resolver.ts   # Hybrid storage path resolution (v0.7.2)
 │   │   ├── security-filter.ts # Sensitive data filtering
 │   │   ├── session-namer.ts   # Session naming (v0.5.1: 100+ stopwords)
 │   │   └── transcript.ts      # JSONL transcript parser (v0.7.2: sessionId generation)
@@ -89,22 +89,22 @@ c0ntextKeeper/
 │   └── fixtures/              # Test data
 ├── dist/                      # Compiled JavaScript output
 ├── docs/                      # Additional documentation
-│   └── STORAGE.md             # Storage architecture documentation (v0.7.0)
+│   └── STORAGE.md             # Storage architecture documentation (v0.7.2)
 └── examples/                  # Usage examples
 ```
 
 ### Entry Points & Main Components
 - **Main Entry**: `dist/cli.js` (CLI) and `dist/server/index.js` (MCP server)
 - **Core Modules**:
-  - **Extractor**: Analyzes JSONL transcripts with 50+ semantic patterns (v0.5.1: configurable content limits up to 2000 chars)
+  - **Extractor**: Analyzes JSONL transcripts with 185 semantic patterns (v0.5.1: configurable content limits up to 2000 chars)
   - **Scorer**: Multi-factor relevance scoring (v0.7.2: Added scoreContent() method, capped at 100%)
   - **Archiver**: Manages context storage with analytics
   - **Retriever**: Fast context search and retrieval (v0.7.2: Natural language query tokenization with stop words)
   - **Patterns**: Identifies recurring solutions and approaches
   - **Transcript**: JSONL parser (v0.7.2: generateSessionId() prevents 'unknown' sessions)
   - **FileStore**: Storage implementation (v0.7.2: getBasePath() method for path resolution)
-  - **ContextLoader**: Intelligent auto-loading of relevant context (v0.7.0)
-- **Configuration Loading**: Via `config.ts` with contentLimits (v0.5.1), autoLoad (v0.7.0) and `~/.c0ntextkeeper/config.json`
+  - **ContextLoader**: Intelligent auto-loading of relevant context (v0.7.2)
+- **Configuration Loading**: Via `config.ts` with contentLimits (v0.5.1), autoLoad (v0.7.2) and `~/.c0ntextkeeper/config.json`
 
 ## Functionality Analysis
 
@@ -117,7 +117,7 @@ c0ntextKeeper/
 | PostToolUse hook | `/src/hooks/posttool.ts` | Captures tool usage patterns | ✅ Implemented |
 | Stop hook | `/src/hooks/stop.ts` | Saves complete Q&A exchanges | ✅ Implemented |
 | JSONL transcript parsing | `/src/utils/transcript.ts` | Claude Code format with embedded arrays | ✅ Active |
-| Problem/solution extraction | `/src/core/extractor.ts` | 50+ semantic patterns, configurable limits (v0.5.1) | ✅ Active |
+| Problem/solution extraction | `/src/core/extractor.ts` | 185 semantic patterns, configurable limits (v0.5.1) | ✅ Active |
 | Relevance scoring | `/src/core/scorer.ts` | Enhanced admin tool scoring (v0.5.1) | ✅ Active |
 | Session naming | `/src/utils/session-namer.ts` | 100+ stopwords, smart fallbacks (v0.5.1) | ✅ Active |
 | Content preservation | `/src/core/config.ts` | Configurable limits: 2000/1000 chars (v0.5.1) | ✅ Active |
@@ -125,7 +125,7 @@ c0ntextKeeper/
 | Security filtering | `/src/utils/security-filter.ts` | API key and PII redaction | ✅ Active |
 | Analytics dashboard | `/src/core/archiver.ts` | Rich statistics in README.md per archive | ✅ Active |
 | MCP tool serving | `/src/server/index.ts` | Three active tools | ✅ Active |
-| MCP resource serving | `/src/server/index.ts` | Auto-loaded context via resources (v0.7.0) | ✅ Active |
+| MCP resource serving | `/src/server/index.ts` | Auto-loaded context via resources (v0.7.2) | ✅ Active |
 | Auto-load context | `/src/core/context-loader.ts` | Proactive context loading on startup | ✅ Active |
 | CLI interface | `/src/cli.ts` | Comprehensive command set | ✅ Active |
 | Hook management | `/src/cli/hooks-manager.ts` | Enable/disable/test/configure hooks | ✅ Active |
@@ -158,7 +158,7 @@ The ContextRetriever class (`src/core/retriever.ts`) provides the following meth
    - MinFrequency: Minimum occurrences
    - Limit: 1-50 results
 
-#### MCP Resources (v0.7.0)
+#### MCP Resources (v0.7.2)
 1. **context://project/{name}/current**
    - Auto-loaded project context
    - Configurable via autoLoad settings
@@ -343,14 +343,14 @@ c0ntextkeeper setup     # Configure hooks
 ### Contributor Information
 - **Primary Maintainer**: Jason Brown (@Capnjbrown)
 - **License**: MIT
-- **Last Activity**: 2025-09-10 (v0.7.0 release)
+- **Last Activity**: 2025-09-10 (v0.7.2 release)
 - **Release Pattern**: Semantic versioning with CHANGELOG.md
 
 ### Version History
 - **Current Version**: 0.7.2
 - **Major Milestones**:
-  - v0.7.1: Bug fixes, documentation improvements, test reliability enhancements
-  - v0.7.0: Auto-load context via MCP resources, intelligent loading strategies
+  - v0.7.2: Bug fixes, documentation improvements, test reliability enhancements
+  - v0.7.2: Auto-load context via MCP resources, intelligent loading strategies
   - v0.6.0: Unified storage architecture with project-name organization
   - v0.5.3: JSON format standardization and test data separation
   - v0.5.2: CLI UX improvements and bug fixes
@@ -378,7 +378,7 @@ c0ntextkeeper setup     # Configure hooks
 - **Word Expansion**: Automatically expands common terms (e.g., 'fix' → 'fixed', 'fixes', 'fixing')
 - **Temporal Decay**: Adjusted to 60-day half-life for more recent context bias
 
-### Previous Changes (v0.7.1)
+### Previous Changes (v0.7.2)
 
 #### Documentation & CLI Improvements
 - **Comprehensive CLI Documentation**: Added all 30+ commands organized in 7 logical categories
@@ -391,14 +391,14 @@ c0ntextkeeper setup     # Configure hooks
   - Development & Testing (test-hook, server)
 - **Quick Examples Section**: Added common workflow examples
 
-### Previous Changes (v0.7.0)
+### Previous Changes (v0.7.2)
 - **Auto-Load Context**: MCP resources provide immediate project awareness on startup
 - **ContextLoader Module**: Intelligent aggregation from sessions, patterns, knowledge, prompts
 - **Loading Strategies**: Smart, recent, relevant, and custom strategies available
 - **Configuration System**: New autoLoad settings with sensible defaults
 - **MCP Resources**: Dynamic resource generation at `context://project/{name}/current`
 - **CLI Commands**: New context command group (preview, test, configure)
-- **Test Suite Improvements**: Comprehensive testing completed with 72.4% overall success
+- **Test Suite Improvements**: Comprehensive testing completed with 87.3% test pass rate
 - **Performance Validated**: All operations under 10ms average, zero memory leaks
 
 ### Previous Changes (v0.6.0)
@@ -418,7 +418,7 @@ c0ntextkeeper setup     # Configure hooks
 
 ### Code Quality Indicators
 - **TODO/FIXME Count**: Minimal (well-maintained codebase)
-- **Test Coverage**: 72.4% overall success rate across all test suites
+- **Test Pass Rate**: 87.3% (172/197 tests passing) across all test suites
 - **Test Suite**: Comprehensive unit, integration, and performance tests
 - **Complex Functions**: Extractor has high complexity (50+ patterns - by design)
 - **TypeScript Strict Mode**: Enabled (excellent type safety)
@@ -504,7 +504,7 @@ npm publish           # Publish to npm
   - `src/cli.ts` - CLI entry point
   - `src/server/index.ts` - MCP server (v0.5.3)
 - **Critical Logic**: 
-  - `src/core/extractor.ts` - 50+ semantic patterns for extraction
+  - `src/core/extractor.ts` - 185 semantic patterns for extraction
   - `src/core/scorer.ts` - Relevance scoring (1.0 for questions)
   - `src/hooks/precompact.ts` - Automatic capture hook
   - `src/core/archiver.ts` - Analytics dashboard generation
@@ -532,4 +532,4 @@ npm publish           # Publish to npm
 
 ---
 
-*This document was generated through automated project analysis and updated to reflect the current state of the c0ntextKeeper project as of 2025-09-12 (v0.7.1). The project is actively maintained and demonstrates professional software engineering practices with comprehensive test coverage (72.4% overall success rate).*
+*This document was generated through automated project analysis and updated to reflect the current state of the c0ntextKeeper project as of 2025-09-12 (v0.7.2). The project is actively maintained and demonstrates professional software engineering practices with comprehensive testing (87.3% test pass rate).*

@@ -141,7 +141,8 @@ export function formatFileCount(count: number): string {
 export function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-  if (ms < 3600000) return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
+  if (ms < 3600000)
+    return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
   return `${Math.floor(ms / 3600000)}h ${Math.floor((ms % 3600000) / 60000)}m`;
 }
 
@@ -152,12 +153,10 @@ export function formatToolStats(toolCounts: Record<string, number>): string {
   const entries = Object.entries(toolCounts)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5);
-  
+
   if (entries.length === 0) return "No tools used";
-  
-  return entries
-    .map(([tool, count]) => `${tool} (${count}x)`)
-    .join(", ");
+
+  return entries.map(([tool, count]) => `${tool} (${count}x)`).join(", ");
 }
 
 /**

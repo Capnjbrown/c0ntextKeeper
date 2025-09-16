@@ -36,7 +36,7 @@ export class ContextRetriever {
       query = "",
       limit = 5,
       scope = "project",
-      minRelevance = 0.3,  // Lowered from 0.5 for better natural language matching
+      minRelevance = 0.3, // Lowered from 0.5 for better natural language matching
     } = input;
 
     this.logger.info(
@@ -51,13 +51,16 @@ export class ContextRetriever {
       const possiblePaths = [
         process.cwd(),
         process.env.PWD || process.cwd(),
-        '/Users/jasonbrown/Projects/c0ntextKeeper',  // Fallback to known project
-        '/Users/jasonbrown/projects/c0ntextkeeper',  // Case variation
+        "/Users/jasonbrown/Projects/c0ntextKeeper", // Fallback to known project
+        "/Users/jasonbrown/projects/c0ntextkeeper", // Case variation
       ];
 
       // Try each path until we find contexts
       for (const projectPath of possiblePaths) {
-        contexts = await this.storage.getProjectContexts(projectPath, limit * 2);
+        contexts = await this.storage.getProjectContexts(
+          projectPath,
+          limit * 2,
+        );
         if (contexts.length > 0) {
           this.logger.info(`Found contexts using project path: ${projectPath}`);
           break;
@@ -66,7 +69,9 @@ export class ContextRetriever {
 
       // If still no contexts, try global search as fallback
       if (contexts.length === 0) {
-        this.logger.info('No project contexts found, falling back to global search');
+        this.logger.info(
+          "No project contexts found, falling back to global search",
+        );
         contexts = await this.storage.searchAll(() => true);
       }
     } else {
@@ -237,7 +242,10 @@ export class ContextRetriever {
 
       if (problem.solution?.approach) {
         const solutionLower = problem.solution.approach.toLowerCase();
-        const solutionScore = this.calculateWordMatchScore(solutionLower, queryWords);
+        const solutionScore = this.calculateWordMatchScore(
+          solutionLower,
+          queryWords,
+        );
         if (solutionScore > 0) {
           score += 0.2 * solutionScore;
           matchCount++;
@@ -254,7 +262,10 @@ export class ContextRetriever {
         matchCount++;
       }
 
-      const fileScore = this.calculateWordMatchScore(impl.file.toLowerCase(), queryWords);
+      const fileScore = this.calculateWordMatchScore(
+        impl.file.toLowerCase(),
+        queryWords,
+      );
       if (fileScore > 0) {
         score += 0.1 * fileScore;
         matchCount++;
@@ -263,13 +274,19 @@ export class ContextRetriever {
 
     // Check decisions
     for (const decision of context.decisions) {
-      const decisionScore = this.calculateWordMatchScore(decision.decision.toLowerCase(), queryWords);
+      const decisionScore = this.calculateWordMatchScore(
+        decision.decision.toLowerCase(),
+        queryWords,
+      );
       if (decisionScore > 0) {
         score += 0.2 * decisionScore;
         matchCount++;
       }
 
-      const contextScore = this.calculateWordMatchScore(decision.context.toLowerCase(), queryWords);
+      const contextScore = this.calculateWordMatchScore(
+        decision.context.toLowerCase(),
+        queryWords,
+      );
       if (contextScore > 0) {
         score += 0.1 * contextScore;
         matchCount++;
@@ -278,7 +295,10 @@ export class ContextRetriever {
 
     // Check patterns
     for (const pattern of context.patterns) {
-      const patternScore = this.calculateWordMatchScore(pattern.value.toLowerCase(), queryWords);
+      const patternScore = this.calculateWordMatchScore(
+        pattern.value.toLowerCase(),
+        queryWords,
+      );
       if (patternScore > 0) {
         score += 0.1 * patternScore;
         matchCount++;
@@ -302,12 +322,12 @@ export class ContextRetriever {
    */
   private findMatches(context: ExtractedContext, query: string): Match[] {
     const matches: Match[] = [];
-    
+
     // Handle undefined or empty query
     if (!query) {
       return matches;
     }
-    
+
     const queryLower = query.toLowerCase();
 
     // Search in problems
@@ -414,17 +434,59 @@ export class ContextRetriever {
   private tokenizeQuery(query: string): string[] {
     // Remove common stop words for better matching
     const stopWords = new Set([
-      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
-      'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'been',
-      'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
-      'could', 'should', 'may', 'might', 'must', 'can', 'could', 'what',
-      'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself'
+      "the",
+      "a",
+      "an",
+      "and",
+      "or",
+      "but",
+      "in",
+      "on",
+      "at",
+      "to",
+      "for",
+      "of",
+      "with",
+      "by",
+      "from",
+      "as",
+      "is",
+      "was",
+      "are",
+      "were",
+      "been",
+      "be",
+      "have",
+      "has",
+      "had",
+      "do",
+      "does",
+      "did",
+      "will",
+      "would",
+      "could",
+      "should",
+      "may",
+      "might",
+      "must",
+      "can",
+      "could",
+      "what",
+      "we",
+      "our",
+      "ours",
+      "ourselves",
+      "you",
+      "your",
+      "yours",
+      "yourself",
     ]);
 
     // Split on whitespace and punctuation, filter out stop words
-    const words = query.toLowerCase()
+    const words = query
+      .toLowerCase()
       .split(/[\s,;:!?.]+/)
-      .filter(word => word.length > 2 && !stopWords.has(word));
+      .filter((word) => word.length > 2 && !stopWords.has(word));
 
     // Add variations for common terms
     const expandedWords: string[] = [];
@@ -432,15 +494,19 @@ export class ContextRetriever {
       expandedWords.push(word);
 
       // Add common variations
-      if (word === 'mcp') expandedWords.push('mcp__', 'modelcontextprotocol');
-      if (word === 'fix') expandedWords.push('fixed', 'fixes', 'fixing');
-      if (word === 'implement') expandedWords.push('implementation', 'implemented', 'implementing');
-      if (word === 'recent') expandedWords.push('recently', 'latest', 'last');
-      if (word === 'work') expandedWords.push('working', 'worked', 'works');
-      if (word === 'solution') expandedWords.push('solutions', 'solve', 'solved', 'solving');
-      if (word === 'context') expandedWords.push('contextkeeper', 'c0ntextkeeper');
-      if (word === 'fetch') expandedWords.push('fetching', 'fetched', 'retrieve', 'retrieval');
-      if (word === 'tool') expandedWords.push('tools', 'tool_use', 'tooluse');
+      if (word === "mcp") expandedWords.push("mcp__", "modelcontextprotocol");
+      if (word === "fix") expandedWords.push("fixed", "fixes", "fixing");
+      if (word === "implement")
+        expandedWords.push("implementation", "implemented", "implementing");
+      if (word === "recent") expandedWords.push("recently", "latest", "last");
+      if (word === "work") expandedWords.push("working", "worked", "works");
+      if (word === "solution")
+        expandedWords.push("solutions", "solve", "solved", "solving");
+      if (word === "context")
+        expandedWords.push("contextkeeper", "c0ntextkeeper");
+      if (word === "fetch")
+        expandedWords.push("fetching", "fetched", "retrieve", "retrieval");
+      if (word === "tool") expandedWords.push("tools", "tool_use", "tooluse");
     }
 
     return expandedWords;

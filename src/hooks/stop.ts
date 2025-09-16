@@ -104,20 +104,20 @@ async function processExchange(input: StopHookInput): Promise<void> {
     // Store in knowledge base as JSON for better readability
     const dateString = new Date().toISOString().split("T")[0];
     const workingDir = input.project_path || process.cwd();
-    
+
     // Use proper storage resolution (respects env vars and storage hierarchy)
-    const basePath = getStoragePath({ 
+    const basePath = getStoragePath({
       projectPath: workingDir,
-      createIfMissing: true
+      createIfMissing: true,
     });
-    
+
     // Use unified project-based storage structure
     const storagePath = getHookStoragePath(
       basePath,
-      'knowledge',
+      "knowledge",
       workingDir,
       dateString,
-      'knowledge.json'
+      "knowledge.json",
     );
 
     // Ensure directory exists
@@ -130,7 +130,7 @@ async function processExchange(input: StopHookInput): Promise<void> {
     let qaPairs: QAPair[] = [];
     if (fs.existsSync(storagePath)) {
       try {
-        const existingData = fs.readFileSync(storagePath, 'utf-8');
+        const existingData = fs.readFileSync(storagePath, "utf-8");
         qaPairs = JSON.parse(existingData);
         // Ensure it's an array
         if (!Array.isArray(qaPairs)) {
@@ -146,7 +146,7 @@ async function processExchange(input: StopHookInput): Promise<void> {
     qaPairs.push(qaPair);
 
     // Write back as formatted JSON
-    fs.writeFileSync(storagePath, JSON.stringify(qaPairs, null, 2), 'utf-8');
+    fs.writeFileSync(storagePath, JSON.stringify(qaPairs, null, 2), "utf-8");
 
     // If this solved a problem, also store in solutions index
     if (hasSolution) {
@@ -214,9 +214,9 @@ async function indexSolution(
   qaPair: QAPair,
   storage: FileStore,
 ): Promise<void> {
-  // Create a solutions index for quick retrieval
+  // Create a solutions index for quick retrieval at root level
   const solutionsPath = path.join(
-    storage.getBasePath(),
+    storage.getRootPath(),
     "solutions",
     "index.json",
   );
@@ -260,6 +260,31 @@ async function main() {
   });
 
   process.stdin.on("end", async () => {
+    // Debug: Log raw input to file for inspection
+    const debugPath = path.join(
+      process.env.HOME || "",
+      ".c0ntextkeeper",
+      "logs",
+      "stop-hook-debug.log",
+    );
+    const debugDir = path.dirname(debugPath);
+    if (!fs.existsSync(debugDir)) {
+      fs.mkdirSync(debugDir, { recursive: true });
+    }
+
+    const debugEntry = {
+      timestamp: new Date().toISOString(),
+      rawInput: input,
+      inputLength: input.length,
+    };
+
+    // Append to debug log
+    fs.appendFileSync(
+      debugPath,
+      JSON.stringify(debugEntry, null, 2) + "\n---\n",
+      "utf-8",
+    );
+
     if (!input) {
       console.log(
         JSON.stringify({
@@ -271,7 +296,14 @@ async function main() {
     }
 
     try {
-      const hookData = JSON.parse(input) as StopHookInput;
+      const hookData = JSON.parse(input) as any; // Use any for now to see structure
+
+      // Debug: Log parsed structure
+      fs.appendFileSync(
+        debugPath,
+        `Parsed structure: ${JSON.stringify(hookData, null, 2)}\n---\n`,
+        "utf-8",
+      );
 
       // Validate hook event (handle multiple names)
       const validEvents = ["Stop", "stop", "SubagentStop"];
@@ -279,13 +311,40 @@ async function main() {
         console.log(
           JSON.stringify({
             status: "skipped",
-            message: "Not a Stop event",
+            message: `Not a Stop event (received: ${hookData.hook_event_name})`,
           }),
         );
         process.exit(0);
       }
 
-      await processExchange(hookData);
+      // Check if exchange exists and has expected structure
+      if (!hookData.exchange) {
+        // Maybe the structure is different - try to adapt
+        if (hookData.user_prompt && hookData.assistant_response) {
+          // Create exchange object from flat structure
+          hookData.exchange = {
+            user_prompt: hookData.user_prompt,
+            assistant_response: hookData.assistant_response,
+            tools_used: hookData.tools_used,
+            files_modified: hookData.files_modified,
+          };
+        } else {
+          fs.appendFileSync(
+            debugPath,
+            `Missing exchange object or expected fields\n---\n`,
+            "utf-8",
+          );
+          console.log(
+            JSON.stringify({
+              status: "error",
+              message: "Missing exchange data in hook input",
+            }),
+          );
+          process.exit(0);
+        }
+      }
+
+      await processExchange(hookData as StopHookInput);
       process.exit(0);
     } catch (error) {
       console.error(
@@ -294,6 +353,8 @@ async function main() {
           message: `Failed to parse input: ${error instanceof Error ? error.message : "Unknown error"}`,
         }),
       );
+      // Also log to debug file
+      fs.appendFileSync(debugPath, `Error: ${error}\n---\n`, "utf-8");
       process.exit(0);
     }
   });

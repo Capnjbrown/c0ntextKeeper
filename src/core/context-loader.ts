@@ -1,6 +1,6 @@
 /**
  * Context Loader Module for c0ntextKeeper
- * 
+ *
  * Intelligently prepares and loads relevant context for MCP server startup
  */
 
@@ -78,13 +78,13 @@ export class ContextLoader {
 
     // Enforce size limit
     const maxBytes = this.config.maxSizeKB * 1024;
-    if (Buffer.byteLength(content, 'utf8') > maxBytes) {
+    if (Buffer.byteLength(content, "utf8") > maxBytes) {
       content = this.truncateToSize(content, maxBytes);
     }
 
     return {
       content,
-      sizeKB: Buffer.byteLength(content, 'utf8') / 1024,
+      sizeKB: Buffer.byteLength(content, "utf8") / 1024,
       itemCount,
       strategy: this.config.strategy,
       timestamp: new Date().toISOString(),
@@ -94,17 +94,22 @@ export class ContextLoader {
   /**
    * Smart loading strategy - combines recent, patterns, and knowledge
    */
-  private async loadSmartContext(): Promise<{ content: string; itemCount: number }> {
+  private async loadSmartContext(): Promise<{
+    content: string;
+    itemCount: number;
+  }> {
     const projectName = getProjectName(process.cwd());
     const sections: string[] = [];
     let itemCount = 0;
 
     // Header
     sections.push(`# Project Context: ${projectName}`);
-    sections.push(`*Auto-loaded by c0ntextKeeper on ${new Date().toLocaleString()}*\n`);
+    sections.push(
+      `*Auto-loaded by c0ntextKeeper on ${new Date().toLocaleString()}*\n`,
+    );
 
     // Recent Sessions
-    if (this.config.includeTypes.includes('sessions')) {
+    if (this.config.includeTypes.includes("sessions")) {
       const sessions = await this.loadRecentSessions();
       if (sessions.content) {
         sections.push("## Recent Work\n");
@@ -114,7 +119,7 @@ export class ContextLoader {
     }
 
     // Top Patterns
-    if (this.config.includeTypes.includes('patterns')) {
+    if (this.config.includeTypes.includes("patterns")) {
       const patterns = await this.loadTopPatterns();
       if (patterns.content) {
         sections.push("\n## Recurring Patterns\n");
@@ -124,7 +129,7 @@ export class ContextLoader {
     }
 
     // Knowledge Base
-    if (this.config.includeTypes.includes('knowledge')) {
+    if (this.config.includeTypes.includes("knowledge")) {
       const knowledge = await this.loadKnowledgeBase();
       if (knowledge.content) {
         sections.push("\n## Knowledge Base\n");
@@ -134,7 +139,7 @@ export class ContextLoader {
     }
 
     // Recent Prompts
-    if (this.config.includeTypes.includes('prompts')) {
+    if (this.config.includeTypes.includes("prompts")) {
       const prompts = await this.loadRecentPrompts();
       if (prompts.content) {
         sections.push("\n## Recent Questions\n");
@@ -152,15 +157,25 @@ export class ContextLoader {
   /**
    * Load recent sessions with key insights
    */
-  private async loadRecentSessions(): Promise<{ content: string; itemCount: number }> {
-    const projectPath = path.join(this.storagePath, "archive", "projects", getProjectName(process.cwd()), "sessions");
-    
+  private async loadRecentSessions(): Promise<{
+    content: string;
+    itemCount: number;
+  }> {
+    const projectPath = path.join(
+      this.storagePath,
+      "archive",
+      "projects",
+      getProjectName(process.cwd()),
+      "sessions",
+    );
+
     if (!fs.existsSync(projectPath)) {
       return { content: "", itemCount: 0 };
     }
 
-    const files = fs.readdirSync(projectPath)
-      .filter(f => f.endsWith('.json'))
+    const files = fs
+      .readdirSync(projectPath)
+      .filter((f) => f.endsWith(".json"))
       .sort((a, b) => b.localeCompare(a)) // Most recent first
       .slice(0, this.config.sessionCount);
 
@@ -170,15 +185,19 @@ export class ContextLoader {
     for (const file of files) {
       const filePath = path.join(projectPath, file);
       try {
-        const content = fs.readFileSync(filePath, 'utf-8');
+        const content = fs.readFileSync(filePath, "utf-8");
         const session = JSON.parse(content);
-        
+
         if (session.summary && session.context) {
-          const sessionDate = file.replace('.json', '').split('_').slice(0, 2).join(' ');
-          
-          if (this.config.formatStyle === 'summary') {
+          const sessionDate = file
+            .replace(".json", "")
+            .split("_")
+            .slice(0, 2)
+            .join(" ");
+
+          if (this.config.formatStyle === "summary") {
             sections.push(`### Session: ${sessionDate}`);
-            
+
             // Top problems
             const problems = session.context.problems?.slice(0, 2) || [];
             if (problems.length > 0) {
@@ -194,7 +213,8 @@ export class ContextLoader {
             }
 
             // Key implementations
-            const implementations = session.context.implementations?.slice(0, 2) || [];
+            const implementations =
+              session.context.implementations?.slice(0, 2) || [];
             if (implementations.length > 0) {
               sections.push("**Key Actions:**");
               implementations.forEach((impl: any) => {
@@ -202,28 +222,34 @@ export class ContextLoader {
                 sections.push(`- ${impl.tool}: ${desc}`);
               });
             }
-            
+
             itemCount += problems.length + implementations.length;
-          } else if (this.config.formatStyle === 'detailed') {
+          } else if (this.config.formatStyle === "detailed") {
             // More detailed format
             sections.push(`### Session: ${sessionDate}`);
-            sections.push(`- Files Modified: ${session.summary.filesModified || 0}`);
-            sections.push(`- Tools Used: ${session.summary.uniqueTools?.join(', ') || 'N/A'}`);
-            
+            sections.push(
+              `- Files Modified: ${session.summary.filesModified || 0}`,
+            );
+            sections.push(
+              `- Tools Used: ${session.summary.uniqueTools?.join(", ") || "N/A"}`,
+            );
+
             // Include more context
             if (session.context.problems?.length > 0) {
               sections.push("**Problems & Solutions:**");
               session.context.problems.slice(0, 3).forEach((p: any) => {
                 sections.push(`- Q: ${this.truncateText(p.question, 200)}`);
                 if (p.solution) {
-                  sections.push(`  A: ${this.truncateText(p.solution.approach, 200)}`);
+                  sections.push(
+                    `  A: ${this.truncateText(p.solution.approach, 200)}`,
+                  );
                 }
               });
             }
-            
+
             itemCount += session.context.problems?.length || 0;
           }
-          
+
           sections.push(""); // Empty line between sessions
         }
       } catch (error) {
@@ -240,9 +266,12 @@ export class ContextLoader {
   /**
    * Load top recurring patterns
    */
-  private async loadTopPatterns(): Promise<{ content: string; itemCount: number }> {
+  private async loadTopPatterns(): Promise<{
+    content: string;
+    itemCount: number;
+  }> {
     const patterns = await this.patternAnalyzer.getPatterns({
-      type: 'all',
+      type: "all",
       minFrequency: 2,
       limit: this.config.patternCount,
     });
@@ -252,14 +281,18 @@ export class ContextLoader {
     }
 
     const sections: string[] = [];
-    
+
     patterns.forEach((pattern: Pattern) => {
-      if (this.config.formatStyle === 'summary') {
-        sections.push(`- **${pattern.type}** (${pattern.frequency}x): \`${this.truncateText(pattern.value, 100)}\``);
+      if (this.config.formatStyle === "summary") {
+        sections.push(
+          `- **${pattern.type}** (${pattern.frequency}x): \`${this.truncateText(pattern.value, 100)}\``,
+        );
         if ((pattern as any).description) {
-          sections.push(`  ${this.truncateText((pattern as any).description, 80)}`);
+          sections.push(
+            `  ${this.truncateText((pattern as any).description, 80)}`,
+          );
         }
-      } else if (this.config.formatStyle === 'detailed') {
+      } else if (this.config.formatStyle === "detailed") {
         sections.push(`### ${pattern.type} Pattern`);
         sections.push(`- **Pattern**: \`${pattern.value}\``);
         sections.push(`- **Frequency**: ${pattern.frequency} occurrences`);
@@ -267,7 +300,9 @@ export class ContextLoader {
           sections.push(`- **Description**: ${(pattern as any).description}`);
         }
         if ((pattern as any).lastUsed) {
-          sections.push(`- **Last Used**: ${new Date((pattern as any).lastUsed).toLocaleDateString()}`);
+          sections.push(
+            `- **Last Used**: ${new Date((pattern as any).lastUsed).toLocaleDateString()}`,
+          );
         }
         sections.push("");
       }
@@ -282,15 +317,25 @@ export class ContextLoader {
   /**
    * Load knowledge base (Q&A pairs)
    */
-  private async loadKnowledgeBase(): Promise<{ content: string; itemCount: number }> {
-    const knowledgePath = path.join(this.storagePath, "archive", "projects", getProjectName(process.cwd()), "knowledge");
-    
+  private async loadKnowledgeBase(): Promise<{
+    content: string;
+    itemCount: number;
+  }> {
+    const knowledgePath = path.join(
+      this.storagePath,
+      "archive",
+      "projects",
+      getProjectName(process.cwd()),
+      "knowledge",
+    );
+
     if (!fs.existsSync(knowledgePath)) {
       return { content: "", itemCount: 0 };
     }
 
-    const files = fs.readdirSync(knowledgePath)
-      .filter(f => f.endsWith('.json'))
+    const files = fs
+      .readdirSync(knowledgePath)
+      .filter((f) => f.endsWith(".json"))
       .sort((a, b) => b.localeCompare(a))
       .slice(0, 1); // Get most recent knowledge file
 
@@ -300,17 +345,17 @@ export class ContextLoader {
     for (const file of files) {
       const filePath = path.join(knowledgePath, file);
       try {
-        const content = fs.readFileSync(filePath, 'utf-8');
+        const content = fs.readFileSync(filePath, "utf-8");
         const entries = JSON.parse(content);
-        
+
         if (Array.isArray(entries)) {
           const recentEntries = entries.slice(0, this.config.knowledgeCount);
-          
+
           recentEntries.forEach((entry: any) => {
-            if (this.config.formatStyle === 'summary') {
+            if (this.config.formatStyle === "summary") {
               sections.push(`- Q: ${this.truncateText(entry.question, 150)}`);
               sections.push(`  A: ${this.truncateText(entry.answer, 150)}`);
-            } else if (this.config.formatStyle === 'detailed') {
+            } else if (this.config.formatStyle === "detailed") {
               sections.push(`**Q:** ${entry.question}`);
               sections.push(`**A:** ${this.truncateText(entry.answer, 300)}`);
               sections.push("");
@@ -332,15 +377,25 @@ export class ContextLoader {
   /**
    * Load recent user prompts
    */
-  private async loadRecentPrompts(): Promise<{ content: string; itemCount: number }> {
-    const promptsPath = path.join(this.storagePath, "archive", "projects", getProjectName(process.cwd()), "prompts");
-    
+  private async loadRecentPrompts(): Promise<{
+    content: string;
+    itemCount: number;
+  }> {
+    const promptsPath = path.join(
+      this.storagePath,
+      "archive",
+      "projects",
+      getProjectName(process.cwd()),
+      "prompts",
+    );
+
     if (!fs.existsSync(promptsPath)) {
       return { content: "", itemCount: 0 };
     }
 
-    const files = fs.readdirSync(promptsPath)
-      .filter(f => f.endsWith('.json'))
+    const files = fs
+      .readdirSync(promptsPath)
+      .filter((f) => f.endsWith(".json"))
       .sort((a, b) => b.localeCompare(a))
       .slice(0, 1); // Get most recent prompts file
 
@@ -350,14 +405,16 @@ export class ContextLoader {
     for (const file of files) {
       const filePath = path.join(promptsPath, file);
       try {
-        const content = fs.readFileSync(filePath, 'utf-8');
+        const content = fs.readFileSync(filePath, "utf-8");
         const entries = JSON.parse(content);
-        
+
         if (Array.isArray(entries)) {
           const recentPrompts = entries.slice(0, this.config.promptCount);
-          
+
           recentPrompts.forEach((entry: any) => {
-            sections.push(`- ${this.truncateText(entry.prompt || entry.content, 200)}`);
+            sections.push(
+              `- ${this.truncateText(entry.prompt || entry.content, 200)}`,
+            );
             itemCount++;
           });
         }
@@ -375,10 +432,13 @@ export class ContextLoader {
   /**
    * Load recent context only
    */
-  private async loadRecentContext(): Promise<{ content: string; itemCount: number }> {
+  private async loadRecentContext(): Promise<{
+    content: string;
+    itemCount: number;
+  }> {
     // Focus only on recent sessions
     const oldIncludeTypes = this.config.includeTypes;
-    this.config.includeTypes = ['sessions'];
+    this.config.includeTypes = ["sessions"];
     const result = await this.loadSmartContext();
     this.config.includeTypes = oldIncludeTypes;
     return result;
@@ -387,11 +447,14 @@ export class ContextLoader {
   /**
    * Load relevant context based on keywords
    */
-  private async loadRelevantContext(): Promise<{ content: string; itemCount: number }> {
+  private async loadRelevantContext(): Promise<{
+    content: string;
+    itemCount: number;
+  }> {
     const contexts = await this.retriever.fetchRelevantContext({
-      query: this.config.priorityKeywords.join(' '),
+      query: this.config.priorityKeywords.join(" "),
       limit: 20,
-      scope: 'project',
+      scope: "project",
       minRelevance: 0.6,
     });
 
@@ -400,12 +463,14 @@ export class ContextLoader {
       return this.loadSmartContext();
     }
 
-    const sections: string[] = [`# Relevant Context for: ${this.config.priorityKeywords.join(', ')}\n`];
-    
+    const sections: string[] = [
+      `# Relevant Context for: ${this.config.priorityKeywords.join(", ")}\n`,
+    ];
+
     contexts.forEach((ctx: ExtractedContext) => {
       if (ctx.problems && ctx.problems.length > 0) {
         sections.push("## Problems & Solutions");
-        ctx.problems.forEach(p => {
+        ctx.problems.forEach((p) => {
           sections.push(`- ${this.truncateText(p.question, 200)}`);
           if (p.solution) {
             sections.push(`  → ${this.truncateText(p.solution.approach, 150)}`);
@@ -423,7 +488,10 @@ export class ContextLoader {
   /**
    * Load custom context based on user configuration
    */
-  private async loadCustomContext(): Promise<{ content: string; itemCount: number }> {
+  private async loadCustomContext(): Promise<{
+    content: string;
+    itemCount: number;
+  }> {
     // For now, use smart strategy as base
     // Users can extend this with custom logic
     return this.loadSmartContext();
@@ -442,18 +510,18 @@ export class ContextLoader {
    * Truncate content to fit within size limit
    */
   private truncateToSize(content: string, maxBytes: number): string {
-    const buffer = Buffer.from(content, 'utf8');
+    const buffer = Buffer.from(content, "utf8");
     if (buffer.length <= maxBytes) return content;
-    
+
     // Find a good truncation point
-    let truncated = buffer.slice(0, maxBytes).toString('utf8');
-    
+    let truncated = buffer.slice(0, maxBytes).toString("utf8");
+
     // Try to end at a line break
-    const lastNewline = truncated.lastIndexOf('\n');
+    const lastNewline = truncated.lastIndexOf("\n");
     if (lastNewline > maxBytes * 0.8) {
       truncated = truncated.substring(0, lastNewline);
     }
-    
+
     return truncated + "\n\n*[Context truncated to fit size limit]*";
   }
 
@@ -462,7 +530,7 @@ export class ContextLoader {
    */
   async previewAutoLoad(): Promise<string> {
     const context = await this.getAutoLoadContext();
-    
+
     const preview = [
       "=".repeat(60),
       "AUTO-LOAD CONTEXT PREVIEW",
