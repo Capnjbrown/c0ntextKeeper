@@ -260,30 +260,6 @@ async function main() {
   });
 
   process.stdin.on("end", async () => {
-    // Debug: Log raw input to file for inspection
-    const debugPath = path.join(
-      process.env.HOME || "",
-      ".c0ntextkeeper",
-      "logs",
-      "stop-hook-debug.log",
-    );
-    const debugDir = path.dirname(debugPath);
-    if (!fs.existsSync(debugDir)) {
-      fs.mkdirSync(debugDir, { recursive: true });
-    }
-
-    const debugEntry = {
-      timestamp: new Date().toISOString(),
-      rawInput: input,
-      inputLength: input.length,
-    };
-
-    // Append to debug log
-    fs.appendFileSync(
-      debugPath,
-      JSON.stringify(debugEntry, null, 2) + "\n---\n",
-      "utf-8",
-    );
 
     if (!input) {
       console.log(
@@ -298,12 +274,7 @@ async function main() {
     try {
       const hookData = JSON.parse(input) as any; // Use any for now to see structure
 
-      // Debug: Log parsed structure
-      fs.appendFileSync(
-        debugPath,
-        `Parsed structure: ${JSON.stringify(hookData, null, 2)}\n---\n`,
-        "utf-8",
-      );
+
 
       // Validate hook event (handle multiple names)
       const validEvents = ["Stop", "stop", "SubagentStop"];
@@ -319,9 +290,78 @@ async function main() {
 
       // Check if exchange exists and has expected structure
       if (!hookData.exchange) {
-        // Maybe the structure is different - try to adapt
-        if (hookData.user_prompt && hookData.assistant_response) {
-          // Create exchange object from flat structure
+        // Claude Code sends transcript_path instead of exchange data
+        if (hookData.transcript_path) {
+          // Read the transcript and extract the last exchange
+          try {
+            const transcriptData = fs.readFileSync(hookData.transcript_path, "utf-8");
+            const lines = transcriptData.trim().split("\n");
+            
+            let lastUserPrompt = "";
+            let lastAssistantResponse = "";
+            const toolsUsed: string[] = [];
+            const filesModified: string[] = [];
+            
+            // Parse JSONL to find last user prompt and assistant response
+            for (const line of lines) {
+              if (!line.trim()) continue;
+              try {
+                const entry = JSON.parse(line);
+                
+                // Extract user prompt
+                if (entry.type === "human" || entry.role === "user") {
+                  lastUserPrompt = Array.isArray(entry.content) 
+                    ? entry.content.map((c: any) => c.text || "").join(" ")
+                    : entry.content || "";
+                }
+                
+                // Extract assistant response
+                if (entry.type === "assistant" || entry.role === "assistant") {
+                  lastAssistantResponse = Array.isArray(entry.content)
+                    ? entry.content.map((c: any) => c.text || "").join(" ")
+                    : entry.content || "";
+                }
+                
+                // Track tool usage
+                if (entry.type === "tool_use" || entry.name === "tool_use") {
+                  toolsUsed.push(entry.tool || entry.name || "unknown");
+                  if (entry.input?.file_path || entry.input?.path) {
+                    filesModified.push(entry.input.file_path || entry.input.path);
+                  }
+                }
+              } catch {
+                // Skip invalid JSON lines
+              }
+            }
+            
+            // Create exchange from extracted data
+            if (lastUserPrompt && lastAssistantResponse) {
+              hookData.exchange = {
+                user_prompt: lastUserPrompt,
+                assistant_response: lastAssistantResponse,
+                tools_used: [...new Set(toolsUsed)], // Remove duplicates
+                files_modified: [...new Set(filesModified)],
+              };
+            } else {
+              console.log(
+                JSON.stringify({
+                  status: "skipped",
+                  message: "No complete Q&A exchange found in transcript",
+                }),
+              );
+              process.exit(0);
+            }
+          } catch (readError) {
+            console.log(
+              JSON.stringify({
+                status: "error",
+                message: `Failed to read transcript: ${readError}`,
+              }),
+            );
+            process.exit(0);
+          }
+        } else if (hookData.user_prompt && hookData.assistant_response) {
+          // Support flat structure for backward compatibility
           hookData.exchange = {
             user_prompt: hookData.user_prompt,
             assistant_response: hookData.assistant_response,
@@ -329,11 +369,6 @@ async function main() {
             files_modified: hookData.files_modified,
           };
         } else {
-          fs.appendFileSync(
-            debugPath,
-            `Missing exchange object or expected fields\n---\n`,
-            "utf-8",
-          );
           console.log(
             JSON.stringify({
               status: "error",
@@ -353,8 +388,6 @@ async function main() {
           message: `Failed to parse input: ${error instanceof Error ? error.message : "Unknown error"}`,
         }),
       );
-      // Also log to debug file
-      fs.appendFileSync(debugPath, `Error: ${error}\n---\n`, "utf-8");
       process.exit(0);
     }
   });

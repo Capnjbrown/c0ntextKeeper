@@ -39,7 +39,8 @@ Unsure where to begin? Look for issues labeled:
 
 ### Pull Requests
 
-1. **Fork the repo** and create your branch from `develop`
+1. **Fork the repo** and create your branch from `main`
+   *(Note: We're currently using `main` only; `develop` branch will be added for future multi-stage releases)*
 2. **Write tests** for any new code
 3. **Update documentation** as needed
 4. **Ensure tests pass** with `npm test`

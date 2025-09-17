@@ -2,7 +2,7 @@
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
 > 
-> Last Updated: 2025-09-16
+> Last Updated: 2025-09-17
 
 [![CI](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/Capnjbrown/c0ntextKeeper/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
@@ -68,7 +68,7 @@ That's it! c0ntextKeeper is now preserving your context automatically.
 
 ## 🚀 What's New in v0.7.2
 
-**Package Version**: 0.7.2 | **Extraction Algorithm**: 0.7.2 | **Test Success**: 72.4%
+**Package Version**: 0.7.2 | **Extraction Algorithm**: 0.7.2 | **Test Success**: 90.8% (179/197 tests)
 
 ### 🎯 Out-of-the-Box Excellence
 c0ntextKeeper works immediately after installation with zero configuration required:

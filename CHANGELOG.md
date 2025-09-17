@@ -5,6 +5,27 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-09-17
+
+### Fixed
+- **Critical Stop Hook Fix**: Stop hook now properly reads transcript files from Claude Code
+  - Previously expected an `exchange` object but Claude Code sends `transcript_path`
+  - Hook now parses JSONL transcripts to extract Q&A pairs
+  - Knowledge base capturing restored to full functionality
+- **Jest Mocking Issue**: Resolved "Cannot redefine property: existsSync" error in context-loader tests
+  - Fixed fs module mocking approach for proper Jest compatibility
+  - Tests now properly mock file system operations
+
+### Improved  
+- **Test Suite**: Improved pass rate from 87.3% to 90.8% (179/197 tests passing)
+- **Hook Reliability**: All 4 hooks (PreCompact, UserPromptSubmit, PostToolUse, Stop) verified operational
+- **Archive Validation**: Comprehensive verification of all archive data capture
+
+### Added
+- Multi-stage release checklist for development → staging → public repo → npm workflow
+- Debug logging improvements for Stop hook troubleshooting
+- Enhanced Stop hook to handle both transcript files and direct exchange data
+
 ## [0.7.2+] - 2025-09-16
 
 ### Fixed

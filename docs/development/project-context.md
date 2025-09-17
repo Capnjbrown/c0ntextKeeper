@@ -1,7 +1,7 @@
 # Project Context Document
 <!-- Generated: 2025-09-03 -->
 <!-- Generator: Claude Code CLI Context Discovery -->
-<!-- Last Updated: 2025-09-15 for v0.7.2 with MCP tools reliability improvements -->
+<!-- Last Updated: 2025-09-17 for v0.7.2 with MCP tools reliability improvements and documentation fixes -->
 
 ## Project Identification
 

@@ -3,12 +3,29 @@
  */
 
 import { describe, it, expect, jest, beforeEach, afterEach } from "@jest/globals";
-import * as fs from "fs";
-import * as path from "path";
+
+// Mock fs module before any imports that use it
+const mockExistsSync = jest.fn();
+const mockReaddirSync = jest.fn();
+const mockReadFileSync = jest.fn();
+
+jest.mock("fs", () => ({
+  existsSync: mockExistsSync,
+  readdirSync: mockReaddirSync,
+  readFileSync: mockReadFileSync,
+  promises: {
+    readFile: jest.fn(),
+    writeFile: jest.fn(),
+    mkdir: jest.fn(),
+    access: jest.fn(),
+  },
+}));
+
+// Now import modules that use fs
 import { ContextLoader } from "../../src/core/context-loader";
 import { ConfigManager } from "../../src/core/config";
 
-// Mock dependencies
+// Mock other dependencies
 jest.mock("../../src/utils/path-resolver", () => ({
   getStoragePath: jest.fn().mockReturnValue("/test/.c0ntextkeeper"),
 }));
@@ -28,16 +45,16 @@ describe("ContextLoader", () => {
     // Reset mocks
     jest.clearAllMocks();
     
-    // Mock file system - use mockImplementation instead of redefining
-    jest.spyOn(fs, 'existsSync').mockImplementation(() => true);
-    jest.spyOn(fs, 'readdirSync').mockReturnValue([
+    // Configure mock implementations
+    mockExistsSync.mockReturnValue(true);
+    mockReaddirSync.mockReturnValue([
       '2025-01-10_10-00-00_session1.json',
       '2025-01-09_15-30-00_session2.json',
       '2025-01-08_09-00-00_session3.json',
     ] as any);
     
     // Mock file reading
-    jest.spyOn(fs, 'readFileSync').mockImplementation((filePath: any) => {
+    mockReadFileSync.mockImplementation((filePath: any) => {
       if (filePath.includes('session')) {
         return JSON.stringify({
           summary: {
@@ -104,7 +121,10 @@ describe("ContextLoader", () => {
   });
   
   afterEach(() => {
-    jest.restoreAllMocks();
+    jest.clearAllMocks();
+    mockExistsSync.mockReset();
+    mockReaddirSync.mockReset();
+    mockReadFileSync.mockReset();
   });
   
   describe("getAutoLoadContext", () => {
@@ -316,7 +336,7 @@ describe("ContextLoader", () => {
   
   describe("edge cases", () => {
     it("should handle missing archive directories", async () => {
-      jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+      mockExistsSync.mockReturnValue(false);
       
       jest.spyOn(ConfigManager.prototype, 'getAutoLoadSettings').mockReturnValue({
         enabled: true,
@@ -340,7 +360,7 @@ describe("ContextLoader", () => {
     });
     
     it("should handle corrupted JSON files", async () => {
-      jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+      mockReadFileSync.mockImplementation(() => {
         return "{ invalid json }";
       });
       

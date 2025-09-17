@@ -1,6 +1,6 @@
 # 📚 c0ntextKeeper User Guide
 
-> Last Updated: 2025-09-15 for v0.7.2
+> Last Updated: 2025-09-17 for v0.7.2
 
 ## 🎯 What's New in v0.7.2
 

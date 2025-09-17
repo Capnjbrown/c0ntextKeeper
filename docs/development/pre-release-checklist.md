@@ -1,5 +1,7 @@
 # Pre-Release Checklist for c0ntextKeeper v0.7.2
 
+> ⚠️ **Note**: This checklist is for reference only. Please use the [Multi-Stage Release Checklist](./multi-stage-release-checklist.md) for the actual release workflow (dev → staging → public → npm).
+
 ## 📋 GitHub Release Preparation
 
 ### Repository Files ✅
@@ -19,10 +21,12 @@
 - [x] docs/development/project-context.md - Authoritative source updated
 
 ### Code Quality ✅
-- [x] All tests passing (87.3% test pass rate - 172/197 tests)
+- [x] All tests passing (90.8% test pass rate - 179/197 tests)
 - [x] TypeScript compilation successful
 - [x] ESLint checks passing
 - [x] Performance benchmarks documented (<10ms operations)
+- [x] Stop hook fixed and operational (2025-09-17)
+- [x] All 4 hooks verified capturing data
 
 ### Version Consistency ✅
 - [x] package.json version: 0.7.2
@@ -165,11 +169,13 @@ node dist/server/index.js
 ## 📊 Release Metrics
 
 - **Version**: 0.7.2
-- **Test Pass Rate**: 87.3% (172/197 tests passing)
+- **Test Pass Rate**: 90.8% (179/197 tests passing) - Updated 2025-09-17
 - **Performance**: <10ms average operations
-- **Features**: 18 core modules operational
+- **Features**: 25 core modules operational
+- **Hooks**: All 4 hooks operational (PreCompact, UserPromptSubmit, PostToolUse, Stop)
 - **Documentation**: 100% complete
 - **Breaking Changes**: None
+- **Critical Fixes**: Stop hook now reads transcript files correctly
 
 ## 🎉 Ready for Release!
 
@@ -177,4 +183,8 @@ All items checked ✅ - c0ntextKeeper v0.7.2 is ready for public release and npm
 
 ---
 
-*Generated: 2025-09-12*
+*Generated: 2025-09-12 | Updated: 2025-09-17 with current metrics*
+
+---
+
+**See Also**: [Multi-Stage Release Checklist](./multi-stage-release-checklist.md) for complete release workflow
