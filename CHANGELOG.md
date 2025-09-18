@@ -5,9 +5,28 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2025-09-17
+## [Unreleased] - 2025-09-18
 
 ### Fixed
+- **PostToolUse Hook Display**: Corrected matcher display in hooks-manager.ts from "Write|Edit|MultiEdit|Bash" to "*"
+  - Display now accurately reflects the wildcard matcher configured in Claude Code
+- **Production Logging**: Removed all console.log and console.error debug statements from Stop hook
+  - Cleaner production code without debug output
+- **Version Consistency**: Updated all version references to 0.7.2 across codebase
+  - extractionVersion in archiver.ts and extractor.ts now properly shows 0.7.2
+- **Archive Pollution**: Cleaned test artifacts from production archive folders
+  - Removed test-session data from patterns folder
+  - Removed test-only entries from knowledge folder
+  - Preserved genuine production data
+
+### Improved
+- **Test Suite**: Further improved pass rate to 90.9% (179/197 tests passing)
+- **Code Quality**: Fixed all ESLint errors, only warnings remain (82 'any' type warnings)
+- **Archive Data Quality**: Production archives now contain only real data, no test pollution
+
+### Previous Updates (2025-09-17)
+
+#### Fixed
 - **Critical Stop Hook Fix**: Stop hook now properly reads transcript files from Claude Code
   - Previously expected an `exchange` object but Claude Code sends `transcript_path`
   - Hook now parses JSONL transcripts to extract Q&A pairs
@@ -16,14 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed fs module mocking approach for proper Jest compatibility
   - Tests now properly mock file system operations
 
-### Improved  
-- **Test Suite**: Improved pass rate from 87.3% to 90.8% (179/197 tests passing)
-- **Hook Reliability**: All 4 hooks (PreCompact, UserPromptSubmit, PostToolUse, Stop) verified operational
-- **Archive Validation**: Comprehensive verification of all archive data capture
-
-### Added
+#### Added
 - Multi-stage release checklist for development → staging → public repo → npm workflow
-- Debug logging improvements for Stop hook troubleshooting
 - Enhanced Stop hook to handle both transcript files and direct exchange data
 
 ## [0.7.2+] - 2025-09-16

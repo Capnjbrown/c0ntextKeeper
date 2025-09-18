@@ -78,12 +78,7 @@ async function processExchange(input: StopHookInput): Promise<void> {
 
     // Skip low-value exchanges
     if (relevanceScore < 0.3 && !hasSolution && !hasError) {
-      console.log(
-        JSON.stringify({
-          status: "skipped",
-          message: "Low relevance exchange",
-        }),
-      );
+      // Skip low relevance exchanges
       return;
     }
 
@@ -136,8 +131,8 @@ async function processExchange(input: StopHookInput): Promise<void> {
         if (!Array.isArray(qaPairs)) {
           qaPairs = [];
         }
-      } catch (error) {
-        console.error(`Failed to parse existing knowledge file: ${error}`);
+      } catch {
+        // Failed to parse existing knowledge file
         qaPairs = [];
       }
     }
@@ -153,27 +148,9 @@ async function processExchange(input: StopHookInput): Promise<void> {
       await indexSolution(qaPair, storage);
     }
 
-    console.log(
-      JSON.stringify({
-        status: "success",
-        message: `Q&A captured: "${safeQuestion.substring(0, 30)}..."`,
-        stats: {
-          relevance: relevanceScore.toFixed(2),
-          hasSolution,
-          hasError,
-          topics: topics.length,
-          tools: qaPair.toolsUsed.length,
-        },
-      }),
-    );
-  } catch (error) {
-    console.error(
-      JSON.stringify({
-        status: "error",
-        message: error instanceof Error ? error.message : "Unknown error",
-        timestamp: new Date().toISOString(),
-      }),
-    );
+    // Q&A captured successfully
+  } catch {
+    // Error processing Q&A exchange
     // Non-blocking error
     process.exit(0);
   }
@@ -262,12 +239,7 @@ async function main() {
   process.stdin.on("end", async () => {
 
     if (!input) {
-      console.log(
-        JSON.stringify({
-          status: "skipped",
-          message: "No input provided",
-        }),
-      );
+      // No input provided
       process.exit(0);
     }
 
@@ -279,12 +251,7 @@ async function main() {
       // Validate hook event (handle multiple names)
       const validEvents = ["Stop", "stop", "SubagentStop"];
       if (!validEvents.includes(hookData.hook_event_name)) {
-        console.log(
-          JSON.stringify({
-            status: "skipped",
-            message: `Not a Stop event (received: ${hookData.hook_event_name})`,
-          }),
-        );
+        // Not a Stop event
         process.exit(0);
       }
 
@@ -343,21 +310,11 @@ async function main() {
                 files_modified: [...new Set(filesModified)],
               };
             } else {
-              console.log(
-                JSON.stringify({
-                  status: "skipped",
-                  message: "No complete Q&A exchange found in transcript",
-                }),
-              );
+              // No complete Q&A exchange found in transcript
               process.exit(0);
             }
-          } catch (readError) {
-            console.log(
-              JSON.stringify({
-                status: "error",
-                message: `Failed to read transcript: ${readError}`,
-              }),
-            );
+          } catch {
+            // Failed to read transcript
             process.exit(0);
           }
         } else if (hookData.user_prompt && hookData.assistant_response) {
@@ -369,12 +326,7 @@ async function main() {
             files_modified: hookData.files_modified,
           };
         } else {
-          console.log(
-            JSON.stringify({
-              status: "error",
-              message: "Missing exchange data in hook input",
-            }),
-          );
+          // Missing exchange data in hook input
           process.exit(0);
         }
       }
@@ -394,25 +346,15 @@ async function main() {
 
   // Handle timeout
   setTimeout(() => {
-    console.error(
-      JSON.stringify({
-        status: "error",
-        message: "Hook timeout after 5 seconds",
-      }),
-    );
+    // Hook timeout after 5 seconds
     process.exit(0);
   }, 5000);
 }
 
 // Run if executed directly
 if (require.main === module) {
-  main().catch((error) => {
-    console.error(
-      JSON.stringify({
-        status: "error",
-        message: error.message,
-      }),
-    );
+  main().catch(() => {
+    // Error in main execution
     process.exit(0);
   });
 }

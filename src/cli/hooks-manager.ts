@@ -52,7 +52,7 @@ const HOOK_DEFINITIONS: Record<
   PostToolUse: {
     script: "posttool.js",
     description: "Captures tool results and patterns",
-    matcher: "Write|Edit|MultiEdit|Bash",
+    matcher: "*",
     enabled: false,
   },
   Stop: {

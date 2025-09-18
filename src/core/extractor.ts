@@ -93,7 +93,7 @@ export class ContextExtractor {
         toolCounts: {},
         filesModified: [],
         relevanceScore: 0,
-        extractionVersion: "0.7.0", // Auto-load context feature with MCP resources
+        extractionVersion: "0.7.2", // Bug fixes and production improvements
       },
     };
 
