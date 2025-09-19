@@ -13,6 +13,23 @@ import { getHookStoragePath } from "../utils/project-utils";
 import * as fs from "fs";
 import * as path from "path";
 
+// Debug logging utility
+const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === 'true';
+const debugLog = (message: string, data?: any) => {
+  if (!DEBUG) return;
+  
+  const logDir = path.join(process.env.HOME || '', '.c0ntextkeeper', 'debug');
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  
+  const logFile = path.join(logDir, `posttool-${new Date().toISOString().split('T')[0]}.log`);
+  const timestamp = new Date().toISOString();
+  const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n\n`;
+  
+  fs.appendFileSync(logFile, logEntry, 'utf-8');
+};
+
 interface PostToolHookInput {
   hook_event_name: "PostToolUse" | "postToolUse";
   session_id: string;
@@ -37,6 +54,14 @@ interface ToolPattern {
 async function processToolUse(input: PostToolHookInput): Promise<void> {
   const securityFilter = new SecurityFilter();
   const storage = new FileStore();
+  
+  debugLog('processToolUse called', { 
+    tool: input.tool,
+    session_id: input.session_id,
+    hasInput: !!input.input,
+    hasResult: !!input.result,
+    timestamp: input.timestamp
+  });
 
   try {
     // Determine success/failure
@@ -115,24 +140,28 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
 
     // Write back as formatted JSON
     fs.writeFileSync(storagePath, JSON.stringify(patterns, null, 2), "utf-8");
+    
+    debugLog('Pattern stored successfully', {
+      storagePath,
+      patternsCount: patterns.length,
+      tool: toolPattern.tool,
+      success: toolPattern.success
+    });
 
     // Track error patterns for learning
     if (!success && toolPattern.error) {
       await trackErrorPattern(toolPattern, storage);
     }
 
-    console.log(
-      JSON.stringify({
-        status: "success",
-        message: `Tool use captured: ${input.tool} (${success ? "success" : "failed"})`,
-        stats: {
-          tool: input.tool,
-          success,
-          pattern: pattern.substring(0, 50),
-        },
-      }),
-    );
+    // Remove console.log to avoid interfering with Claude Code
+    // Only log errors, not successes
   } catch (error) {
+    debugLog('Error in processToolUse', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
+    // Only output errors to Claude Code
     console.error(
       JSON.stringify({
         status: "error",
@@ -280,6 +309,8 @@ async function trackErrorPattern(
 
 // Main execution
 async function main() {
+  debugLog('PostToolUse hook started');
+  
   let input = "";
 
   // Read from stdin
@@ -288,30 +319,33 @@ async function main() {
   });
 
   process.stdin.on("end", async () => {
+    debugLog('Input received', { length: input.length });
+    
     if (!input) {
-      console.log(
-        JSON.stringify({
-          status: "skipped",
-          message: "No input provided",
-        }),
-      );
+      debugLog('No input provided, exiting');
+      // Remove console output to avoid interfering with Claude Code
       process.exit(0);
     }
 
     try {
       const hookData = JSON.parse(input) as PostToolHookInput;
+      
+      debugLog('Parsed hook data', {
+        hook_event_name: hookData.hook_event_name,
+        tool: hookData.tool,
+        session_id: hookData.session_id
+      });
 
-      // Validate hook event
-      if (
-        hookData.hook_event_name !== "PostToolUse" &&
-        hookData.hook_event_name !== "postToolUse"
-      ) {
-        console.log(
-          JSON.stringify({
-            status: "skipped",
-            message: "Not a PostToolUse event",
-          }),
-        );
+      // Validate hook event - be more flexible with event names
+      const validEventNames = ['PostToolUse', 'postToolUse', 'posttooluse', 'post-tool-use'];
+      if (!validEventNames.some(name => 
+        hookData.hook_event_name?.toLowerCase() === name.toLowerCase()
+      )) {
+        debugLog('Not a PostToolUse event', { 
+          received: hookData.hook_event_name,
+          expected: validEventNames 
+        });
+        // Remove console output to avoid interfering with Claude Code
         process.exit(0);
       }
 

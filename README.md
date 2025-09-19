@@ -40,7 +40,7 @@
 
 ## 📑 Table of Contents
 - [Quick Start](#-quick-start)
-- [What's New in v0.7.2](#-whats-new-in-v072)
+- [What's New in v0.7.3](#-whats-new-in-v073)
 - [How It Works](#-how-it-works)
 - [Installation](#-installation)
 - [Storage Architecture](#-storage-architecture)
@@ -66,9 +66,9 @@ c0ntextkeeper status
 
 That's it! c0ntextKeeper is now preserving your context automatically.
 
-## 🚀 What's New in v0.7.2
+## 🚀 What's New in v0.7.3
 
-**Package Version**: 0.7.2 | **Extraction Algorithm**: 0.7.2 | **Test Success**: 90.8% (179/197 tests)
+**Package Version**: 0.7.3 | **Extraction Algorithm**: 0.7.3 | **Test Success**: 87.3% (172/197 tests)
 
 ### 🎯 Out-of-the-Box Excellence
 c0ntextKeeper works immediately after installation with zero configuration required:
@@ -608,7 +608,7 @@ c0ntextkeeper logs            # View recent hook execution logs
 # Help and version
 c0ntextkeeper --help          # Show all 30+ commands with descriptions
 c0ntextkeeper <cmd> --help    # Show detailed help for specific command
-c0ntextkeeper --version       # Show version (currently 0.7.2)
+c0ntextkeeper --version       # Show version (currently 0.7.3)
 c0ntextkeeper changelog       # View recent changes and updates
 ```
 

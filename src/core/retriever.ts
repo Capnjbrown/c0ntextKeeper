@@ -328,55 +328,70 @@ export class ContextRetriever {
       return matches;
     }
 
-    const queryLower = query.toLowerCase();
+    // Use tokenized word matching instead of exact substring matching
+    const queryWords = this.tokenizeQuery(query);
+    const queryLower = query.toLowerCase(); // Keep for snippet extraction
 
     // Search in problems
     for (const problem of context.problems) {
-      if (problem.question.toLowerCase().includes(queryLower)) {
+      const questionLower = problem.question.toLowerCase();
+      const questionScore = this.calculateWordMatchScore(questionLower, queryWords);
+      if (questionScore > 0) {
         matches.push({
           field: "problem.question",
           snippet: this.extractSnippet(problem.question, queryLower),
-          score: 0.8,
+          score: 0.8 * questionScore,
         });
       }
-      if (problem.solution?.approach.toLowerCase().includes(queryLower)) {
-        matches.push({
-          field: "problem.solution",
-          snippet: this.extractSnippet(problem.solution.approach, queryLower),
-          score: 0.7,
-        });
+      
+      if (problem.solution?.approach) {
+        const solutionLower = problem.solution.approach.toLowerCase();
+        const solutionScore = this.calculateWordMatchScore(solutionLower, queryWords);
+        if (solutionScore > 0) {
+          matches.push({
+            field: "problem.solution",
+            snippet: this.extractSnippet(problem.solution.approach, queryLower),
+            score: 0.7 * solutionScore,
+          });
+        }
       }
     }
 
     // Search in implementations
     for (const impl of context.implementations) {
-      if (impl.description.toLowerCase().includes(queryLower)) {
+      const descLower = impl.description.toLowerCase();
+      const descScore = this.calculateWordMatchScore(descLower, queryWords);
+      if (descScore > 0) {
         matches.push({
           field: "implementation.description",
           snippet: this.extractSnippet(impl.description, queryLower),
-          score: 0.6,
+          score: 0.6 * descScore,
         });
       }
     }
 
     // Search in decisions
     for (const decision of context.decisions) {
-      if (decision.decision.toLowerCase().includes(queryLower)) {
+      const decisionLower = decision.decision.toLowerCase();
+      const decisionScore = this.calculateWordMatchScore(decisionLower, queryWords);
+      if (decisionScore > 0) {
         matches.push({
           field: "decision",
           snippet: this.extractSnippet(decision.decision, queryLower),
-          score: 0.7,
+          score: 0.7 * decisionScore,
         });
       }
     }
 
     // Search in patterns
     for (const pattern of context.patterns) {
-      if (pattern.value.toLowerCase().includes(queryLower)) {
+      const patternLower = pattern.value.toLowerCase();
+      const patternScore = this.calculateWordMatchScore(patternLower, queryWords);
+      if (patternScore > 0) {
         matches.push({
           field: "pattern",
           snippet: this.extractSnippet(pattern.value, queryLower),
-          score: 0.5,
+          score: 0.5 * patternScore,
         });
       }
     }

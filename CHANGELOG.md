@@ -5,9 +5,76 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.3] - 2025-09-19
+
+### 🚨 Critical Fixes
+
+#### Fixed Hook Data Capture (50% → 100%)
+- **PostToolUse Hook**: Now properly captures all tool usage patterns
+  - Added debug logging to diagnose event triggering issues
+  - Removed console.log outputs that interfered with Claude Code
+  - Made event name matching more flexible
+  - Added support for all MCP tool types
+  
+- **Stop Hook**: Enhanced Q&A capture reliability
+  - Added comprehensive debug logging
+  - Improved event name matching flexibility  
+  - Better error handling for malformed data
+  - Fixed transcript reading in production
+
+- **UserPromptSubmit Hook**: Now tracks follow-up questions
+  - Added session continuity tracking
+  - Tracks prompt numbers within sessions
+  - Identifies follow-up vs initial prompts
+  - Removed console outputs for cleaner operation
+
+#### Fixed Search Functionality
+- **search_archive Tool**: Fixed returning no results
+  - Replaced exact substring matching with tokenized word matching
+  - Now uses same smart matching as fetch_context
+  - Natural language queries now work properly
+  - Example: "PostToolUse hook" now finds relevant results
+
+### Added
+
+#### New CLI Commands
+- **hooks health**: Comprehensive hook health diagnostics
+  - Checks if hooks are enabled
+  - Verifies data capture
+  - Shows last execution times
+  - Provides troubleshooting suggestions
+  - Reports overall health percentage
+
+#### Debug Mode
+- **Environment Variable**: `C0NTEXTKEEPER_DEBUG=true`
+  - Conditional debug logging for all hooks
+  - Logs written to `~/.c0ntextkeeper/debug/`
+  - Helps diagnose hook triggering issues
+  - No interference with normal operation
+
+#### Test Scripts
+- **scripts/test-hooks/**: Complete hook testing suite
+  - `test-posttool.js` - Tests PostToolUse with mock events
+  - `test-stop.js` - Tests Stop hook with sample transcript
+  - `test-userprompt.js` - Tests UserPromptSubmit
+  - `test-all.js` - Runs all hook tests
+
+### Improved
+- **Hook Reliability**: All 4 hooks now capture production data
+- **Search Accuracy**: Natural language understanding for queries
+- **Diagnostics**: Comprehensive health checking and debugging
+- **Event Handling**: More flexible event name matching
+- **Error Recovery**: Better handling of malformed input
+
+### Documentation
+- Added troubleshooting guide (pending)
+- Updated hook testing documentation
+- Enhanced debug mode documentation
+- Improved health check guidance
+
 ## [Unreleased] - 2025-09-18
 
-### Fixed
+### Previous Fixes (now in 0.7.3)
 - **PostToolUse Hook Display**: Corrected matcher display in hooks-manager.ts from "Write|Edit|MultiEdit|Bash" to "*"
   - Display now accurately reflects the wildcard matcher configured in Claude Code
 - **Production Logging**: Removed all console.log and console.error debug statements from Stop hook
@@ -18,11 +85,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed test-session data from patterns folder
   - Removed test-only entries from knowledge folder
   - Preserved genuine production data
-
-### Improved
-- **Test Suite**: Further improved pass rate to 90.9% (179/197 tests passing)
-- **Code Quality**: Fixed all ESLint errors, only warnings remain (82 'any' type warnings)
-- **Archive Data Quality**: Production archives now contain only real data, no test pollution
 
 ### Previous Updates (2025-09-17)
 

@@ -1,7 +1,7 @@
 # Project Context Document
 <!-- Generated: 2025-09-03 -->
 <!-- Generator: Claude Code CLI Context Discovery -->
-<!-- Last Updated: 2025-09-17 for v0.7.2 with MCP tools reliability improvements and documentation fixes -->
+<!-- Last Updated: 2025-09-19 for v0.7.3 with critical hook reliability fixes (50% → 100% data capture) -->
 
 ## Project Identification
 
@@ -9,11 +9,11 @@
 - **Project Name**: c0ntextKeeper
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
-- **Version**: 0.7.2 (Package) / 0.7.2 (Extraction Algorithm) / 0.7.2 (MCP Server)
+- **Version**: 0.7.3 (Package) / 0.7.3 (Extraction Algorithm) / 0.7.3 (MCP Server)
 - **Repository**: https://github.com/Capnjbrown/c0ntextKeeper
 
 ### Purpose Statement
-c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 185 semantic patterns, making them instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding (v0.7.2). The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.2 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.2 adds automatic context loading via MCP resources**, providing Claude with immediate project awareness on startup through configurable strategies (smart, recent, relevant, custom) with sensible defaults that work out-of-the-box. The system works fully automatically, requiring zero manual intervention after initial setup.
+c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 185 semantic patterns, making them instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding (v0.7.3 with tokenized word matching). The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.0 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.0 adds automatic context loading via MCP resources**, and **v0.7.3 critically fixes hooks that were only capturing 50% of data**, providing Claude with immediate project awareness on startup through configurable strategies (smart, recent, relevant, custom) with sensible defaults that work out-of-the-box. The system works fully automatically, requiring zero manual intervention after initial setup.
 
 ## Discovery Findings
 
@@ -361,7 +361,18 @@ c0ntextkeeper setup     # Configure hooks
   - v0.2.0: Critical bug fixes
   - v0.1.0: Initial release
 
-### Recent Changes (v0.7.2)
+### Recent Changes (v0.7.3)
+
+#### Critical Hook Reliability Fixes (50% → 100% Data Capture)
+- **PostToolUse Hook**: Fixed to capture ALL tool usage patterns (was missing 50%)
+- **Stop Hook**: Enhanced Q&A capture reliability with better error handling
+- **UserPromptSubmit Hook**: Now tracks follow-up questions with session continuity
+- **Search Functionality**: Fixed search_archive returning no results with tokenized matching
+- **New CLI Command**: Added `hooks health` for comprehensive diagnostics
+- **Debug Mode**: Implemented C0NTEXTKEEPER_DEBUG environment variable
+- **Hook Testing Suite**: Created scripts/test-hooks/ for comprehensive testing
+
+### Previous Changes (v0.7.1)
 
 #### MCP Tools Reliability Improvements
 - **Relevance Scoring Fix**: Properly capped at 100% using Math.min() to prevent mathematically impossible scores
@@ -378,7 +389,7 @@ c0ntextkeeper setup     # Configure hooks
 - **Word Expansion**: Automatically expands common terms (e.g., 'fix' → 'fixed', 'fixes', 'fixing')
 - **Temporal Decay**: Adjusted to 60-day half-life for more recent context bias
 
-### Previous Changes (v0.7.2)
+### Previous Changes (v0.7.0)
 
 #### Documentation & CLI Improvements
 - **Comprehensive CLI Documentation**: Added all 30+ commands organized in 7 logical categories

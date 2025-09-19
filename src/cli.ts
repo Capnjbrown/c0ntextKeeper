@@ -24,7 +24,7 @@ const program = new Command();
 program
   .name("c0ntextkeeper")
   .description("Intelligent context preservation for Claude Code")
-  .version("0.7.2")
+  .version("0.7.3")
   .showHelpAfterError("(add --help for additional information)");
 
 // Setup command
@@ -265,6 +265,20 @@ program
 
 // Hooks command group
 const hooks = program.command("hooks").description("Manage Claude Code hooks");
+
+// Health check command
+hooks
+  .command("health")
+  .description("Check health status of all hooks")
+  .action(async () => {
+    try {
+      const { runHealthCheck } = await import("./cli/hooks-health.js");
+      await runHealthCheck();
+    } catch (error) {
+      logger.error("Health check failed:", error);
+      process.exit(1);
+    }
+  });
 
 // List hooks
 hooks

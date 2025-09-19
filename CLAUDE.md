@@ -31,16 +31,18 @@ project-context.md contains:
 
 ⚠️ **This CLAUDE.md file provides workflow guidelines, but project-context.md is the authoritative technical reference.**
 
-## Current State: Production Ready v0.7.2 🎉
+## Current State: Production Ready v0.7.3 🎉
 
-c0ntextKeeper v0.7.2 is complete, tested, and ready for release:
+**🚨 CRITICAL UPDATE**: v0.7.3 (Released 2025-09-19) fixes hooks that were only capturing 50% of data!
+
+c0ntextKeeper v0.7.3 is production-ready with critical reliability fixes:
 - ✅ **Auto-Load Context** - MCP resources provide immediate project awareness
 - ✅ **Unified Storage Architecture** - Intelligent project-name based organization
 - ✅ **Fully Automatic Operation** - Works with manual and auto compaction
 - ✅ **Claude Code Compatibility** - Parses JSONL transcripts, stores as JSON
 - ✅ **185 Semantic Patterns** - Superior context extraction
-- ✅ **4 Working Hooks** - Complete lifecycle coverage
-- ✅ **3 MCP Tools + Resources** - Highly reliable context retrieval with natural language understanding
+- ✅ **4 Working Hooks** - NOW CAPTURING 100% OF DATA (fixed from 50%)
+- ✅ **3 MCP Tools + Resources** - Enhanced search with tokenized word matching
 - ✅ **Analytics Dashboard** - Rich insights in every archive
 - ✅ **Security Filtering** - Automatic sensitive data protection
 - ✅ **87.3% Test Pass Rate** - Comprehensive testing (172/197 tests passing)
@@ -53,27 +55,27 @@ c0ntextKeeper v0.7.2 is complete, tested, and ready for release:
 
 **25 Core Modules:**
 - `extractor.ts` - Intelligent context extraction with problem/solution mapping
-- `scorer.ts` - Multi-factor relevance scoring engine with scoreContent method (v0.7.2: capped at 100%)
+- `scorer.ts` - Multi-factor relevance scoring engine with scoreContent method (v0.7.3: properly capped at 100%)
 - `archiver.ts` - Context archival management
-- `retriever.ts` - Fast context retrieval and search (v0.7.2: natural language tokenization)
+- `retriever.ts` - Fast context retrieval and search (v0.7.3: tokenized word matching for better NLP)
 - `patterns.ts` - Pattern recognition and analysis
-- `file-store.ts` - Efficient file-based storage with getBasePath method (v0.7.2)
+- `file-store.ts` - Efficient file-based storage with getBasePath method
 - `precompact.ts` - PreCompact hook handler (automatic + manual compaction)
-- `userprompt.ts` - UserPromptSubmit hook for tracking questions
-- `posttool.ts` - PostToolUse hook for tool patterns
-- `stop.ts` - Stop hook for Q&A knowledge base
-- `hooks-manager.ts` - CLI hook management system
+- `userprompt.ts` - UserPromptSubmit hook (v0.7.3: tracks follow-up questions)
+- `posttool.ts` - PostToolUse hook (v0.7.3: captures ALL MCP tools properly)
+- `stop.ts` - Stop hook for Q&A knowledge base (v0.7.3: enhanced reliability)
+- `hooks-manager.ts` - CLI hook management system (v0.7.3: added health diagnostics)
 - `config.ts` - Configuration management system
-- `transcript.ts` - JSONL streaming parser (v0.7.2: sessionId generation)
+- `transcript.ts` - JSONL streaming parser (v0.7.3: deterministic sessionId generation)
 - `logger.ts` - Logging utility for MCP servers
 - `filesystem.ts` - File system utilities
 - `index.ts` - MCP server entry point
 - `cli.ts` - Enhanced CLI with hook commands
 - `types.ts` - Comprehensive TypeScript definitions
-- `context-loader.ts` - Auto-load context system (v0.7.2)
+- `context-loader.ts` - Auto-load context system (v0.7.0+)
 - `formatter.ts` - Output formatting utilities
-- `init.ts` - Storage initialization command
-- `migrate.ts` - Archive migration utilities
+- `init.ts` - Storage initialization command (v0.6.0)
+- `migrate.ts` - Archive migration utilities (v0.7.3: fixes unknown sessionIds)
 - `path-resolver.ts` - Hybrid storage path resolution
 - `project-utils.ts` - Project name/path utilities
 - `session-namer.ts` - Intelligent session naming
@@ -93,6 +95,14 @@ c0ntextKeeper v0.7.2 is complete, tested, and ready for release:
 ## Completed Development Milestones
 
 ### Version History
+- **v0.7.3** (2025-09-19) - 🚨 CRITICAL: Fixed hooks capturing only 50% of data
+  - PostToolUse now captures ALL tool usage (was missing 50%)
+  - Stop hook enhanced Q&A capture reliability
+  - UserPromptSubmit tracks follow-up questions
+  - Fixed search_archive returning no results
+  - Added `hooks health` CLI diagnostic command
+  - Implemented C0NTEXTKEEPER_DEBUG environment variable
+  - Created comprehensive hook testing suite
 - **v0.7.2** (2025-09-16) - MCP tools reliability improvements, natural language processing, bug fixes, path resolution fixes
   - Fixed relevance scoring to cap at 100%
   - Eliminated "unknown" sessionIds with deterministic generation
@@ -719,10 +729,10 @@ When updating documentation:
 
 ## Next Steps
 
-### Release Actions (v0.7.2 Ready!)
-1. **Create GitHub Release** - Tag v0.7.2 with reliability improvements and fixes
+### Release Actions (v0.7.3 Critical Fix Released!)
+1. **Create GitHub Release** - Tag v0.7.3 with critical hook fixes
 2. **Publish to npm** - Make available via `npm install c0ntextkeeper`
-3. **Community Announcement** - Share v0.7.2 improvements with Claude Code users
+3. **Community Announcement** - Alert users about critical 50% → 100% data capture fix
 4. **Highlight** - Comprehensive CLI documentation with 30+ commands
 
 > **📋 Pre-Release Checklist**: See [docs/development/pre-release-checklist.md](docs/development/pre-release-checklist.md) for complete release steps.

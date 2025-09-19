@@ -12,6 +12,23 @@ import { getHookStoragePath } from "../utils/project-utils";
 import * as fs from "fs";
 import * as path from "path";
 
+// Debug logging utility
+const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === 'true';
+const debugLog = (message: string, data?: any) => {
+  if (!DEBUG) return;
+  
+  const logDir = path.join(process.env.HOME || '', '.c0ntextkeeper', 'debug');
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  
+  const logFile = path.join(logDir, `userprompt-${new Date().toISOString().split('T')[0]}.log`);
+  const timestamp = new Date().toISOString();
+  const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n\n`;
+  
+  fs.appendFileSync(logFile, logEntry, 'utf-8');
+};
+
 interface UserPromptHookInput {
   hook_event_name: "UserPromptSubmit" | "userPromptSubmit";
   session_id: string;
@@ -29,11 +46,18 @@ interface UserPromptContext {
   hasCodeBlock: boolean;
   hasQuestion: boolean;
   topics: string[];
+  isFollowUp?: boolean;
+  promptNumber?: number; // Track prompt number in session
 }
 
 async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
   const securityFilter = new SecurityFilter();
-  // FileStore instance removed - not used in this function
+  
+  debugLog('processUserPrompt called', {
+    session_id: input.session_id,
+    promptLength: input.prompt?.length,
+    timestamp: input.timestamp
+  });
 
   try {
     // Filter sensitive data from prompt
@@ -100,9 +124,23 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
           prompts = [];
         }
       } catch (error) {
-        console.error(`Failed to parse existing prompts file: ${error}`);
+        debugLog('Failed to parse existing prompts file', { error });
         prompts = [];
       }
+    }
+
+    // Check if this is a follow-up prompt in the same session
+    const existingSessionPrompts = prompts.filter(p => p.sessionId === context.sessionId);
+    if (existingSessionPrompts.length > 0) {
+      context.isFollowUp = true;
+      context.promptNumber = existingSessionPrompts.length + 1;
+      debugLog('Follow-up prompt detected', {
+        sessionId: context.sessionId,
+        promptNumber: context.promptNumber
+      });
+    } else {
+      context.isFollowUp = false;
+      context.promptNumber = 1;
     }
 
     // Add new prompt to array
@@ -111,19 +149,22 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
     // Write back as formatted JSON
     fs.writeFileSync(storagePath, JSON.stringify(prompts, null, 2), "utf-8");
 
-    console.log(
-      JSON.stringify({
-        status: "success",
-        message: `Prompt captured: "${safePrompt.substring(0, 50)}..."`,
-        stats: {
-          length: context.promptLength,
-          hasCode: context.hasCodeBlock,
-          isQuestion: context.hasQuestion,
-          topics: context.topics.length,
-        },
-      }),
-    );
+    debugLog('Prompt stored successfully', {
+      storagePath,
+      promptsCount: prompts.length,
+      sessionPromptsCount: prompts.filter(p => p.sessionId === context.sessionId).length,
+      isFollowUp: context.isFollowUp,
+      topics: context.topics
+    });
+    
+    // Remove console.log to avoid interfering with Claude Code
   } catch (error) {
+    debugLog('Error in processUserPrompt', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
+    // Only output errors to Claude Code
     console.error(
       JSON.stringify({
         status: "error",
@@ -167,6 +208,8 @@ function extractTopics(text: string): string[] {
 
 // Main execution
 async function main() {
+  debugLog('UserPromptSubmit hook started');
+  
   let input = "";
 
   // Read from stdin
@@ -175,30 +218,33 @@ async function main() {
   });
 
   process.stdin.on("end", async () => {
+    debugLog('Input received', { length: input.length });
+    
     if (!input) {
-      console.log(
-        JSON.stringify({
-          status: "skipped",
-          message: "No input provided",
-        }),
-      );
+      debugLog('No input provided, exiting');
+      // Remove console output to avoid interfering with Claude Code
       process.exit(0);
     }
 
     try {
       const hookData = JSON.parse(input) as UserPromptHookInput;
+      
+      debugLog('Parsed hook data', {
+        hook_event_name: hookData.hook_event_name,
+        session_id: hookData.session_id,
+        promptLength: hookData.prompt?.length
+      });
 
-      // Validate hook event (handle both capitalizations)
-      if (
-        hookData.hook_event_name !== "UserPromptSubmit" &&
-        hookData.hook_event_name !== "userPromptSubmit"
-      ) {
-        console.log(
-          JSON.stringify({
-            status: "skipped",
-            message: "Not a UserPromptSubmit event",
-          }),
-        );
+      // Validate hook event - be more flexible with event names
+      const validEventNames = ['UserPromptSubmit', 'userPromptSubmit', 'userpromptsubmit', 'user-prompt-submit'];
+      if (!validEventNames.some(name => 
+        hookData.hook_event_name?.toLowerCase() === name.toLowerCase()
+      )) {
+        debugLog('Not a UserPromptSubmit event', {
+          received: hookData.hook_event_name,
+          expected: validEventNames
+        });
+        // Remove console output to avoid interfering with Claude Code
         process.exit(0);
       }
 

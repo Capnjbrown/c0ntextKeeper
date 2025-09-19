@@ -16,6 +16,23 @@ import { getHookStoragePath } from "../utils/project-utils";
 import * as fs from "fs";
 import * as path from "path";
 
+// Debug logging utility
+const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === 'true';
+const debugLog = (message: string, data?: any) => {
+  if (!DEBUG) return;
+  
+  const logDir = path.join(process.env.HOME || '', '.c0ntextkeeper', 'debug');
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  
+  const logFile = path.join(logDir, `stop-${new Date().toISOString().split('T')[0]}.log`);
+  const timestamp = new Date().toISOString();
+  const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n\n`;
+  
+  fs.appendFileSync(logFile, logEntry, 'utf-8');
+};
+
 interface StopHookInput {
   hook_event_name: "Stop" | "stop" | "SubagentStop";
   session_id: string;
@@ -47,6 +64,13 @@ async function processExchange(input: StopHookInput): Promise<void> {
   const storage = new FileStore();
   // const extractor = new ContextExtractor();
   const scorer = new RelevanceScorer();
+  
+  debugLog('processExchange called', {
+    session_id: input.session_id,
+    hasExchange: !!input.exchange,
+    hasTranscriptPath: !!(input as any).transcript_path,
+    timestamp: input.timestamp
+  });
 
   try {
     // Filter sensitive data
@@ -142,6 +166,14 @@ async function processExchange(input: StopHookInput): Promise<void> {
 
     // Write back as formatted JSON
     fs.writeFileSync(storagePath, JSON.stringify(qaPairs, null, 2), "utf-8");
+    
+    debugLog('Q&A pair stored successfully', {
+      storagePath,
+      qaPairsCount: qaPairs.length,
+      relevanceScore: qaPair.relevanceScore,
+      hasSolution,
+      hasError
+    });
 
     // If this solved a problem, also store in solutions index
     if (hasSolution) {
@@ -229,6 +261,8 @@ async function indexSolution(
 
 // Main execution
 async function main() {
+  debugLog('Stop hook started');
+  
   let input = "";
 
   // Read from stdin
@@ -237,32 +271,54 @@ async function main() {
   });
 
   process.stdin.on("end", async () => {
+    debugLog('Input received', { length: input.length });
 
     if (!input) {
+      debugLog('No input provided, exiting');
       // No input provided
       process.exit(0);
     }
 
     try {
       const hookData = JSON.parse(input) as any; // Use any for now to see structure
-
-
+      
+      debugLog('Parsed hook data', {
+        hook_event_name: hookData.hook_event_name,
+        session_id: hookData.session_id,
+        hasExchange: !!hookData.exchange,
+        hasTranscriptPath: !!hookData.transcript_path,
+        hasUserPrompt: !!hookData.user_prompt,
+        hasAssistantResponse: !!hookData.assistant_response,
+        keys: Object.keys(hookData)
+      });
 
       // Validate hook event (handle multiple names)
-      const validEvents = ["Stop", "stop", "SubagentStop"];
-      if (!validEvents.includes(hookData.hook_event_name)) {
+      const validEvents = ["Stop", "stop", "SubagentStop", "stop_hook", "StopHook"];
+      if (!validEvents.some(event => 
+        hookData.hook_event_name?.toLowerCase() === event.toLowerCase()
+      )) {
+        debugLog('Not a Stop event', {
+          received: hookData.hook_event_name,
+          expected: validEvents
+        });
         // Not a Stop event
         process.exit(0);
       }
 
       // Check if exchange exists and has expected structure
       if (!hookData.exchange) {
+        debugLog('No exchange data, checking for transcript_path');
+        
         // Claude Code sends transcript_path instead of exchange data
         if (hookData.transcript_path) {
+          debugLog('Reading transcript from', { path: hookData.transcript_path });
+          
           // Read the transcript and extract the last exchange
           try {
             const transcriptData = fs.readFileSync(hookData.transcript_path, "utf-8");
             const lines = transcriptData.trim().split("\n");
+            
+            debugLog('Transcript lines count', { count: lines.length });
             
             let lastUserPrompt = "";
             let lastAssistantResponse = "";
@@ -303,6 +359,13 @@ async function main() {
             
             // Create exchange from extracted data
             if (lastUserPrompt && lastAssistantResponse) {
+              debugLog('Extracted Q&A from transcript', {
+                promptLength: lastUserPrompt.length,
+                responseLength: lastAssistantResponse.length,
+                toolsCount: toolsUsed.length,
+                filesCount: filesModified.length
+              });
+              
               hookData.exchange = {
                 user_prompt: lastUserPrompt,
                 assistant_response: lastAssistantResponse,
@@ -310,14 +373,20 @@ async function main() {
                 files_modified: [...new Set(filesModified)],
               };
             } else {
+              debugLog('No complete Q&A exchange found in transcript');
               // No complete Q&A exchange found in transcript
               process.exit(0);
             }
-          } catch {
+          } catch (error) {
+            debugLog('Failed to read transcript', {
+              error: error instanceof Error ? error.message : 'Unknown error'
+            });
             // Failed to read transcript
             process.exit(0);
           }
         } else if (hookData.user_prompt && hookData.assistant_response) {
+          debugLog('Using flat structure for exchange data');
+          
           // Support flat structure for backward compatibility
           hookData.exchange = {
             user_prompt: hookData.user_prompt,
@@ -326,6 +395,7 @@ async function main() {
             files_modified: hookData.files_modified,
           };
         } else {
+          debugLog('Missing exchange data in hook input');
           // Missing exchange data in hook input
           process.exit(0);
         }
