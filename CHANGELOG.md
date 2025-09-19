@@ -72,6 +72,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced debug mode documentation
 - Improved health check guidance
 
+### Maintenance
+- **Scripts Directory Cleanup**: Removed 17 obsolete test scripts
+  - Removed standalone test scripts replaced by Jest unit tests
+  - Deleted: `analyze-claude-format.js`, `test-extraction.js`, `test-all-hooks.js`, `test-posttool-hook.js`, `test-stop-hook.js`, `test-userprompt-hook.js`, `simulate-compaction.js`, `simulate-claude-transcript.js`, `simulate-claude-events.js`, `generate-test-transcript.js`, `generate-test-archives.js`, `test-archive.js`, `analyze-archive-structure.js`, `test-patterns.js`, `test-search.js`, `test-auto-load.js`, `test-scorer.js`
+  - Retained 16 essential scripts: setup-hooks, development tools, utilities, migration scripts
+  - Updated scripts/README.md to reflect cleaned structure
+  - All test functionality preserved in `/tests/unit/` Jest test suite
+
 ## [Unreleased] - 2025-09-18
 
 ### Previous Fixes (now in 0.7.3)

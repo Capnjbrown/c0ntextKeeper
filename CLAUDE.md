@@ -168,8 +168,17 @@ c0ntextKeeper/
 │       ├── logger.ts         # Logging utility
 │       ├── path-resolver.ts  # Hybrid storage paths (v0.6.0)
 │       └── security-filter.ts # Security filtering
-├── scripts/
-│   └── setup-hooks.js    # Installation script
+├── scripts/                 # Cleaned v0.7.3: 16 essential scripts
+│   ├── setup-hooks.js       # Installation script
+│   ├── test-hooks/          # Hook testing suite
+│   │   ├── test-all.js      # Test all hooks
+│   │   ├── test-posttool.js # PostToolUse testing
+│   │   ├── test-stop.js     # Stop hook testing
+│   │   └── test-userprompt.js # UserPromptSubmit testing
+│   ├── migrate-archive.js   # Archive migration
+│   ├── cleanup-archive.js   # Archive maintenance
+│   ├── fix-unknown-sessions.js # Fix sessionIds
+│   └── validate-public-ready.sh # Release validation
 ├── .npmignore             # NPM publish configuration
 ├── .github/
 │   └── workflows/

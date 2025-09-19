@@ -76,13 +76,24 @@ c0ntextKeeper/
 │   │   ├── session-namer.ts   # Session naming (v0.5.1: 100+ stopwords)
 │   │   └── transcript.ts      # JSONL transcript parser (v0.7.2: sessionId generation)
 │   └── cli.ts                 # CLI entry point
-├── scripts/                   # Utility and setup scripts
+├── scripts/                   # Utility and setup scripts (cleaned v0.7.3: 16 essential scripts)
 │   ├── setup-hooks.js         # Hook installation
-│   ├── test-extraction.js     # Extraction testing
 │   ├── validate-public-ready.sh # Public release validation
 │   ├── fix-unknown-sessions.js # Migration script to fix 'unknown' sessionIds (v0.7.2)
 │   ├── cleanup-archive.js     # Archive maintenance utility (v0.7.2)
-│   └── test-mcp-tools.js      # MCP tools testing script (v0.7.2)
+│   ├── test-mcp-tools.js      # MCP tools testing script (v0.7.2)
+│   ├── cleanup-prompts-folders.js # Consolidates duplicate prompts folders
+│   ├── validate-archive.js    # Archive structure validator
+│   ├── migrate-archive.js     # Archive migration utilities
+│   ├── migrate-jsonl-to-json.js # Format migration utility
+│   ├── get-timestamp.js       # Timestamp utility for consistent dates
+│   ├── check-storage.js       # Storage location checker
+│   ├── test-hooks/            # Hook testing suite (v0.7.3)
+│   │   ├── test-all.js        # Runs all hook tests
+│   │   ├── test-posttool.js   # PostToolUse hook testing
+│   │   ├── test-stop.js       # Stop hook testing
+│   │   └── test-userprompt.js # UserPromptSubmit hook testing
+│   └── README.md               # Scripts documentation (updated v0.7.3)
 ├── tests/                     # Test suite
 │   ├── unit/                  # Unit tests
 │   ├── integration/           # Integration tests
@@ -371,6 +382,12 @@ c0ntextkeeper setup     # Configure hooks
 - **New CLI Command**: Added `hooks health` for comprehensive diagnostics
 - **Debug Mode**: Implemented C0NTEXTKEEPER_DEBUG environment variable
 - **Hook Testing Suite**: Created scripts/test-hooks/ for comprehensive testing
+
+#### Scripts Directory Maintenance
+- **Removed 17 Obsolete Test Scripts**: Cleaned up standalone test scripts replaced by Jest unit tests
+- **Retained 16 Essential Scripts**: Setup, utilities, migration tools, and hook testing suite
+- **Test Migration**: All testing functionality preserved in `/tests/unit/` Jest test suite
+- **Documentation Updated**: scripts/README.md reflects the cleaned structure
 
 ### Previous Changes (v0.7.1)
 

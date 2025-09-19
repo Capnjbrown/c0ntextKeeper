@@ -1,8 +1,16 @@
 # c0ntextKeeper Scripts
 
-> Last Updated: 2025-09-15 for v0.7.2
+> Last Updated: 2025-09-19 for v0.7.3 (cleaned structure)
 
-This directory contains utility scripts for c0ntextKeeper maintenance, testing, and migration.
+This directory contains production scripts for c0ntextKeeper setup, migration, and hook testing.
+
+## Directory Structure (v0.7.3 Cleaned)
+- **Production Scripts**: 4 essential setup/install scripts
+- **Migration Tools**: 5 maintenance and migration utilities  
+- **Hook Testing**: Comprehensive v0.7.3 hook test suite in test-hooks/
+- **Validation**: 2 scripts for archive and release validation
+
+**Note**: Obsolete test scripts have been removed in v0.7.3. Use Jest tests in /tests directory for unit testing.
 
 ## Production Scripts
 
@@ -91,20 +99,26 @@ Tests:
    ✅ Found 10 patterns
 ```
 
-### test-extraction.js
-**Purpose**: Test context extraction from sample transcripts
+### test-hooks/ Directory (v0.7.3 Critical Testing Suite)
+**Purpose**: Comprehensive testing for all 4 hooks (fixed 50% → 100% capture)
 
 ```bash
-node scripts/test-extraction.js [transcript-file]
+# Test all hooks
+node scripts/test-hooks/test-all.js
+
+# Test individual hooks
+node scripts/test-hooks/test-posttool.js
+node scripts/test-hooks/test-stop.js
+node scripts/test-hooks/test-userprompt.js
 ```
 
 Features:
-- Tests extraction patterns
-- Validates relevance scoring
-- Checks content limits
-- Verifies JSON output
+- Tests hook reliability fixes in v0.7.3
+- Validates 100% data capture (was 50%)
+- Debug mode support with C0NTEXTKEEPER_DEBUG=true
+- Comprehensive edge case testing
 
-## Development Scripts
+## Validation Scripts
 
 ### validate-public-ready.sh
 **Purpose**: Validate project is ready for public release
@@ -149,8 +163,9 @@ node $(npm root -g)/c0ntextkeeper/scripts/test-mcp-tools.js
 
 ### Development Testing
 ```bash
-# Test extraction on sample
-node scripts/test-extraction.js samples/claude-transcript.jsonl
+# Test hooks (v0.7.3 critical fixes)
+export C0NTEXTKEEPER_DEBUG=true
+node scripts/test-hooks/test-all.js
 
 # Validate before release
 ./scripts/validate-public-ready.sh
