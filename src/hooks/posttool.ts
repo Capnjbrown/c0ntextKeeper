@@ -13,31 +13,50 @@ import { getHookStoragePath } from "../utils/project-utils";
 import * as fs from "fs";
 import * as path from "path";
 
-// Debug logging utility
+// Debug logging utility - enhanced for production debugging
 const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === 'true';
-const debugLog = (message: string, data?: any) => {
-  if (!DEBUG) return;
-  
+const FORCE_LOG = true; // Temporary: Always log to diagnose production issues
+
+const debugLog = (message: string, data?: any, forceLog = false) => {
+  if (!DEBUG && !forceLog && !FORCE_LOG) return;
+
   const logDir = path.join(process.env.HOME || '', '.c0ntextkeeper', 'debug');
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
   }
-  
+
   const logFile = path.join(logDir, `posttool-${new Date().toISOString().split('T')[0]}.log`);
   const timestamp = new Date().toISOString();
   const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n\n`;
-  
+
   fs.appendFileSync(logFile, logEntry, 'utf-8');
 };
 
+// Helper to check if this is a test session
+const isTestSession = (sessionId: string): boolean => {
+  return !!(sessionId && (
+    sessionId.includes('test-session') ||
+    sessionId.includes('test_session') ||
+    sessionId.startsWith('test-') ||
+    sessionId.includes('session-17582') // Test timestamp pattern
+  ));
+};
+
 interface PostToolHookInput {
-  hook_event_name: "PostToolUse" | "postToolUse";
+  hook_event_name: "PostToolUse" | "postToolUse" | string;
   session_id: string;
-  tool: string;
-  input: any;
-  result: any;
-  timestamp: string;
+  // Test format fields
+  tool?: string;
+  input?: any;
+  result?: any;
+  // Production format fields
+  tool_name?: string;
+  tool_input?: any;
+  tool_response?: any;
+  // Common fields
+  timestamp?: string;
   project_path?: string;
+  cwd?: string;
 }
 
 interface ToolPattern {
@@ -54,49 +73,71 @@ interface ToolPattern {
 async function processToolUse(input: PostToolHookInput): Promise<void> {
   const securityFilter = new SecurityFilter();
   const storage = new FileStore();
-  
-  debugLog('processToolUse called', { 
-    tool: input.tool,
+
+  // Normalize fields between test and production formats
+  const tool = input.tool || input.tool_name || 'unknown';
+  const toolInput = input.input || input.tool_input;
+  const toolResult = input.result || input.tool_response;
+  const timestamp = input.timestamp || new Date().toISOString();
+
+  debugLog('processToolUse called', {
+    tool,
     session_id: input.session_id,
-    hasInput: !!input.input,
-    hasResult: !!input.result,
-    timestamp: input.timestamp
+    hasInput: !!toolInput,
+    hasResult: !!toolResult,
+    timestamp,
+    isTest: isTestSession(input.session_id),
+    format: input.tool ? 'test' : 'production'
   });
+
+  // Filter out test sessions from production storage
+  if (isTestSession(input.session_id)) {
+    debugLog('Skipping test session', { session_id: input.session_id });
+    return; // Don't store test data in production folders
+  }
 
   try {
     // Determine success/failure
-    const success = !input.result?.error && input.result?.success !== false;
+    const success = !toolResult?.error && toolResult?.success !== false;
+
+    // Create normalized input for pattern extraction
+    const normalizedInput = {
+      ...input,
+      tool,
+      input: toolInput,
+      result: toolResult
+    };
 
     // Extract pattern based on tool type
-    const pattern = extractToolPattern(input);
+    const pattern = extractToolPattern(normalizedInput as PostToolHookInput);
 
     // Build tool pattern record
     const toolPattern: ToolPattern = {
-      tool: input.tool,
+      tool,
       success,
-      error: input.result?.error,
+      error: toolResult?.error,
       pattern,
-      timestamp: input.timestamp || new Date().toISOString(),
+      timestamp,
       sessionId: input.session_id,
     };
 
     // Add specific metadata based on tool
-    switch (input.tool) {
+    switch (tool) {
       case "Write":
       case "Edit":
       case "MultiEdit":
-        toolPattern.fileModified = input.input?.file_path;
+        toolPattern.fileModified = toolInput?.file_path || toolInput?.path;
         break;
       case "Bash":
         toolPattern.commandExecuted = securityFilter.filterText(
-          input.input?.command || "",
+          toolInput?.command || "",
         );
         break;
     }
 
     // Store patterns for analysis in JSON format
     const dateString = new Date().toISOString().split("T")[0];
-    const workingDir = input.project_path || process.cwd();
+    const workingDir = input.project_path || input.cwd || process.cwd();
 
     // Use proper storage resolution (respects env vars and storage hierarchy)
     const basePath = getStoragePath({
@@ -175,7 +216,10 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
 }
 
 function extractToolPattern(input: PostToolHookInput): string {
-  const { tool, input: toolInput, result } = input;
+  // Handle both test and production formats
+  const tool = input.tool || input.tool_name || 'unknown';
+  const toolInput = input.input || input.tool_input;
+  const result = input.result || input.tool_response;
 
   // Determine if the operation was successful
   const isSuccess = !result?.error && result?.success !== false;
@@ -309,23 +353,38 @@ async function trackErrorPattern(
 
 // Main execution
 async function main() {
-  debugLog('PostToolUse hook started');
-  
+  // ALWAYS log hook start for production debugging
+  debugLog('PostToolUse hook started at ' + new Date().toISOString(), {
+    pid: process.pid,
+    cwd: process.cwd(),
+    env_debug: process.env.C0NTEXTKEEPER_DEBUG,
+    argv: process.argv
+  }, true);
+
   let input = "";
+  let inputStartTime = Date.now();
 
   // Read from stdin
   process.stdin.on("data", (chunk) => {
     input += chunk;
+    debugLog('Receiving data chunk', { length: chunk.length }, true);
   });
 
   process.stdin.on("end", async () => {
-    debugLog('Input received', { length: input.length });
-    
+    const inputTime = Date.now() - inputStartTime;
+    debugLog('Input complete', {
+      length: input.length,
+      timeMs: inputTime,
+      preview: input.substring(0, 200)
+    }, true);
+
     if (!input) {
-      debugLog('No input provided, exiting');
-      // Remove console output to avoid interfering with Claude Code
+      debugLog('No input provided, exiting', {}, true);
       process.exit(0);
     }
+
+    // Log raw input for debugging
+    debugLog('Raw input received', { raw: input }, true);
 
     try {
       const hookData = JSON.parse(input) as PostToolHookInput;
@@ -336,22 +395,37 @@ async function main() {
         session_id: hookData.session_id
       });
 
-      // Validate hook event - be more flexible with event names
-      const validEventNames = ['PostToolUse', 'postToolUse', 'posttooluse', 'post-tool-use'];
-      if (!validEventNames.some(name => 
+      // Validate hook event - be VERY flexible with event names
+      const validEventNames = [
+        'PostToolUse', 'postToolUse', 'posttooluse', 'post-tool-use',
+        'post_tool_use', 'POST_TOOL_USE', 'postTool', 'toolUse'
+      ];
+
+      // Also check if it might be a tool event without explicit event name
+      const hasToolData = (hookData.tool || hookData.tool_name) &&
+                        (hookData.input || hookData.tool_input ||
+                         hookData.result || hookData.tool_response);
+
+      if (!validEventNames.some(name =>
         hookData.hook_event_name?.toLowerCase() === name.toLowerCase()
-      )) {
-        debugLog('Not a PostToolUse event', { 
+      ) && !hasToolData) {
+        debugLog('Not a PostToolUse event', {
           received: hookData.hook_event_name,
-          expected: validEventNames 
-        });
-        // Remove console output to avoid interfering with Claude Code
+          expected: validEventNames,
+          hasToolData
+        }, true);
         process.exit(0);
       }
 
       await processToolUse(hookData);
       process.exit(0);
     } catch (error) {
+      debugLog('Failed to parse input', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        input: input.substring(0, 500)
+      }, true);
+
       console.error(
         JSON.stringify({
           status: "error",

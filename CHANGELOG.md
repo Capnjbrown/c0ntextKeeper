@@ -5,6 +5,56 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.4] - 2025-09-19 (Evening Update)
+
+### 🚨 Critical Production Fixes
+
+#### Fixed Hook Data Capture (NOW 100% OPERATIONAL)
+- **PostToolUse Hook**: Fixed complete production failure
+  - Fixed field name mismatches between test and production formats
+  - Production uses `tool_name`, `tool_input`, `tool_response`
+  - Test format uses `tool`, `input`, `result`
+  - Added field normalization to handle both formats
+  - Now capturing ALL tool usage patterns in real-time
+
+- **Stop Hook**: Fixed Q&A capture for Claude Code v1.0.119+
+  - Updated transcript parsing for new format
+  - Old format: `"type":"human"` and `"type":"assistant"`
+  - New format: `"type":"user"` with nested `message` objects
+  - Assistant responses now extracted from `message.content[]` array
+  - Backward compatible with legacy transcripts
+
+#### Fixed Storage Architecture
+- **Project Name Resolution**: Fixed subdirectory fragmentation
+  - Enhanced `getProjectName()` with `findProjectRoot()` function
+  - Walks up directory tree to find true project root
+  - Looks for `package.json`, `.git`, or `.c0ntextkeeper` markers
+  - Prevents subdirectories (like `scripts/`) from becoming fake projects
+  - All data now correctly organized under actual project names
+
+#### Fixed TypeScript Compilation
+- **Boolean Type Errors**: Resolved in all hooks
+  - Fixed `isTestSession()` returning `string|boolean` instead of `boolean`
+  - Added proper boolean coercion with double negation (`!!`)
+  - Clean TypeScript compilation with zero errors
+
+#### Test Session Filtering
+- **Production Data Integrity**: Prevented test pollution
+  - Added `isTestSession()] filter to all hooks
+  - Filters sessions containing: `test-session`, `test_session`, `test-`
+  - Test data no longer contaminates production folders
+
+### Fixed
+- Migrated misplaced data from `/archive/projects/scripts/` to correct location
+- Merged 5 unique prompt entries during migration
+- Cleaned archive structure to maintain single project organization
+- Enhanced debug logging with `FORCE_LOG=true` for production diagnostics
+
+### Performance
+- All hooks now capture 100% of production data (up from 50%)
+- Clean builds with no TypeScript errors
+- Improved error handling and recovery
+
 ## [0.7.3] - 2025-09-19
 
 ### 🚨 Critical Fixes

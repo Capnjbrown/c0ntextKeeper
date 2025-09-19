@@ -167,7 +167,7 @@ All fixes maintain backward compatibility:
 4. Verify through CLI: `c0ntextkeeper search`
 5. Test through MCP: Use fetch_context tool in Claude
 
-## Phase 2 Improvements (v0.7.2)
+## Phase 2 Improvements (v0.7.4)
 
 ### Additional Issues Discovered
 

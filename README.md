@@ -34,13 +34,13 @@
 - ⚡ **Blazing Fast** - All operations under 10ms average performance
 - 🧠 **Intelligent Extraction** - 185 semantic patterns for context detection
 - 📊 **Rich Analytics** - Track tools, patterns, and session insights
-- 🔍 **Natural Language Search** - Enhanced query understanding in v0.7.3
+- 🔍 **Natural Language Search** - Enhanced query understanding in v0.7.4
 - 🔒 **Security First** - Automatic filtering of sensitive data
 - ✅ **Production Ready** - Comprehensive testing and CI/CD pipeline
 
 ## 📑 Table of Contents
 - [Quick Start](#-quick-start)
-- [What's New in v0.7.3](#-whats-new-in-v073)
+- [What's New in v0.7.4](#-whats-new-in-v074)
 - [How It Works](#-how-it-works)
 - [Installation](#-installation)
 - [Storage Architecture](#-storage-architecture)
@@ -66,19 +66,19 @@ c0ntextkeeper status
 
 That's it! c0ntextKeeper is now preserving your context automatically.
 
-## 🚀 What's New in v0.7.3
+## 🚀 What's New in v0.7.4
 
-**Package Version**: 0.7.3 | **Extraction Algorithm**: 0.7.3 | **Test Success**: 87.3% (172/197 tests)
+**Package Version**: 0.7.4 | **Extraction Algorithm**: 0.7.4 | **Test Success**: 90.8% (179/197 tests)
 
-### 🚨 CRITICAL FIX: Hooks Now Capture 100% of Data (Was Only 50%!)
+### 🚨 CRITICAL FIX: Production Hooks NOW 100% OPERATIONAL!
 
-**v0.7.3 fixes a critical bug** where hooks were only capturing half of your valuable context:
-- **✅ PostToolUse Hook** - Now captures ALL tool usage patterns (was missing 50%)
-- **✅ Stop Hook** - Enhanced Q&A capture reliability with better error handling  
-- **✅ UserPromptSubmit Hook** - Tracks follow-up questions with session continuity
-- **✅ Search Functionality** - Fixed search_archive tool returning no results
+**v0.7.4 fixes critical production failures** discovered in real-world usage:
+- **✅ PostToolUse Hook** - Fixed complete production failure due to field name mismatches
+- **✅ Stop Hook** - Updated for Claude Code v1.0.119+ transcript format changes
+- **✅ Storage Architecture** - Fixed project name resolution preventing data fragmentation
+- **✅ TypeScript Compilation** - Resolved all type errors for clean builds
 
-### 🎯 Additional v0.7.3 Improvements
+### 🎯 Key v0.7.4 Improvements
 - **🔍 Natural Language Search** - Enhanced query understanding with tokenization
 - **🏥 New CLI Command** - `hooks health` for comprehensive diagnostics
 - **🐛 Debug Mode** - C0NTEXTKEEPER_DEBUG=true for troubleshooting
@@ -171,7 +171,7 @@ graph LR
 - **Quality Scores** - Track context value over time
 
 #### 💾 Smart Storage System
-- **Human-Readable Names** - Projects use actual names (c0ntextKeeper, web-scraper)
+- **Human-Readable Names** - Projects use actual names (c0ntextKeeper)
 - **JSON Format** - All data stored as readable JSON, not JSONL
 - **Hybrid Architecture** - Choose project-local or global storage
 - **Test Isolation** - Automatically separates test data
@@ -242,46 +242,51 @@ c0ntextkeeper status
 
 That's it! c0ntextKeeper is now automatically preserving your context.
 
-## 📁 Storage Architecture
+## 📁 Global Storage Architecture
 
 ### Intelligent Project-Based Storage
 
 c0ntextKeeper uses human-readable project names for all storage - no more cryptic hashes!
 
 ```
-~/.c0ntextkeeper/              # Global storage location
-├── config.json               # Global configuration
-├── archive/
-│   ├── projects/
-│   │   ├── c0ntextKeeper/   # ✨ Actual project name!
-│   │   │   ├── sessions/    # Individual JSON session files
-│   │   │   │   └── 2025-09-15_1430_MT_bug-fix.json
-│   │   │   ├── test/        # Test data (auto-separated)
-│   │   │   ├── index.json   # Project statistics
-│   │   │   └── README.md    # Analytics dashboard
-│   │   ├── web-scraper/     # Another project by name
-│   │   └── site-profiler/   # All projects use real names
-│   └── global/
-│       └── index.json       # Cross-project index
-├── prompts/                  # UserPromptSubmit hook data
-│   └── c0ntextKeeper/       # ✨ Project name, not hash!
-│       └── 2025-09-15-prompts.json
-├── patterns/                 # PostToolUse hook data
-│   └── c0ntextKeeper/       # ✨ Project name, not hash!
-│       └── 2025-09-15-patterns.json
-├── knowledge/                # Stop hook Q&A pairs
-│   └── c0ntextKeeper/       # ✨ Project name, not hash!
-│       └── 2025-09-15-knowledge.json
-├── errors/                   # Error patterns
-│   └── 2025-09-15-errors.json
-├── solutions/                # Solutions index
-│   └── index.json
-└── logs/                     # Hook execution logs
-    └── hook.log
+/Users/[directory-name]/                      # Your home directory (~)
+│
+├── .claude/                            # Claude Code configuration
+│   ├── settings.json                   # ← Hook configuration lives here
+│   └── hooks/                          # Hook scripts
+│
+└── .c0ntextkeeper/                     # ← Global preserved context
+    ├── config.json                     # Global configuration
+    ├── archive/                        # Main archive storage
+    │   ├── projects/                   # Per-project archives
+    │   │   ├── [project-name]/          # Actual project names (not hashes!)
+    │   │   │   ├── README.md           # Rich analytics dashboard
+    │   │   │   ├── index.json          # Project statistics & tool usage
+    │   │   │   ├── sessions/           # Individual JSON session files
+    │   │   │   │   └── YYYY-MM-DD_HHMM_MT_description.json
+    │   │   │   └── test/               # Test data (auto-separated)
+    │   └── global/                     
+    │       └── index.json              # Master index (test-filtered)
+    ├── prompts/                        # UserPromptSubmit hook data
+    │   └── [project-name]/             # Same project names as archive/projects/
+    │       └── YYYY-MM-DD-prompts.json       # Daily JSON array (not JSONL)
+    ├── patterns/                       # PostToolUse hook data (includes MCP tools)
+    │   └── [project-name]/             # Human-readable names
+    │       └── YYYY-MM-DD-patterns.json      # Daily JSON array with MCP support
+    ├── knowledge/                      # Stop hook Q&A pairs
+    │   └── [project-name]/             # Consistent naming across all hooks
+    │       └── YYYY-MM-DD-knowledge.json     # Daily JSON array
+    ├── errors/                         # Error pattern tracking
+    │   └── YYYY-MM-DD-errors.json            # Daily JSON array
+    ├── solutions/                      # Indexed solutions
+    │   └── index.json                  # Quick solution retrieval
+    ├── index.json                      # Project registry (test-filtered)
+    └── logs/                           # Hook execution logs
+        └── hook.log                    # Debug information
 ```
 
 ### Key Storage Features
-- **Project Name Storage**: All archives use actual project names like `c0ntextKeeper` or `web-scraper`
+- **Project Name Storage**: All archives use actual project names like `c0ntextKeeper`
 - **Automatic Project Detection**: Intelligently extracts project name from working directory
 - **Hybrid Architecture**: Choose project-local (`.c0ntextkeeper/`) or global (`~/.c0ntextkeeper/`) storage
 - **Intelligent Path Resolution**: Walks up directory tree to find storage location

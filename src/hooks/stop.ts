@@ -16,21 +16,33 @@ import { getHookStoragePath } from "../utils/project-utils";
 import * as fs from "fs";
 import * as path from "path";
 
-// Debug logging utility
+// Debug logging utility - enhanced for production debugging
 const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === 'true';
-const debugLog = (message: string, data?: any) => {
-  if (!DEBUG) return;
-  
+const FORCE_LOG = true; // Temporary: Always log to diagnose production issues
+
+const debugLog = (message: string, data?: any, forceLog = false) => {
+  if (!DEBUG && !forceLog && !FORCE_LOG) return;
+
   const logDir = path.join(process.env.HOME || '', '.c0ntextkeeper', 'debug');
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
   }
-  
+
   const logFile = path.join(logDir, `stop-${new Date().toISOString().split('T')[0]}.log`);
   const timestamp = new Date().toISOString();
   const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n\n`;
-  
+
   fs.appendFileSync(logFile, logEntry, 'utf-8');
+};
+
+// Helper to check if this is a test session
+const isTestSession = (sessionId: string): boolean => {
+  return !!(sessionId && (
+    sessionId.includes('test-session') ||
+    sessionId.includes('test_session') ||
+    sessionId.startsWith('test-') ||
+    sessionId.includes('session-17582') // Test timestamp pattern
+  ));
 };
 
 interface StopHookInput {
@@ -64,13 +76,20 @@ async function processExchange(input: StopHookInput): Promise<void> {
   const storage = new FileStore();
   // const extractor = new ContextExtractor();
   const scorer = new RelevanceScorer();
-  
+
   debugLog('processExchange called', {
     session_id: input.session_id,
     hasExchange: !!input.exchange,
     hasTranscriptPath: !!(input as any).transcript_path,
-    timestamp: input.timestamp
+    timestamp: input.timestamp,
+    isTest: isTestSession(input.session_id)
   });
+
+  // Filter out test sessions from production storage
+  if (isTestSession(input.session_id)) {
+    debugLog('Skipping test session', { session_id: input.session_id });
+    return; // Don't store test data in production folders
+  }
 
   try {
     // Filter sensitive data
@@ -261,23 +280,38 @@ async function indexSolution(
 
 // Main execution
 async function main() {
-  debugLog('Stop hook started');
-  
+  // ALWAYS log hook start for production debugging
+  debugLog('Stop hook started at ' + new Date().toISOString(), {
+    pid: process.pid,
+    cwd: process.cwd(),
+    env_debug: process.env.C0NTEXTKEEPER_DEBUG,
+    argv: process.argv
+  }, true);
+
   let input = "";
+  let inputStartTime = Date.now();
 
   // Read from stdin
   process.stdin.on("data", (chunk) => {
     input += chunk;
+    debugLog('Receiving data chunk', { length: chunk.length }, true);
   });
 
   process.stdin.on("end", async () => {
-    debugLog('Input received', { length: input.length });
+    const inputTime = Date.now() - inputStartTime;
+    debugLog('Input complete', {
+      length: input.length,
+      timeMs: inputTime,
+      preview: input.substring(0, 200)
+    }, true);
 
     if (!input) {
-      debugLog('No input provided, exiting');
-      // No input provided
+      debugLog('No input provided, exiting', {}, true);
       process.exit(0);
     }
+
+    // Log raw input for debugging
+    debugLog('Raw input received', { raw: input }, true);
 
     try {
       const hookData = JSON.parse(input) as any; // Use any for now to see structure
@@ -292,16 +326,24 @@ async function main() {
         keys: Object.keys(hookData)
       });
 
-      // Validate hook event (handle multiple names)
-      const validEvents = ["Stop", "stop", "SubagentStop", "stop_hook", "StopHook"];
-      if (!validEvents.some(event => 
+      // Validate hook event - be VERY flexible with event names
+      const validEvents = [
+        "Stop", "stop", "SubagentStop", "stop_hook", "StopHook",
+        "STOP", "stop-hook", "session_stop", "SessionStop"
+      ];
+
+      // Also check if it has Q&A data without explicit event name
+      const hasQAData = (hookData.exchange || hookData.transcript_path ||
+                        (hookData.user_prompt && hookData.assistant_response));
+
+      if (!validEvents.some(event =>
         hookData.hook_event_name?.toLowerCase() === event.toLowerCase()
-      )) {
+      ) && !hasQAData) {
         debugLog('Not a Stop event', {
           received: hookData.hook_event_name,
-          expected: validEvents
-        });
-        // Not a Stop event
+          expected: validEvents,
+          hasQAData
+        }, true);
         process.exit(0);
       }
 
@@ -330,21 +372,40 @@ async function main() {
               if (!line.trim()) continue;
               try {
                 const entry = JSON.parse(line);
-                
-                // Extract user prompt
-                if (entry.type === "human" || entry.role === "user") {
-                  lastUserPrompt = Array.isArray(entry.content) 
+
+                // Extract user prompt - handle both old and new formats
+                if (entry.type === "human") {
+                  // Old format: type="human" with direct content
+                  lastUserPrompt = Array.isArray(entry.content)
                     ? entry.content.map((c: any) => c.text || "").join(" ")
                     : entry.content || "";
+                } else if (entry.type === "user" && entry.message?.role === "user") {
+                  // New format (Claude Code v1.0.119+): type="user" with nested message
+                  lastUserPrompt = entry.message.content || "";
                 }
-                
-                // Extract assistant response
-                if (entry.type === "assistant" || entry.role === "assistant") {
-                  lastAssistantResponse = Array.isArray(entry.content)
-                    ? entry.content.map((c: any) => c.text || "").join(" ")
-                    : entry.content || "";
+
+                // Extract assistant response - handle both old and new formats
+                if (entry.type === "assistant") {
+                  if (entry.role === "assistant") {
+                    // Old format: type="assistant" with role="assistant"
+                    lastAssistantResponse = Array.isArray(entry.content)
+                      ? entry.content.map((c: any) => c.text || "").join(" ")
+                      : entry.content || "";
+                  } else if (entry.message?.role === "assistant" && entry.message?.content) {
+                    // New format: type="assistant" with nested message.content array
+                    const content = entry.message.content;
+                    if (Array.isArray(content)) {
+                      // Extract text from content array, skip "thinking" entries
+                      lastAssistantResponse = content
+                        .filter((c: any) => c.type === "text")
+                        .map((c: any) => c.text || "")
+                        .join(" ");
+                    } else {
+                      lastAssistantResponse = content || "";
+                    }
+                  }
                 }
-                
+
                 // Track tool usage
                 if (entry.type === "tool_use" || entry.name === "tool_use") {
                   toolsUsed.push(entry.tool || entry.name || "unknown");
@@ -404,6 +465,12 @@ async function main() {
       await processExchange(hookData as StopHookInput);
       process.exit(0);
     } catch (error) {
+      debugLog('Failed to parse input', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        input: input.substring(0, 500)
+      }, true);
+
       console.error(
         JSON.stringify({
           status: "error",

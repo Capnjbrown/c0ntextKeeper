@@ -2,7 +2,7 @@
 
 ## Overview
 
-c0ntextKeeper v0.7.2+ exposes context as MCP (Model Context Protocol) resources, allowing Claude Code to automatically read project context on startup. This provides immediate awareness of recent work, patterns, and knowledge without requiring manual tool calls.
+c0ntextKeeper v0.7.4+ exposes context as MCP (Model Context Protocol) resources, allowing Claude Code to automatically read project context on startup. This provides immediate awareness of recent work, patterns, and knowledge without requiring manual tool calls.
 
 ## Resource URIs
 
@@ -432,7 +432,7 @@ function formatPatternResults(patterns: any[]): string
 
 v0.6.0 users need to:
 
-1. Update to v0.7.2: `npm update c0ntextkeeper`
+1. Update to v0.7.4: `npm update c0ntextkeeper`
 2. Enable auto-load: `c0ntextkeeper context configure --enable`
 3. Restart MCP server for Claude Code
 
@@ -454,4 +454,4 @@ Planned improvements for resources:
 
 ---
 
-*Last Updated: 2025-09-10 | c0ntextKeeper v0.7.2*
+*Last Updated: 2025-09-10 | c0ntextKeeper v0.7.4*

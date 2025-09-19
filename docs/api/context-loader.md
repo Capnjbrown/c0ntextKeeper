@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `ContextLoader` class is responsible for intelligently loading and preparing relevant context for MCP server startup in c0ntextKeeper v0.7.2+. It aggregates context from multiple sources (sessions, patterns, knowledge, prompts) and formats it for automatic delivery to Claude Code.
+The `ContextLoader` class is responsible for intelligently loading and preparing relevant context for MCP server startup in c0ntextKeeper v0.7.4+. It aggregates context from multiple sources (sessions, patterns, knowledge, prompts) and formats it for automatic delivery to Claude Code.
 
 ## Class: ContextLoader
 
@@ -375,4 +375,4 @@ c0ntextkeeper context configure --max-size 100
 
 ---
 
-*Last Updated: 2025-09-10 | c0ntextKeeper v0.7.2*
+*Last Updated: 2025-09-10 | c0ntextKeeper v0.7.4*

@@ -1,12 +1,12 @@
-# Pre-Release Checklist for c0ntextKeeper v0.7.2
+# Pre-Release Checklist for c0ntextKeeper v0.7.4
 
 > ⚠️ **Note**: This checklist is for reference only. Please use the [Multi-Stage Release Checklist](./multi-stage-release-checklist.md) for the actual release workflow (dev → staging → public → npm).
 
 ## 📋 GitHub Release Preparation
 
 ### Repository Files ✅
-- [x] README.md - Updated with v0.7.2 fixes and improvements
-- [x] CHANGELOG.md - Complete with all v0.7.2 changes
+- [x] README.md - Updated with v0.7.4 fixes and improvements
+- [x] CHANGELOG.md - Complete with all v0.7.4 changes
 - [x] LICENSE - MIT license present
 - [x] CONTRIBUTING.md - Contribution guidelines in place
 - [x] CODE_OF_CONDUCT.md - Community standards defined
@@ -17,7 +17,7 @@
 - [x] docs/guides/user-guide.md - User instructions complete
 - [x] docs/guides/auto-load-guide.md - Feature documentation maintained
 - [x] docs/technical/* - Technical specifications current
-- [x] docs/api/context-loader.md - API documentation for v0.7.2
+- [x] docs/api/context-loader.md - API documentation for v0.7.4
 - [x] docs/development/project-context.md - Authoritative source updated
 
 ### Code Quality ✅
@@ -29,18 +29,18 @@
 - [x] All 4 hooks verified capturing data
 
 ### Version Consistency ✅
-- [x] package.json version: 0.7.2
+- [x] package.json version: 0.7.4
 - [x] package-lock.json synchronized
-- [x] Server version in index.ts: 0.7.2
-- [x] CLI version: 0.7.2
-- [x] Documentation references: 0.7.2
+- [x] Server version in index.ts: 0.7.4
+- [x] CLI version: 0.7.4
+- [x] Documentation references: 0.7.4
 
 ## 📦 NPM Publishing Preparation
 
 ### Package Configuration
 - [x] package.json metadata complete
   - Name: @c0ntextkeeper/c0ntextkeeper
-  - Version: 0.7.2
+  - Version: 0.7.4
   - Description: Present
   - Keywords: Defined
   - Author: Specified
@@ -100,17 +100,17 @@ node dist/cli.js --version
 ### 2. Git Tagging
 ```bash
 # Create version tag
-git tag -a v0.7.2 -m "Release v0.7.2: MCP tools reliability improvements and natural language processing"
+git tag -a v0.7.4 -m "Release v0.7.4: MCP tools reliability improvements and natural language processing"
 
 # Push tag to GitHub
-git push origin v0.7.2
+git push origin v0.7.4
 ```
 
 ### 3. GitHub Release
 1. Go to https://github.com/Capnjbrown/c0ntextKeeper/releases
 2. Click "Draft a new release"
-3. Select tag: v0.7.2
-4. Title: "v0.7.2: MCP Tools Reliability & Natural Language Processing"
+3. Select tag: v0.7.4
+4. Title: "v0.7.4: MCP Tools Reliability & Natural Language Processing"
 5. Description: Copy from CHANGELOG.md
 6. Attach:
    - Source code (automatic)
@@ -168,7 +168,7 @@ node dist/server/index.js
 
 ## 📊 Release Metrics
 
-- **Version**: 0.7.2
+- **Version**: 0.7.4
 - **Test Pass Rate**: 90.8% (179/197 tests passing) - Updated 2025-09-17
 - **Performance**: <10ms average operations
 - **Features**: 25 core modules operational
@@ -179,7 +179,7 @@ node dist/server/index.js
 
 ## 🎉 Ready for Release!
 
-All items checked ✅ - c0ntextKeeper v0.7.2 is ready for public release and npm publishing.
+All items checked ✅ - c0ntextKeeper v0.7.4 is ready for public release and npm publishing.
 
 ---
 

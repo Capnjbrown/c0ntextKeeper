@@ -1,24 +1,79 @@
 import * as path from "path";
 import * as crypto from "crypto";
+import * as fs from "fs";
+
+/**
+ * Find the project root by looking for package.json or .git
+ * Returns null if no project root found
+ */
+function findProjectRoot(startPath: string): string | null {
+  let currentPath = path.resolve(startPath);
+  const root = path.parse(currentPath).root;
+
+  // Common subdirectory names that should never be project names
+  const invalidProjectNames = new Set([
+    'scripts', 'src', 'dist', 'lib', 'bin', 'test', 'tests',
+    'docs', 'build', 'out', 'tmp', 'temp', 'node_modules',
+    '.git', '.vscode', '.idea', 'coverage', '__tests__'
+  ]);
+
+  while (currentPath !== root) {
+    // Check for project indicators
+    if (
+      fs.existsSync(path.join(currentPath, 'package.json')) ||
+      fs.existsSync(path.join(currentPath, '.git')) ||
+      fs.existsSync(path.join(currentPath, '.c0ntextkeeper'))
+    ) {
+      // Make sure the basename isn't an invalid project name
+      const basename = path.basename(currentPath);
+      if (!invalidProjectNames.has(basename.toLowerCase())) {
+        return currentPath;
+      }
+    }
+    currentPath = path.dirname(currentPath);
+  }
+
+  return null;
+}
 
 /**
  * Extract project name from working directory path
+ * Walks up directory tree to find actual project root
  * Falls back to hash if name cannot be determined
  */
 export function getProjectName(workingDir: string): string {
   try {
-    // Get the last part of the path as project name
-    const projectName = path.basename(workingDir);
+    // Try to find the actual project root
+    const projectRoot = findProjectRoot(workingDir);
 
-    // Validate it's a reasonable project name
+    if (projectRoot) {
+      const projectName = path.basename(projectRoot);
+
+      // Validate it's a reasonable project name
+      if (
+        projectName &&
+        projectName !== "." &&
+        projectName !== "/" &&
+        projectName !== ""
+      ) {
+        // Sanitize for filesystem use (remove special chars except dash and underscore)
+        return projectName.replace(/[^a-zA-Z0-9-_]/g, "-");
+      }
+    }
+
+    // If no project root found, use the original directory basename
+    // but only if it's not a common subdirectory name
+    const fallbackName = path.basename(workingDir);
+    const invalidNames = ['scripts', 'src', 'dist', 'lib', 'test', 'tests'];
+
     if (
-      projectName &&
-      projectName !== "." &&
-      projectName !== "/" &&
-      projectName !== ""
+      fallbackName &&
+      !invalidNames.includes(fallbackName.toLowerCase()) &&
+      fallbackName !== "." &&
+      fallbackName !== "/" &&
+      fallbackName !== ""
     ) {
-      // Sanitize for filesystem use (remove special chars except dash and underscore)
-      return projectName.replace(/[^a-zA-Z0-9-_]/g, "-");
+      return fallbackName.replace(/[^a-zA-Z0-9-_]/g, "-");
     }
   } catch {
     // Fall through to hash generation

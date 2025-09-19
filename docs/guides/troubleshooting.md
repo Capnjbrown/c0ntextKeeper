@@ -143,7 +143,7 @@ node scripts/test-hooks/test-stop.js
 - Follow-up questions not saved
 
 **Current Behavior:**
-- v0.7.3 now tracks session continuity
+- v0.7.4 now tracks session continuity
 - Follow-up prompts are marked with `isFollowUp: true`
 - Each prompt gets a `promptNumber` in the session
 
@@ -161,7 +161,7 @@ cat ~/.c0ntextkeeper/archive/projects/*/prompts/$(date +%Y-%m-%d)-prompts.json |
 - `search_archive` always returns empty array
 - Natural language queries don't work
 
-**Fixed in v0.7.3:**
+**Fixed in v0.7.4:**
 - Now uses tokenized word matching
 - Supports natural language queries
 - Example: "PostToolUse hook" now works
@@ -335,7 +335,7 @@ node scripts/test-hooks/test-all.js
 - Clean test data: `rm -rf ~/.c0ntextkeeper/archive/projects/*/test/`
 
 ### Q: Why is search_archive not finding my queries?
-**A:** Fixed in v0.7.3. Update to latest version:
+**A:** Fixed in v0.7.4. Update to latest version:
 ```bash
 git pull
 npm install

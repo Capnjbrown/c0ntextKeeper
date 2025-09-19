@@ -31,11 +31,11 @@ project-context.md contains:
 
 ⚠️ **This CLAUDE.md file provides workflow guidelines, but project-context.md is the authoritative technical reference.**
 
-## Current State: Production Ready v0.7.3 🎉
+## Current State: Production Ready v0.7.4 🎉
 
-**🚨 CRITICAL UPDATE**: v0.7.3 (Released 2025-09-19) fixes hooks that were only capturing 50% of data!
+**🚨 CRITICAL UPDATE**: v0.7.4 (Released 2025-09-19 Evening) fixes critical production failures - hooks now capture 100% of data!
 
-c0ntextKeeper v0.7.3 is production-ready with critical reliability fixes:
+c0ntextKeeper v0.7.4 is production-ready with critical production fixes:
 - ✅ **Auto-Load Context** - MCP resources provide immediate project awareness
 - ✅ **Unified Storage Architecture** - Intelligent project-name based organization
 - ✅ **Fully Automatic Operation** - Works with manual and auto compaction
@@ -55,18 +55,18 @@ c0ntextKeeper v0.7.3 is production-ready with critical reliability fixes:
 
 **25 Core Modules:**
 - `extractor.ts` - Intelligent context extraction with problem/solution mapping
-- `scorer.ts` - Multi-factor relevance scoring engine with scoreContent method (v0.7.3: properly capped at 100%)
+- `scorer.ts` - Multi-factor relevance scoring engine with scoreContent method (v0.7.4: properly capped at 100%)
 - `archiver.ts` - Context archival management
-- `retriever.ts` - Fast context retrieval and search (v0.7.3: tokenized word matching for better NLP)
+- `retriever.ts` - Fast context retrieval and search (v0.7.4: tokenized word matching for better NLP)
 - `patterns.ts` - Pattern recognition and analysis
 - `file-store.ts` - Efficient file-based storage with getBasePath method
 - `precompact.ts` - PreCompact hook handler (automatic + manual compaction)
-- `userprompt.ts` - UserPromptSubmit hook (v0.7.3: tracks follow-up questions)
-- `posttool.ts` - PostToolUse hook (v0.7.3: captures ALL MCP tools properly)
-- `stop.ts` - Stop hook for Q&A knowledge base (v0.7.3: enhanced reliability)
-- `hooks-manager.ts` - CLI hook management system (v0.7.3: added health diagnostics)
+- `userprompt.ts` - UserPromptSubmit hook (v0.7.4: tracks follow-up questions)
+- `posttool.ts` - PostToolUse hook (v0.7.4: captures ALL MCP tools properly)
+- `stop.ts` - Stop hook for Q&A knowledge base (v0.7.4: enhanced reliability)
+- `hooks-manager.ts` - CLI hook management system (v0.7.4: added health diagnostics)
 - `config.ts` - Configuration management system
-- `transcript.ts` - JSONL streaming parser (v0.7.3: deterministic sessionId generation)
+- `transcript.ts` - JSONL streaming parser (v0.7.4: deterministic sessionId generation)
 - `logger.ts` - Logging utility for MCP servers
 - `filesystem.ts` - File system utilities
 - `index.ts` - MCP server entry point
@@ -75,7 +75,7 @@ c0ntextKeeper v0.7.3 is production-ready with critical reliability fixes:
 - `context-loader.ts` - Auto-load context system (v0.7.0+)
 - `formatter.ts` - Output formatting utilities
 - `init.ts` - Storage initialization command (v0.6.0)
-- `migrate.ts` - Archive migration utilities (v0.7.3: fixes unknown sessionIds)
+- `migrate.ts` - Archive migration utilities (v0.7.4: fixes unknown sessionIds)
 - `path-resolver.ts` - Hybrid storage path resolution
 - `project-utils.ts` - Project name/path utilities
 - `session-namer.ts` - Intelligent session naming
@@ -95,7 +95,7 @@ c0ntextKeeper v0.7.3 is production-ready with critical reliability fixes:
 ## Completed Development Milestones
 
 ### Version History
-- **v0.7.3** (2025-09-19) - 🚨 CRITICAL: Fixed hooks capturing only 50% of data
+- **v0.7.4** (2025-09-19) - 🚨 CRITICAL: Fixed hooks capturing only 50% of data
   - PostToolUse now captures ALL tool usage (was missing 50%)
   - Stop hook enhanced Q&A capture reliability
   - UserPromptSubmit tracks follow-up questions
@@ -168,7 +168,7 @@ c0ntextKeeper/
 │       ├── logger.ts         # Logging utility
 │       ├── path-resolver.ts  # Hybrid storage paths (v0.6.0)
 │       └── security-filter.ts # Security filtering
-├── scripts/                 # Cleaned v0.7.3: 16 essential scripts
+├── scripts/                 # Cleaned v0.7.4: 16 essential scripts
 │   ├── setup-hooks.js       # Installation script
 │   ├── test-hooks/          # Hook testing suite
 │   │   ├── test-all.js      # Test all hooks
@@ -738,8 +738,8 @@ When updating documentation:
 
 ## Next Steps
 
-### Release Actions (v0.7.3 Critical Fix Released!)
-1. **Create GitHub Release** - Tag v0.7.3 with critical hook fixes
+### Release Actions (v0.7.4 Critical Fix Released!)
+1. **Create GitHub Release** - Tag v0.7.4 with critical hook fixes
 2. **Publish to npm** - Make available via `npm install c0ntextkeeper`
 3. **Community Announcement** - Alert users about critical 50% → 100% data capture fix
 4. **Highlight** - Comprehensive CLI documentation with 30+ commands

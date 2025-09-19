@@ -30,7 +30,7 @@ Located at `[project-root]/.c0ntextkeeper/`
 │   │       ├── sessions/        # Individual JSON files
 │   │       ├── test/           # Test data (auto-separated)
 │   │       ├── index.json      # Project statistics
-│   │       └── README.md       # Analytics dashboard
+│   │       └── README.md       # Rich analytics dashboard
 │   └── global/
 │       └── index.json          # Cross-project index
 ├── prompts/                    # UserPromptSubmit hook data
@@ -62,8 +62,7 @@ Located at `~/.c0ntextkeeper/`
 │   │   │   ├── sessions/       # Individual JSON sessions
 │   │   │   ├── test/          # Test data (auto-filtered)
 │   │   │   ├── index.json     # Project analytics
-│   │   │   └── README.md      # Dashboard
-│   │   └── web-scraper/        # Another project
+│   │   │   └── README.md      # Rich analytics dashboard
 │   └── global/
 │       └── index.json         # Master index (test-filtered)
 ├── prompts/                   # Hook data by project name
@@ -346,4 +345,4 @@ cat .env | grep CONTEXTKEEPER
 
 ---
 
-*Last Updated: 2025-09-09 | c0ntextKeeper v0.7.2*
+*Last Updated: 2025-09-09 | c0ntextKeeper v0.7.4*

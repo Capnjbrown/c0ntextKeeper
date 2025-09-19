@@ -1,11 +1,11 @@
 # c0ntextKeeper Migration Guide
 
-> Last Updated: 2025-09-15 for v0.7.2
+> Last Updated: 2025-09-15 for v0.7.4
 
-## v0.7.2 to v0.7.2 Migration
+## v0.7.4 to v0.7.4 Migration
 
 ### Overview
-Version 0.7.2 introduces critical improvements to MCP tools reliability, fixing relevance scoring and sessionId generation issues.
+Version 0.7.4 introduces critical improvements to MCP tools reliability, fixing relevance scoring and sessionId generation issues.
 
 ### Key Improvements
 - **Relevance Scoring**: Now properly capped at 100% (was showing up to 129%)
@@ -17,7 +17,7 @@ Version 0.7.2 introduces critical improvements to MCP tools reliability, fixing 
 
 #### Step 1: Update Package
 ```bash
-npm update -g c0ntextkeeper@0.7.2
+npm update -g c0ntextkeeper@0.7.4
 ```
 
 #### Step 2: Fix Existing Archives
@@ -106,7 +106,7 @@ This indicates old code is still running:
    ```bash
    npm cache clean --force
    npm uninstall -g c0ntextkeeper
-   npm install -g c0ntextkeeper@0.7.2
+   npm install -g c0ntextkeeper@0.7.4
    ```
 
 2. **Restart Claude Code**
@@ -119,7 +119,7 @@ The new tokenization requires the updated build:
 1. **Verify version**
    ```bash
    c0ntextkeeper --version
-   # Should show: 0.7.2
+   # Should show: 0.7.4
    ```
 
 2. **Test with simple query**
@@ -143,28 +143,28 @@ The new tokenization requires the updated build:
 
 ### Rolling Back (If Needed)
 
-If you need to rollback to v0.7.2:
+If you need to rollback to v0.7.4:
 
 ```bash
 # Downgrade package
-npm install -g c0ntextkeeper@0.7.2
+npm install -g c0ntextkeeper@0.7.4
 
 # Note: Archives modified by migration script will retain new sessionIds
 # This is harmless and actually beneficial
 ```
 
-## v0.6.0 to v0.7.2 Migration
+## v0.6.0 to v0.7.4 Migration
 
 ### Overview
-Version 0.7.2 introduces automatic context loading via MCP resources, providing Claude Code with immediate project awareness on startup. This guide helps you upgrade from v0.6.0 to v0.7.2.
+Version 0.7.4 introduces automatic context loading via MCP resources, providing Claude Code with immediate project awareness on startup. This guide helps you upgrade from v0.6.0 to v0.7.4.
 
 ### Breaking Changes
-None - v0.7.2 maintains full backward compatibility while adding auto-load capabilities.
+None - v0.7.4 maintains full backward compatibility while adding auto-load capabilities.
 
 ### Key Features
 
 #### 1. Automatic Context Loading
-**New in v0.7.2:** Context automatically loads when Claude Code connects to the MCP server.
+**New in v0.7.4:** Context automatically loads when Claude Code connects to the MCP server.
 
 **Configuration:**
 ```json
@@ -200,7 +200,7 @@ c0ntextkeeper context configure
 
 #### Step 1: Update Package
 ```bash
-npm update c0ntextkeeper@0.7.2
+npm update c0ntextkeeper@0.7.4
 ```
 
 #### Step 2: Enable Auto-Load (Optional - enabled by default)
@@ -211,7 +211,7 @@ c0ntextkeeper context configure --enable
 #### Step 3: Verify Installation
 ```bash
 c0ntextkeeper --version
-# Should output: 0.7.2
+# Should output: 0.7.4
 ```
 
 ### Performance Improvements
@@ -420,7 +420,7 @@ After successful migration:
 
 ## Future Versions
 
-### v0.7.2 (Planned)
+### v0.7.4 (Planned)
 - Vector database integration for semantic search
 - Enhanced pattern recognition
 - Multi-project context sharing

@@ -103,7 +103,7 @@ c0ntextkeeper stats
 du -sh ~/.c0ntextkeeper/
 ```
 
-## 🏗️ v0.7.2 Unified Storage Architecture
+## 🏗️ v0.7.4 Unified Storage Architecture
 
 - **📁 Global Storage Default** - Archives at `~/.c0ntextkeeper/archive/`
 - **🏷️ Project Name Organization** - Archives organized by readable project names

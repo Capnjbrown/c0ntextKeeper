@@ -1,8 +1,8 @@
 # 📚 c0ntextKeeper User Guide
 
-> Last Updated: 2025-09-17 for v0.7.2
+> Last Updated: 2025-09-19 for v0.7.4
 
-## 🎯 What's New in v0.7.2
+## 🎯 What's New in v0.7.4
 
 ### Enhanced MCP Tools Reliability
 - **✅ Fixed Relevance Scoring** - Now properly capped at 100%
@@ -13,9 +13,9 @@
 
 Run `node scripts/fix-unknown-sessions.js` to migrate existing archives.
 
-## 🏗️ Storage Modes (v0.7.2+)
+## 🏗️ Storage Modes (v0.7.4+)
 
-c0ntextKeeper v0.7.2 introduces flexible storage options to match your workflow:
+c0ntextKeeper v0.7.4 introduces flexible storage options to match your workflow:
 
 ### Project-Local Storage (Recommended)
 ```bash
@@ -56,7 +56,7 @@ c0ntextKeeper stores all data locally on your Mac. The exact location depends on
 ├── .c0ntextkeeper/                     # ← Project-specific context
 │   ├── config.json                     # Project configuration
 │   ├── archive/                        # Session archives
-│   │   ├── README.md                   # Analytics dashboard
+│   │   ├── README.md                   # Rich analytics dashboard
 │   │   ├── index.json                  # Session index
 │   │   ├── sessions/                   # Work sessions
 │   │   └── test/                       # Test data (separated)
@@ -70,7 +70,7 @@ c0ntextKeeper stores all data locally on your Mac. The exact location depends on
 
 ### Global Storage Structure
 ```
-/Users/jasonbrown/                      # Your home directory (~)
+/Users/[directory-name]/                      # Your home directory (~)
 │
 ├── .claude/                            # Claude Code configuration
 │   ├── settings.json                   # ← Hook configuration lives here
@@ -80,13 +80,12 @@ c0ntextKeeper stores all data locally on your Mac. The exact location depends on
     ├── config.json                     # Global configuration
     ├── archive/                        # Main archive storage
     │   ├── projects/                   # Per-project archives
-    │   │   ├── c0ntextKeeper/          # Actual project names (not hashes!)
-    │   │   │   ├── README.md           # 📊 Rich analytics dashboard
+    │   │   ├── [project-name]/          # Actual project names (not hashes!)
+    │   │   │   ├── README.md           # Rich analytics dashboard
     │   │   │   ├── index.json          # Project statistics & tool usage
     │   │   │   ├── sessions/           # Individual JSON session files
     │   │   │   │   └── YYYY-MM-DD_HHMM_MT_description.json
     │   │   │   └── test/               # Test data (auto-separated)
-    │   │   └── web-scraper/            # Another project
     │   └── global/                     
     │       └── index.json              # Master index (test-filtered)
     ├── prompts/                        # UserPromptSubmit hook data
@@ -134,7 +133,7 @@ Current Directory: /Users/jasonbrown/projects/my-app
 Project Name: my-app
 ✓ Storage initialized (local)
   Location: /Users/jasonbrown/projects/my-app/.c0ntextkeeper
-  Version: 0.7.2
+  Version: 0.7.4
   Created: 2025-09-09
   Type: project
 ```
@@ -160,7 +159,7 @@ c0ntextkeeper search "query"     # Search for specific content
 
 ## 📊 Understanding Your Analytics Dashboard
 
-Starting with v0.7.2, every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy, better session naming, and organized storage structure. Here's what you'll find:
+Starting with v0.7.4, every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy, better session naming, and organized storage structure. Here's what you'll find:
 
 ### Project Analytics Section
 - **Total Sessions**: Number of times context was preserved
@@ -361,7 +360,7 @@ Each descriptively-named `.json` file in `sessions/` contains:
     "toolsUsed": ["Write", "Edit", "mcp__filesystem__read_file"],
     "toolCounts": {"Write": 5, "Edit": 3, "mcp__filesystem__read_file": 10},
     "duration": 3600000,
-    "extractionVersion": "0.7.2",
+    "extractionVersion": "0.7.4",
     "isTest": false
   }
 }
@@ -376,7 +375,7 @@ Each descriptively-named `.json` file in `sessions/` contains:
 
 ### How Projects are Organized
 
-- Each project uses its actual directory name (like `c0ntextKeeper`, `web-scraper`)
+- Each project uses its actual directory name (like `c0ntextKeeper`)
 - Sessions have descriptive names showing what you worked on
 - All sessions from the same project are grouped together
 - Each project has a README.md for easy navigation
@@ -384,7 +383,7 @@ Each descriptively-named `.json` file in `sessions/` contains:
 
 ## Quick Reference Commands
 
-### Essential CLI Commands (v0.7.2)
+### Essential CLI Commands (v0.7.4)
 
 ```bash
 # Setup and Status
@@ -629,17 +628,17 @@ Three ways:
 
 ## Troubleshooting
 
-### v0.7.2 Improvements
+### v0.7.4 Improvements
 
-Many improvements and fixes in v0.7.2:
+Many improvements and fixes in v0.7.4:
 
 #### 504 Timeout Errors (FIXED)
 **Previous Issue**: Hook would timeout during auto-compact with large transcripts
 **Solution**: Implemented 55-second timeout protection
 ```bash
-# Verify you have v0.7.2
+# Verify you have v0.7.4
 c0ntextkeeper --version
-# Should show: 0.7.2
+# Should show: 0.7.4
 ```
 
 #### "content.toLowerCase is not a function" (FIXED)
@@ -657,7 +656,7 @@ node scripts/test-extraction.js
 ```bash
 # Your archives now show:
 ~/.c0ntextkeeper/archive/projects/c0ntextKeeper/  # Not "project"
-~/.c0ntextkeeper/archive/projects/web-scraper/    # Not "validation"
+~/.c0ntextkeeper/archive/projects/project-name/    # Not "validation"
 ```
 
 ### Common Issues
@@ -715,7 +714,7 @@ tail -f ~/.c0ntextkeeper/logs/hook.log
 
 4. **Check for extraction issues**:
 If archives are created but empty (0 problems, 0 implementations):
-- This is fixed in v0.7.2 with improved extraction patterns
+- This is fixed in v0.7.4 with improved extraction patterns
 - Any user question (with "?") is now captured
 - All tool uses are tracked, not just Write/Edit
 
@@ -736,7 +735,7 @@ cat ~/.claude/settings.json | grep -i project
 Run these commands to ensure everything is working:
 
 ```bash
-# 1. Check version (should be 0.7.2)
+# 1. Check version (should be 0.7.4)
 c0ntextkeeper --version
 
 # 2. Validate installation
@@ -762,6 +761,6 @@ ls -la ~/.c0ntextkeeper/archive/projects/
 - **Troubleshooting**: See the comprehensive troubleshooting section above
 - **Issues**: https://github.com/Capnjbrown/c0ntextKeeper/issues
 - **Logs**: Check `~/.c0ntextkeeper/logs/hook.log`
-- **Version**: Current version is v0.7.2 with all improvements
+- **Version**: Current version is v0.7.4 with all improvements
 
 Remember: Everything is stored locally on your Mac in hidden directories. Use the commands above to access and manage your preserved context!
