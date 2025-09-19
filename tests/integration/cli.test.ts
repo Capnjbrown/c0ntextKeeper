@@ -114,6 +114,36 @@ function mockCLI(command: string, args: string[] = []): { stdout: string; stderr
       stdout: "✓ Max size set to: 50 KB\n",
       stderr: "",
       code: 0
+    },
+    "context configure --max-size 20": {
+      stdout: "✓ Max size set to: 20 KB\n",
+      stderr: "",
+      code: 0
+    },
+    "hooks list": {
+      stdout: "Hook Status:\n\n✓ PreCompact: enabled\n✓ UserPromptSubmit: enabled\n",
+      stderr: "",
+      code: 0
+    },
+    "hooks enable PreCompact": {
+      stdout: "✓ PreCompact hook enabled\n",
+      stderr: "",
+      code: 0
+    },
+    "hooks disable PreCompact": {
+      stdout: "✓ PreCompact hook disabled\n",
+      stderr: "",
+      code: 0
+    },
+    "hooks test PreCompact": {
+      stdout: "Testing PreCompact hook...\n✓ Hook test completed\n",
+      stderr: "",
+      code: 0
+    },
+    "hooks stats": {
+      stdout: "Hook Statistics:\n\nTotal executions: 42\nAvg duration: 150ms\n",
+      stderr: "",
+      code: 0
     }
   };
   

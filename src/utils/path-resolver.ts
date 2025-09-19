@@ -234,6 +234,11 @@ This archive contains Claude Code session data and analytics.
 function isTestProject(projectPath: string): boolean {
   const normalizedPath = path.normalize(projectPath).toLowerCase();
 
+  // Allow override for unit tests
+  if (process.env.CONTEXTKEEPER_DISABLE_TEST_FILTERING === "true") {
+    return false;
+  }
+
   // Check for test mode environment variable
   if (process.env.CONTEXTKEEPER_TEST_MODE === "true") {
     return true;

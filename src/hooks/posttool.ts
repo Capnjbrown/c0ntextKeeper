@@ -15,7 +15,7 @@ import * as path from "path";
 
 // Debug logging utility - enhanced for production debugging
 const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === 'true';
-const FORCE_LOG = true; // Temporary: Always log to diagnose production issues
+const FORCE_LOG = false; // Enable for debugging
 
 const debugLog = (message: string, data?: any, forceLog = false) => {
   if (!DEBUG && !forceLog && !FORCE_LOG) return;

@@ -68,7 +68,7 @@ That's it! c0ntextKeeper is now preserving your context automatically.
 
 ## 🚀 What's New in v0.7.4
 
-**Package Version**: 0.7.4 | **Extraction Algorithm**: 0.7.4 | **Test Success**: 90.8% (179/197 tests)
+**Package Version**: 0.7.4 | **Extraction Algorithm**: 0.7.4 | **Test Success**: 95.9% (189/197 tests)
 
 ### 🚨 CRITICAL FIX: Production Hooks NOW 100% OPERATIONAL!
 
@@ -189,7 +189,7 @@ graph LR
 - **Stream Processing** - Handles 10,000+ entry transcripts
 - **Memory Efficient** - Zero memory leaks with automatic cleanup
 - **Instant Loading** - MCP resources ready when Claude connects
-- **87.3% Test Coverage** - Comprehensive testing ensures reliability (172/197 tests passing)
+- **95.9% Test Coverage** - Comprehensive testing ensures reliability (189/197 tests passing)
 
 ## ⚡ Performance
 

@@ -18,6 +18,8 @@ describe('Path Resolver', () => {
   beforeEach(() => {
     // Set test mode to prevent global index pollution
     process.env.CONTEXTKEEPER_TEST_MODE = 'true';
+    // But disable test filtering for registerProject tests
+    process.env.CONTEXTKEEPER_DISABLE_TEST_FILTERING = 'true';
     
     // Clean test directory
     if (fs.existsSync(testDirBase)) {
@@ -39,8 +41,9 @@ describe('Path Resolver', () => {
     if (fs.existsSync(testDirBase)) {
       fs.rmSync(testDirBase, { recursive: true });
     }
-    // Clean up test mode flag
+    // Clean up test mode flags
     delete process.env.CONTEXTKEEPER_TEST_MODE;
+    delete process.env.CONTEXTKEEPER_DISABLE_TEST_FILTERING;
   });
   
   describe('getStoragePath', () => {
@@ -211,7 +214,8 @@ describe('Path Resolver', () => {
   describe('registerProject', () => {
     test('should register project in global index', () => {
       const globalPath = path.join(testDir, 'global');
-      const projectPath = path.join(testDir, 'my-project');
+      // Use a non-temp project path to avoid isTestProject() filtering
+      const projectPath = '/Users/test/my-project';
       
       // Mock global directory
       process.env.CONTEXTKEEPER_HOME = globalPath;
@@ -220,6 +224,11 @@ describe('Path Resolver', () => {
       registerProject(projectPath);
       
       const indexPath = path.join(globalPath, 'index.json');
+      if (!fs.existsSync(indexPath)) {
+        console.log('Global path:', globalPath);
+        console.log('Index path:', indexPath);
+        console.log('Files in global:', fs.existsSync(globalPath) ? fs.readdirSync(globalPath) : 'does not exist');
+      }
       expect(fs.existsSync(indexPath)).toBe(true);
       
       const index = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
@@ -232,7 +241,8 @@ describe('Path Resolver', () => {
     
     test('should update existing project entry', async () => {
       const globalPath = path.join(testDir, 'global');
-      const projectPath = path.join(testDir, 'my-project');
+      // Use a non-temp project path to avoid isTestProject() filtering
+      const projectPath = '/Users/test/my-project';
       
       process.env.CONTEXTKEEPER_HOME = globalPath;
       fs.mkdirSync(globalPath, { recursive: true });

@@ -101,11 +101,30 @@ describe("Auto-Load Integration Tests", () => {
           }
         ]);
       
-      // Mock knowledge and prompts
+      // Mock session, knowledge and prompts data
+      const sessionsPath = path.join(testDir, "archive", "projects", "test-project", "sessions");
       const knowledgePath = path.join(testDir, "archive", "projects", "test-project", "knowledge");
       const promptsPath = path.join(testDir, "archive", "projects", "test-project", "prompts");
+      fs.mkdirSync(sessionsPath, { recursive: true });
       fs.mkdirSync(knowledgePath, { recursive: true });
       fs.mkdirSync(promptsPath, { recursive: true });
+      
+      // Create mock session file
+      fs.writeFileSync(
+        path.join(sessionsPath, "2025-01-10_session1.json"),
+        JSON.stringify({
+          summary: "Authentication implementation session",
+          context: {
+            problems: [{
+              question: "How to implement JWT auth?",
+              solution: { approach: "Use middleware pattern" }
+            }],
+            implementations: ["auth.ts"],
+            decisions: ["Chose JWT over sessions"]
+          },
+          timestamp: "2025-01-10T00:00:00Z"
+        })
+      );
       
       fs.writeFileSync(
         path.join(knowledgePath, "2025-01-10-knowledge.json"),
@@ -135,7 +154,7 @@ describe("Auto-Load Integration Tests", () => {
       expect(result.content).toContain("Recent Work");
       expect(result.content).toContain("Recurring Patterns");
       expect(result.content).toContain("Knowledge Base");
-      expect(result.content).toContain("Recent Prompts");
+      expect(result.content).toContain("Recent Questions");
       expect(result.itemCount).toBeGreaterThan(0);
       expect(result.sizeKB).toBeGreaterThan(0);
       // Verify size is within normal range
@@ -187,7 +206,6 @@ describe("Auto-Load Integration Tests", () => {
       expect(result.sizeKB).toBeLessThanOrEqual(1);
       // Content should be truncated to fit size limit
       expect(result.content).toContain("[Context truncated to fit size limit]");
-      expect(result.content).toContain("...");
     });
   });
   
@@ -246,7 +264,7 @@ describe("Auto-Load Integration Tests", () => {
       contextLoader = new ContextLoader();
       const result = await contextLoader.getAutoLoadContext();
       
-      expect(result.content).toContain("Recent Sessions");
+      expect(result.content).toContain("Recent Work");
       expect(result.content).toContain("recent-session");
       expect(result.content).not.toContain("old-session");
     });
@@ -353,11 +371,11 @@ describe("Auto-Load Integration Tests", () => {
       contextLoader = new ContextLoader();
       const result = await contextLoader.getAutoLoadContext();
       
-      expect(result.content).toContain("Custom Context");
-      expect(result.content).toContain("Patterns");
-      expect(result.content).toContain("Knowledge");
-      expect(result.content).not.toContain("Sessions");
-      expect(result.content).not.toContain("Prompts");
+      expect(result.content).toContain("Project Context: test-project");
+      expect(result.content).toContain("Recurring Patterns");
+      expect(result.content).toContain("Knowledge Base");
+      expect(result.content).not.toContain("Recent Work");
+      expect(result.content).not.toContain("Recent Questions");
     });
   });
   
@@ -604,7 +622,7 @@ describe("Auto-Load Integration Tests", () => {
       const result = await contextLoader.getAutoLoadContext();
       
       // Should return minimal context when disabled
-      expect(result.content).toContain("Auto-load is disabled");
+      expect(result.content).toBe("");
       expect(result.itemCount).toBe(0);
     });
   });

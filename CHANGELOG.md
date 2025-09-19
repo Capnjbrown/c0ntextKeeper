@@ -48,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated misplaced data from `/archive/projects/scripts/` to correct location
 - Merged 5 unique prompt entries during migration
 - Cleaned archive structure to maintain single project organization
-- Enhanced debug logging with `FORCE_LOG=true` for production diagnostics
+- Enhanced debug logging (temporarily enabled `FORCE_LOG=true`, restored to `false` for production)
 
 ### Performance
 - All hooks now capture 100% of production data (up from 50%)

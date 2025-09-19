@@ -5,7 +5,7 @@ Welcome to the c0ntextKeeper documentation! This directory contains all technica
 ## 📊 Latest Updates (v0.7.4)
 
 - **[Performance Benchmarks](technical/performance-benchmarks.md)** - Comprehensive performance analysis showing <10ms operations
-- **[Test Results Summary](technical/test-results-summary.md)** - Complete test suite results (87.3% test pass rate)
+- **[Test Results Summary](technical/test-results-summary.md)** - Complete test suite results (95.9% test pass rate)
 - **[Auto-Load Guide](guides/auto-load-guide.md)** - New automatic context loading feature
 
 ## 📁 Documentation Structure
@@ -21,7 +21,7 @@ Core technical specifications and integration guides:
 - **[MCP Usage](technical/mcp-usage.md)** - Detailed MCP tool usage patterns
 - **[Storage Architecture](technical/storage.md)** - Hybrid storage system documentation (v0.7.4)
 - **[Performance Benchmarks](technical/performance-benchmarks.md)** - Performance analysis (<10ms operations)
-- **[Test Results Summary](technical/test-results-summary.md)** - Test suite results (87.3% test pass rate)
+- **[Test Results Summary](technical/test-results-summary.md)** - Test suite results (95.9% test pass rate)
 
 ### 📖 User Guides (`/guides`)
 End-user documentation and tutorials:
