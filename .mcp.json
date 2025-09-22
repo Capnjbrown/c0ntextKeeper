@@ -2,7 +2,7 @@
   "mcpServers": {
     "c0ntextkeeper": {
       "command": "node",
-      "args": ["/Users/jasonbrown/Projects/c0ntextKeeper/dist/server/index.js"]
+      "args": ["./dist/server/index.js"]
     },
     "sequential-thinking": {
       "command": "npx",
@@ -13,7 +13,7 @@
       "args": [
         "-y", 
         "@modelcontextprotocol/server-filesystem", 
-        "/Users/jasonbrown/Projects/c0ntextKeeper"
+        "."
       ]
     },
     "github-mcp": {

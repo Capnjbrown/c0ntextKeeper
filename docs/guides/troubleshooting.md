@@ -348,7 +348,7 @@ If issues persist:
 
 1. **Enable debug mode** and collect logs
 2. **Run health check** and save output
-3. **Check GitHub issues**: https://github.com/Capnjbrown/c0ntextKeeper/issues
+3. **Check GitHub issues**: https://github.com/yourusername/c0ntextKeeper/issues
 4. **Report new issues** with:
    - c0ntextKeeper version (`c0ntextkeeper --version`)
    - Claude Code version

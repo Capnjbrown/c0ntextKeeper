@@ -750,7 +750,7 @@ When updating documentation:
 ## Resources
 - [MCP SDK Docs](https://modelcontextprotocol.io)
 - [Claude Code Hooks](https://docs.anthropic.com/en/docs/claude-code/hooks)
-- [Project Repository](https://github.com/Capnjbrown/c0ntextKeeper)
+- [Project Repository](https://github.com/yourusername/c0ntextKeeper)
 - [Project Website](https://c0ntextkeeper.com)
 
 ## License

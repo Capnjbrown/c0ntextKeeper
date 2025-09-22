@@ -107,7 +107,7 @@ git push origin v0.7.4
 ```
 
 ### 3. GitHub Release
-1. Go to https://github.com/Capnjbrown/c0ntextKeeper/releases
+1. Go to https://github.com/yourusername/c0ntextKeeper/releases
 2. Click "Draft a new release"
 3. Select tag: v0.7.4
 4. Title: "v0.7.4: MCP Tools Reliability & Natural Language Processing"

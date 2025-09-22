@@ -77,8 +77,8 @@ Created comprehensive cleanup script that:
 const possiblePaths = [
   process.cwd(),
   process.env.PWD || process.cwd(),
-  '/Users/jasonbrown/Projects/c0ntextKeeper',  // Fallback to known project
-  '/Users/jasonbrown/projects/c0ntextkeeper',  // Case variation
+  '/home/user/Projects/c0ntextKeeper',  // Fallback example
+  '/home/user/projects/c0ntextkeeper',  // Case variation
 ];
 
 // Try each path until we find contexts

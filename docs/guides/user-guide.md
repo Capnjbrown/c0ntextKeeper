@@ -70,7 +70,7 @@ c0ntextKeeper stores all data locally on your Mac. The exact location depends on
 
 ### Global Storage Structure
 ```
-/Users/[directory-name]/                      # Your home directory (~)
+/home/[username]/                      # Your home directory (~)
 │
 ├── .claude/                            # Claude Code configuration
 │   ├── settings.json                   # ← Hook configuration lives here
@@ -129,10 +129,10 @@ Example output:
 ```
 C0ntextKeeper Storage Status
 
-Current Directory: /Users/jasonbrown/projects/my-app
+Current Directory: /home/user/projects/my-app
 Project Name: my-app
 ✓ Storage initialized (local)
-  Location: /Users/jasonbrown/projects/my-app/.c0ntextkeeper
+  Location: /home/user/projects/my-app/.c0ntextkeeper
   Version: 0.7.4
   Created: 2025-09-09
   Type: project
@@ -696,7 +696,7 @@ export C0NTEXTKEEPER_FILE_LOGGING=true
 2. **Check if extraction is working**:
 ```bash
 # Run test extraction
-node /Users/jasonbrown/Projects/c0ntextKeeper/scripts/test-extraction.js
+node ./scripts/test-extraction.js
 
 # Should see:
 # ✅ Extraction successful!
@@ -759,7 +759,7 @@ ls -la ~/.c0ntextkeeper/archive/projects/
 
 - **Documentation**: See [README.md](../../README.md) and [Hook Integration](../technical/hook-integration.md)
 - **Troubleshooting**: See the comprehensive troubleshooting section above
-- **Issues**: https://github.com/Capnjbrown/c0ntextKeeper/issues
+- **Issues**: https://github.com/yourusername/c0ntextKeeper/issues
 - **Logs**: Check `~/.c0ntextkeeper/logs/hook.log`
 - **Version**: Current version is v0.7.4 with all improvements
 

@@ -17,7 +17,7 @@ We take the security of c0ntextKeeper seriously. If you believe you have found a
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them via email to security@c0ntextkeeper.com or through GitHub's private vulnerability reporting feature.
+Instead, please report them through GitHub's private vulnerability reporting feature or via email (Note: security@c0ntextkeeper.com is a placeholder - please update with your actual security contact).
 
 You should receive a response within 48 hours. If for some reason you do not, please follow up via email to ensure we received your original message.
 
@@ -81,6 +81,7 @@ Security updates will be released as patch versions and announced through:
 
 ## Contact
 
-For security concerns, contact: security@c0ntextkeeper.com
+For security concerns, use GitHub's private vulnerability reporting feature.
+(Note: security@c0ntextkeeper.com is a placeholder email)
 
 Thank you for helping keep c0ntextKeeper and its users safe!

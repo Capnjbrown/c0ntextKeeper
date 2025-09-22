@@ -738,7 +738,7 @@ function sanitizeForFilename(str: string): string {
 /**
  * Extract project name from project path
  * Examples:
- * /Users/jasonbrown/Projects/c0ntextKeeper -> c0ntextKeeper
+ * /home/user/Projects/c0ntextKeeper -> c0ntextKeeper
  * /home/user/code/my-app -> my-app
  * C:\Users\Name\Projects\MyApp -> MyApp
  */

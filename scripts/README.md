@@ -240,4 +240,4 @@ c0ntextkeeper status
 For issues with scripts:
 1. Check script output for error messages
 2. Review logs in `~/.c0ntextkeeper/logs/`
-3. Report issues: https://github.com/Capnjbrown/c0ntextKeeper/issues
+3. Report issues: https://github.com/yourusername/c0ntextKeeper/issues

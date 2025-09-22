@@ -263,7 +263,7 @@ cat ~/.claude/settings.json | jq '.hooks'
 
 ```bash
 # Run the hook directly
-node /Users/jasonbrown/Projects/c0ntextKeeper/dist/hooks/precompact.js
+node ./dist/hooks/precompact.js
 
 # Check for errors (should exit immediately with no input)
 echo $?  # Should be 0 or 1
@@ -371,7 +371,7 @@ chmod 755 ~/.c0ntextkeeper/archive
 ```bash
 # Test with mock input
 echo '{"hook_event_name":"PreCompact","transcript_path":"/path/to/transcript.jsonl"}' | \
-  node /Users/jasonbrown/Projects/c0ntextKeeper/dist/hooks/precompact.js
+  node ./dist/hooks/precompact.js
 ```
 
 ### Issue: Claude CLI Commands Timeout
@@ -577,7 +577,7 @@ cat ~/.c0ntextkeeper/archive/projects/*/sessions/*.json | jq '.'
 
 # Test PostToolUse hook with MCP tools
 echo '{"hook_event_name":"PostToolUse","tool":"mcp__filesystem__read_file","input":{"path":"test.ts"},"result":{"content":"test"}}' | \
-  node /Users/jasonbrown/Projects/c0ntextKeeper/dist/hooks/posttool.js
+  node ./dist/hooks/posttool.js
 
 # Check MCP tool patterns
 cat ~/.c0ntextkeeper/archive/projects/*/patterns/*.json | jq '.'
@@ -621,7 +621,7 @@ c0ntextkeeper validate
 
 If you continue experiencing issues:
 
-1. Check [GitHub Issues](https://github.com/Capnjbrown/c0ntextKeeper/issues)
+1. Check [GitHub Issues](https://github.com/yourusername/c0ntextKeeper/issues)
 2. Enable debug mode and collect logs
 3. Run `c0ntextkeeper diagnose` to generate diagnostic report
 4. Contact support with diagnostic information

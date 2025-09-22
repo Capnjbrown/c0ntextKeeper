@@ -26,15 +26,15 @@
     "postinstall": "node scripts/post-install.js 2>/dev/null || true"
   },
   "keywords": ["claude", "mcp", "context", "ai", "development", "claude-code"],
-  "author": "Jason Brown",
+  "author": "c0ntextKeeper Contributors",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Capnjbrown/c0ntextKeeper"
+    "url": "https://github.com/yourusername/c0ntextKeeper"
   },
   "homepage": "https://c0ntextkeeper.com",
   "bugs": {
-    "url": "https://github.com/Capnjbrown/c0ntextKeeper/issues"
+    "url": "https://github.com/yourusername/c0ntextKeeper/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.4",

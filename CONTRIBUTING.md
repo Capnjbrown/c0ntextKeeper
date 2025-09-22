@@ -198,6 +198,6 @@ Contributors will be:
 Feel free to:
 - Open a GitHub Discussion
 - Ask in our Discord
-- Email maintainers@c0ntextkeeper.com
+- Email maintainers (Note: maintainers@c0ntextkeeper.com is a placeholder)
 
 Thank you for contributing to c0ntextKeeper! 🎉

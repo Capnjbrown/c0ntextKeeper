@@ -10,9 +10,9 @@
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple)](https://modelcontextprotocol.io)
-[![🤖 Fully Automatic](https://img.shields.io/badge/🤖-Fully%20Automatic-success)](https://github.com/Capnjbrown/c0ntextKeeper#-how-it-works-automatically)
+[![🤖 Fully Automatic](https://img.shields.io/badge/🤖-Fully%20Automatic-success)](https://github.com/yourusername/c0ntextKeeper#-how-it-works-automatically)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![GitHub Stars](https://img.shields.io/github/stars/Capnjbrown/c0ntextKeeper?style=social)](https://github.com/Capnjbrown/c0ntextKeeper/stargazers)
+[![GitHub Stars](https://img.shields.io/github/stars/yourusername/c0ntextKeeper?style=social)](https://github.com/yourusername/c0ntextKeeper/stargazers)
 
 ## 🎯 Why c0ntextKeeper?
 
@@ -220,7 +220,7 @@ npm install -g c0ntextkeeper
 
 #### Option 2: Local Development
 ```bash
-git clone https://github.com/Capnjbrown/c0ntextKeeper.git
+git clone https://github.com/yourusername/c0ntextKeeper.git
 cd c0ntextKeeper
 npm install
 npm link
@@ -990,10 +990,10 @@ We're planning a revolutionary upgrade to take c0ntextKeeper to the cloud:
 ## 💬 Support
 
 ### Getting Help
-- 📖 [Documentation Wiki](https://github.com/Capnjbrown/c0ntextKeeper/wiki)
-- 💬 [GitHub Discussions](https://github.com/Capnjbrown/c0ntextKeeper/discussions)
-- 🐛 [Issue Tracker](https://github.com/Capnjbrown/c0ntextKeeper/issues)
-- 📧 [Email Support](mailto:support@c0ntextkeeper.com)
+- 📖 [Documentation Wiki](https://github.com/yourusername/c0ntextKeeper/wiki)
+- 💬 [GitHub Discussions](https://github.com/yourusername/c0ntextKeeper/discussions)
+- 🐛 [Issue Tracker](https://github.com/yourusername/c0ntextKeeper/issues)
+- 📧 Email Support (placeholder - update with your contact)
 
 ### 📚 Documentation
 
@@ -1023,12 +1023,12 @@ We're planning a revolutionary upgrade to take c0ntextKeeper to the cloud:
 </p>
 
 <p align="center">
-  Built with ❤️ for the Claude Code community by <a href="https://github.com/Capnjbrown">Jason Brown</a>
+  Built with ❤️ for the Claude Code community by <a href="https://github.com/yourusername">the c0ntextKeeper Contributors</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Capnjbrown/c0ntextKeeper/stargazers">⭐ Star us on GitHub</a> • 
-  <a href="https://twitter.com/intent/tweet?text=Check%20out%20c0ntextKeeper%20-%20Never%20lose%20valuable%20context%20in%20Claude%20Code%20again!&url=https://github.com/Capnjbrown/c0ntextKeeper">Share on Twitter</a>
+  <a href="https://github.com/yourusername/c0ntextKeeper/stargazers">⭐ Star us on GitHub</a> • 
+  <a href="https://twitter.com/intent/tweet?text=Check%20out%20c0ntextKeeper%20-%20Never%20lose%20valuable%20context%20in%20Claude%20Code%20again!&url=https://github.com/yourusername/c0ntextKeeper">Share on Twitter</a>
 </p>
 
 SMB

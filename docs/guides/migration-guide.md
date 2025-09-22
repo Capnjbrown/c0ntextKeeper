@@ -401,7 +401,7 @@ message?: {
 ### Support
 
 If you encounter issues during migration:
-1. Check the [GitHub Issues](https://github.com/Capnjbrown/c0ntextKeeper/issues)
+1. Check the [GitHub Issues](https://github.com/yourusername/c0ntextKeeper/issues)
 2. Review test scripts in `/scripts` for examples
 3. Run diagnostic scripts:
    - `scripts/test-extraction.js` - Test basic extraction

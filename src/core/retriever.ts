@@ -51,8 +51,8 @@ export class ContextRetriever {
       const possiblePaths = [
         process.cwd(),
         process.env.PWD || process.cwd(),
-        "/Users/jasonbrown/Projects/c0ntextKeeper", // Fallback to known project
-        "/Users/jasonbrown/projects/c0ntextkeeper", // Case variation
+        "/home/user/projects/c0ntextKeeper", // Fallback example
+        "/home/user/Projects/c0ntextKeeper", // Case variation
       ];
 
       // Try each path until we find contexts

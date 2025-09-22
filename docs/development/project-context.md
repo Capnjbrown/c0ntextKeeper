@@ -10,7 +10,7 @@
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
 - **Version**: 0.7.4 (Package) / 0.7.4 (Extraction Algorithm) / 0.7.4 (MCP Server)
-- **Repository**: https://github.com/Capnjbrown/c0ntextKeeper
+- **Repository**: https://github.com/yourusername/c0ntextKeeper
 
 ### Purpose Statement
 c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 185 semantic patterns, making them instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding (v0.7.3 with tokenized word matching). The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.0 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.0 adds automatic context loading via MCP resources**, and **v0.7.3 critically fixes hooks that were only capturing 50% of data**. **Version 0.7.4 delivers critical production fixes** including PostToolUse field name normalization for production environments, Stop hook updates for Claude Code v1.0.119+ transcript format, enhanced project name resolution to prevent storage fragmentation, and complete TypeScript type error resolution, restoring 100% data capture functionality. The system works fully automatically, requiring zero manual intervention after initial setup.
@@ -292,7 +292,7 @@ npm run format          # Prettier formatting
 ### Development Setup
 ```bash
 # Inferred setup process
-git clone https://github.com/Capnjbrown/c0ntextKeeper.git
+git clone https://github.com/yourusername/c0ntextKeeper.git
 cd c0ntextKeeper
 npm install              # Install dependencies
 npm run build           # Build TypeScript
@@ -350,7 +350,7 @@ c0ntextkeeper setup     # Configure hooks
 ## Project Metadata
 
 ### Contributor Information
-- **Primary Maintainer**: Jason Brown (@Capnjbrown)
+- **Primary Maintainer**: c0ntextKeeper Contributors
 - **License**: MIT
 - **Last Activity**: 2025-09-10 (v0.7.2 release)
 - **Release Pattern**: Semantic versioning with CHANGELOG.md
