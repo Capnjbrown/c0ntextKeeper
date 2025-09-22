@@ -5,6 +5,36 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-09-22
+
+### Security
+- **Codebase sanitization for public release**: Comprehensive security review and cleanup
+  - Removed all sensitive information from documentation and code comments
+  - Sanitized example files and test fixtures
+  - Updated all documentation for open source readiness
+  - Ensured no exposed tokens, keys, or private data
+
+### Fixed
+- **Version synchronization**: Updated CLI and server components to v0.7.4
+  - Fixed version mismatch where components showed v0.7.1 instead of v0.7.4
+  - Ensured consistency across all version references
+- **Package-lock.json sync**: Aligned package-lock.json version with package.json v0.7.4
+
+### Changed
+- **CI/CD automation removal**: Simplified release process for open source
+  - Removed GitHub Actions workflow (.github/workflows/ci.yml)
+  - Updated documentation to reflect manual release process
+  - Modified CONTRIBUTING.md with new workflow guidelines
+  - Simplified multi-stage release checklist
+
+### Documentation
+- **Public release preparation**: Comprehensive documentation updates
+  - Updated README.md with final production status
+  - Refined CLAUDE.md with latest workflow guidelines
+  - Enhanced project-context.md as authoritative source of truth
+  - Cleaned up migration and troubleshooting guides
+  - Polished all technical documentation for public consumption
+
 ## [0.7.4] - 2025-09-19 (Evening Update)
 
 ### 🚨 Critical Production Fixes
@@ -130,34 +160,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated scripts/README.md to reflect cleaned structure
   - All test functionality preserved in `/tests/unit/` Jest test suite
 
-## [Unreleased] - 2025-09-18
-
-### Previous Fixes (now in 0.7.3)
-- **PostToolUse Hook Display**: Corrected matcher display in hooks-manager.ts from "Write|Edit|MultiEdit|Bash" to "*"
-  - Display now accurately reflects the wildcard matcher configured in Claude Code
-- **Production Logging**: Removed all console.log and console.error debug statements from Stop hook
-  - Cleaner production code without debug output
-- **Version Consistency**: Updated all version references to 0.7.2 across codebase
-  - extractionVersion in archiver.ts and extractor.ts now properly shows 0.7.2
-- **Archive Pollution**: Cleaned test artifacts from production archive folders
-  - Removed test-session data from patterns folder
-  - Removed test-only entries from knowledge folder
-  - Preserved genuine production data
-
-### Previous Updates (2025-09-17)
-
-#### Fixed
-- **Critical Stop Hook Fix**: Stop hook now properly reads transcript files from Claude Code
-  - Previously expected an `exchange` object but Claude Code sends `transcript_path`
-  - Hook now parses JSONL transcripts to extract Q&A pairs
-  - Knowledge base capturing restored to full functionality
-- **Jest Mocking Issue**: Resolved "Cannot redefine property: existsSync" error in context-loader tests
-  - Fixed fs module mocking approach for proper Jest compatibility
-  - Tests now properly mock file system operations
-
-#### Added
-- Multi-stage release checklist for development → staging → public repo → npm workflow
-- Enhanced Stop hook to handle both transcript files and direct exchange data
 
 ## [0.7.2+] - 2025-09-16
 

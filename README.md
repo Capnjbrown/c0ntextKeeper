@@ -1031,4 +1031,4 @@ We're planning a revolutionary upgrade to take c0ntextKeeper to the cloud:
   <a href="https://twitter.com/intent/tweet?text=Check%20out%20c0ntextKeeper%20-%20Never%20lose%20valuable%20context%20in%20Claude%20Code%20again!&url=https://github.com/yourusername/c0ntextKeeper">Share on Twitter</a>
 </p>
 
-SMB
+                                    sMB
