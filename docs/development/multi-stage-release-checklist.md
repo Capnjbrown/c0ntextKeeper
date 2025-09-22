@@ -174,10 +174,10 @@ c0ntextkeeper validate
   - [ ] Protect main branch
   - [ ] Require PR reviews
   - [ ] Require status checks
-- [ ] Configure GitHub Actions
-  - [ ] CI/CD pipeline
-  - [ ] Automated testing
-  - [ ] Security scanning
+- [ ] Configure repository settings
+  - [ ] Enable issues
+  - [ ] Enable discussions (optional)
+  - [ ] Set up topics and description
 - [ ] Add community files
   - [ ] CONTRIBUTING.md
   - [ ] CODE_OF_CONDUCT.md
@@ -188,7 +188,6 @@ c0ntextkeeper validate
 
 ### Public Repository Validation
 - [ ] All links work correctly
-- [ ] CI/CD pipeline runs successfully
 - [ ] README displays correctly
 - [ ] Installation from GitHub works
   ```bash
@@ -197,7 +196,7 @@ c0ntextkeeper validate
 
 ### Transition Criteria to Phase 4
 - [ ] Public repository fully configured
-- [ ] All tests passing in CI/CD
+- [ ] All tests passing locally
 - [ ] Documentation renders correctly
 - [ ] No references to private repository
 - [ ] Community files in place

@@ -248,8 +248,7 @@ c0ntextkeeper context configure # Configure auto-load settings
 |---------|------------------|----------------|---------|
 | Claude Code | Hook system | Local file access | Context preservation trigger |
 | npm registry | Package distribution | NPM_TOKEN | Package publishing |
-| GitHub | CI/CD and repository | GITHUB_TOKEN | Source control and automation |
-| Codecov | CI pipeline | Token | Coverage reporting |
+| GitHub | Repository | GITHUB_TOKEN | Source control |
 
 ### Environment Requirements
 ```bash
@@ -282,7 +281,7 @@ npm run format          # Prettier formatting
 ### Test Infrastructure
 - **Test Files Found**: 2 unit test files (extractor.test.ts, security-filter.test.ts)
 - **Test Types**: Unit tests, integration tests planned
-- **Coverage**: Coverage reporting via Jest with Codecov integration
+- **Coverage**: Coverage reporting via Jest
 - **Test Commands**: 
   ```bash
   npm test                # Run all tests
@@ -323,7 +322,6 @@ c0ntextkeeper setup     # Configure hooks
 ### Deployment Configuration
 - **Target Environment**: Local development machines (macOS/Linux/Windows)
 - **Distribution**: npm package + GitHub releases
-- **CI/CD Pipeline**: GitHub Actions with semantic release
 - **Infrastructure as Code**: Not applicable (local tool)
 
 ### Monitoring & Observability

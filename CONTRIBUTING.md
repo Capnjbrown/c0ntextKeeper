@@ -174,7 +174,7 @@ docs(readme): add installation troubleshooting section
 
 ## Review Process
 
-1. **Automated checks** must pass (CI/CD)
+1. **All tests** must pass locally
 2. **Code review** by at least one maintainer
 3. **Documentation review** for new features
 4. **Testing verification** for bug fixes

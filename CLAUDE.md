@@ -90,7 +90,6 @@ c0ntextKeeper v0.7.4 is production-ready with critical production fixes:
 - **Security First** - Automatic filtering of sensitive data
 - **Full TypeScript** - Type-safe with strict mode
 - **Comprehensive Testing** - 95.9% test pass rate (189/197 tests passing)
-- **CI/CD Pipeline** - GitHub Actions with multi-version testing
 
 ## Completed Development Milestones
 
@@ -180,9 +179,7 @@ c0ntextKeeper/
 │   ├── fix-unknown-sessions.js # Fix sessionIds
 │   └── validate-public-ready.sh # Release validation
 ├── .npmignore             # NPM publish configuration
-├── .github/
-│   └── workflows/
-│       └── ci.yml          # GitHub Actions CI/CD
+├── .github/              # GitHub templates and settings
 └── tests/
     ├── setup.ts           # Test configuration
     └── unit/              # Jest test files
@@ -364,7 +361,6 @@ After analysis with sequential-thinking, select servers based on task type:
 - `test`: Adding missing tests
 - `chore`: Maintenance, dependencies
 - `perf`: Performance improvements
-- `ci`: CI/CD changes
 - `build`: Build system changes
 
 #### Rules
@@ -633,7 +629,6 @@ When updating documentation:
 - ✅ Mock JSONL transcripts for testing (7 comprehensive test scripts)
 - ✅ Performance benchmarks (<10ms average operations)
 - ✅ End-to-end hook testing (all 4 hooks verified)
-- ✅ CI/CD pipeline with Node.js 18.x, 20.x, 22.x matrix
 - ✅ Automated security audits (0 vulnerabilities)
 - ✅ Test documentation in [docs/technical/](docs/technical/)
 
@@ -731,7 +726,6 @@ When updating documentation:
   - Commander v12 → v14
   - ESLint v8 → v9 (flat config migration)
 - ✅ **Security Hardening**: Comprehensive filtering for sensitive data
-- ✅ **CI/CD Pipeline**: GitHub Actions with multi-version testing
 - ✅ **Open Source Ready**: CONTRIBUTING.md with guidelines
 - ✅ **Code Quality**: ESLint v9, TypeScript strict mode, Prettier
 - ✅ **Test Coverage**: 95.9% test pass rate (189/197 tests), all critical paths tested
@@ -766,6 +760,7 @@ MIT - Open source for the community
 
 ### Development Guidelines
 - **ALWAYS** read project-context.md before starting work
+- **ALWAYS** read the entire file contents BEFORE making any edits or changes to ANY file in the project
 - **IMMEDIATELY** update project-context.md for significant changes
 - **ALWAYS** use sequential-thinking for complex tasks
 - **NEVER** execute git commits - only draft messages
