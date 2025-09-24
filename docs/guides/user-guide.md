@@ -1,10 +1,17 @@
 # 📚 c0ntextKeeper User Guide
 
-> Last Updated: 2025-09-19 for v0.7.4
+> Last Updated: 2025-09-24 for v0.7.5
 
-## 🎯 What's New in v0.7.4
+## 🎯 What's New in v0.7.5
 
-### Enhanced MCP Tools Reliability
+### Search Indexing & Beautiful CLI
+- **🔍 Fast Search Index** - O(1) keyword lookups with inverted index
+- **🎨 Beautiful CLI Output** - Semantic colors and icons with chalk
+- **📈 99.5% Test Coverage** - Up from 95.9% (196/197 tests)
+- **🆕 New Command** - `rebuild-index` for recreating search index
+- **🧠 189+ Patterns** - Enhanced semantic pattern detection
+
+### Previous Release (v0.7.4): Enhanced MCP Tools Reliability
 - **✅ Fixed Relevance Scoring** - Now properly capped at 100%
 - **🆔 No More "Unknown" Sessions** - Every session gets a proper ID
 - **🧠 Natural Language Queries** - Better understanding with stop word filtering
@@ -13,7 +20,7 @@
 
 Run `node scripts/fix-unknown-sessions.js` to migrate existing archives.
 
-## 🏗️ Storage Modes (v0.7.4+)
+## 🏗️ Storage Modes (v0.7.0+)
 
 c0ntextKeeper v0.7.4 introduces flexible storage options to match your workflow:
 

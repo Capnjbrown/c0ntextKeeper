@@ -31,6 +31,8 @@
 - 🤖 **Fully Automatic** - Preserves context without any manual intervention
 - ⚡ **Blazing Fast** - All operations under 10ms average performance
 - 🧠 **Intelligent Extraction** - 189+ semantic patterns for context detection
+- 🔍 **Fast Search** - O(1) keyword lookups with inverted index
+- 🎨 **Beautiful CLI** - Rich formatting with chalk styling
 - 📊 **Rich Analytics** - Track tools, patterns, and session insights
 - 🔍 **Natural Language Search** - Enhanced query understanding in v0.7.4
 - 🔒 **Security First** - Automatic filtering of sensitive data
@@ -38,7 +40,7 @@
 
 ## 📑 Table of Contents
 - [Quick Start](#-quick-start)
-- [What's New in v0.7.4](#-whats-new-in-v074)
+- [What's New in v0.7.5](#-whats-new-in-v075)
 - [How It Works](#-how-it-works)
 - [Installation](#-installation)
 - [Storage Architecture](#-storage-architecture)
@@ -66,7 +68,7 @@ That's it! c0ntextKeeper is now preserving your context automatically.
 
 ## 🚀 What's New in v0.7.4
 
-**Package Version**: 0.7.4 | **Extraction Algorithm**: 0.7.4 | **Test Success**: 95.9% (189/197 tests)
+**Package Version**: 0.7.5 | **Extraction Algorithm**: 0.7.5 | **Test Success**: 99.5% (196/197 tests)
 
 ### 🚨 CRITICAL FIX: Production Hooks NOW 100% OPERATIONAL!
 
@@ -505,9 +507,9 @@ Decision from 2025-08-10:
 - Impact: 10x faster session retrieval
 ```
 
-## 🛠️ CLI Commands (24 Commands Available)
+## 🛠️ CLI Commands (25 Commands Available)
 
-c0ntextKeeper provides a comprehensive CLI with 24 commands for complete control:
+c0ntextKeeper provides a comprehensive CLI with 25 commands for complete control:
 
 ### Setup & Configuration
 
@@ -590,6 +592,9 @@ c0ntextkeeper cleanup         # Clean invalid/test projects from global index
   --dry-run                   # Preview changes without modifying
   --backup                    # Create backup before cleaning (default: true)
   --force                     # Skip confirmation prompts
+
+# Rebuild search index for fast lookups
+c0ntextkeeper rebuild-index   # Recreate inverted index from all sessions
 
 # Migrate archives (v0.7.2 includes sessionId fixes)
 c0ntextkeeper migrate         # Migrate old archives to latest format

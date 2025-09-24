@@ -6,17 +6,20 @@
 import { ExtractedContext, TranscriptEntry } from "./types.js";
 import { ContextExtractor } from "./extractor.js";
 import { FileStore } from "../storage/file-store.js";
+import { SearchIndexer } from "./indexer.js";
 import { parseTranscript } from "../utils/transcript.js";
 import { Logger } from "../utils/logger.js";
 
 export class ContextArchiver {
   private extractor: ContextExtractor;
   private storage: FileStore;
+  private indexer: SearchIndexer;
   private logger: Logger;
 
-  constructor(storage?: FileStore, extractor?: ContextExtractor) {
+  constructor(storage?: FileStore, extractor?: ContextExtractor, indexer?: SearchIndexer) {
     this.storage = storage || new FileStore();
     this.extractor = extractor || new ContextExtractor();
+    this.indexer = indexer || new SearchIndexer();
     this.logger = new Logger("ContextArchiver");
   }
 
@@ -87,6 +90,15 @@ export class ContextArchiver {
       const archivePath = await this.storage.store(context);
       this.logger.info(`Context archived to: ${archivePath}`);
 
+      // Update search index
+      try {
+        await this.indexer.updateIndex(context.sessionId, context);
+        this.logger.info('Search index updated');
+      } catch (indexError) {
+        // Log but don't fail the archive operation
+        this.logger.warn('Failed to update search index:', indexError);
+      }
+
       // Return success with statistics
       return {
         success: true,
@@ -124,6 +136,13 @@ export class ContextArchiver {
       // Store the context
       const archivePath = await this.storage.store(context);
 
+      // Update search index
+      try {
+        await this.indexer.updateIndex(context.sessionId, context);
+      } catch (indexError) {
+        this.logger.warn('Failed to update search index:', indexError);
+      }
+
       return {
         success: true,
         archivePath,
@@ -142,7 +161,16 @@ export class ContextArchiver {
    * Archive pre-extracted context
    */
   async archive(context: ExtractedContext): Promise<string> {
-    return await this.storage.store(context);
+    const archivePath = await this.storage.store(context);
+
+    // Update search index
+    try {
+      await this.indexer.updateIndex(context.sessionId, context);
+    } catch (indexError) {
+      this.logger.warn('Failed to update search index:', indexError);
+    }
+
+    return archivePath;
   }
 
   /**

@@ -77,6 +77,48 @@ export function getStoragePath(options: StorageOptions = {}): string {
 }
 
 /**
+ * Get possible project paths for context retrieval
+ * Returns an array of paths to check for project contexts
+ */
+export function getProjectPaths(): string[] {
+  const paths: string[] = [];
+
+  // 1. Current working directory
+  paths.push(process.cwd());
+
+  // 2. PWD environment variable (if different from cwd)
+  if (process.env.PWD && process.env.PWD !== process.cwd()) {
+    paths.push(process.env.PWD);
+  }
+
+  // 3. Walk up directory tree to find parent projects with .c0ntextkeeper
+  let current = process.cwd();
+  const root = path.parse(current).root;
+
+  while (current !== root) {
+    const parentDir = path.dirname(current);
+    if (parentDir === current) break; // Prevent infinite loop
+
+    const contextKeeperPath = path.join(parentDir, CONTEXTKEEPER_DIR);
+    if (fs.existsSync(contextKeeperPath)) {
+      paths.push(parentDir);
+    }
+    current = parentDir;
+  }
+
+  // 4. Add from environment variable if set
+  if (process.env.CONTEXTKEEPER_PROJECT_PATHS) {
+    const envPaths = process.env.CONTEXTKEEPER_PROJECT_PATHS.split(
+      process.platform === "win32" ? ";" : ":"
+    );
+    paths.push(...envPaths.map(p => path.resolve(p)));
+  }
+
+  // Remove duplicates and return
+  return [...new Set(paths)];
+}
+
+/**
  * Gets comprehensive project storage information
  */
 export function getProjectStorageInfo(

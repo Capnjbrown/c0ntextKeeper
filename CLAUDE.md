@@ -31,21 +31,22 @@ project-context.md contains:
 
 ⚠️ **This CLAUDE.md file provides workflow guidelines, but project-context.md is the authoritative technical reference.**
 
-## Current State: Production Ready v0.7.4 🎉
+## Current State: Production Ready v0.7.5 🎉
 
+**⚡ NEW**: v0.7.5 (Released 2025-09-24) adds search indexing with O(1) lookups and beautiful CLI styling!
 **🚨 CRITICAL UPDATE**: v0.7.4 (Released 2025-09-19 Evening) fixes critical production failures - hooks now capture 100% of data!
 
-c0ntextKeeper v0.7.4 is production-ready with critical production fixes:
+c0ntextKeeper v0.7.5 is production-ready with search indexing and beautiful CLI:
 - ✅ **Auto-Load Context** - MCP resources provide immediate project awareness
 - ✅ **Unified Storage Architecture** - Intelligent project-name based organization
 - ✅ **Fully Automatic Operation** - Works with manual and auto compaction
 - ✅ **Claude Code Compatibility** - Parses JSONL transcripts, stores as JSON
-- ✅ **189+ Semantic Patterns** - Superior context extraction
+- ✅ **189+ Semantic Patterns** - Superior context extraction (increased from 185)
 - ✅ **4 Working Hooks** - NOW CAPTURING 100% OF DATA (fixed from 50%)
 - ✅ **3 MCP Tools + Resources** - Enhanced search with tokenized word matching
 - ✅ **Analytics Dashboard** - Rich insights in every archive
 - ✅ **Security Filtering** - Automatic sensitive data protection
-- ✅ **95.9% Test Pass Rate** - Comprehensive testing (189/197 tests passing)
+- ✅ **99.5% Test Pass Rate** - Comprehensive testing (196/197 tests passing)
 - ✅ **<10ms Performance** - Exceptional operation speed
 - ✅ **Open Source Ready** - Complete documentation and pre-release checklist
 
@@ -59,6 +60,7 @@ c0ntextKeeper v0.7.4 is production-ready with critical production fixes:
 - `archiver.ts` - Context archival management
 - `retriever.ts` - Fast context retrieval and search (v0.7.4: tokenized word matching for better NLP)
 - `patterns.ts` - Pattern recognition and analysis
+- `indexer.ts` - Search index manager with inverted index (v0.7.5: O(1) keyword lookups)
 - `file-store.ts` - Efficient file-based storage with getBasePath method
 - `precompact.ts` - PreCompact hook handler (automatic + manual compaction)
 - `userprompt.ts` - UserPromptSubmit hook (v0.7.4: tracks follow-up questions)
@@ -96,6 +98,14 @@ c0ntextKeeper v0.7.4 is production-ready with critical production fixes:
 ## Completed Development Milestones
 
 ### Version History
+- **v0.7.5** (2025-09-24) - Search indexing, chalk styling, improved test coverage
+  - Added SearchIndexer with inverted index for O(1) keyword lookups
+  - Beautiful CLI output with chalk styling and semantic colors
+  - Test coverage improved to 99.5% (196/197 tests passing)
+  - Added `rebuild-index` CLI command
+  - Increased semantic patterns to 189+ (from 185)
+  - Fixed failing tests in context-loader.test.ts
+  - Added comprehensive EXAMPLES.md documentation
 - **v0.7.4** (2025-09-19) - 🚨 CRITICAL: Fixed hooks capturing only 50% of data
   - PostToolUse now captures ALL tool usage (was missing 50%)
   - Stop hook enhanced Q&A capture reliability

@@ -13,16 +13,20 @@ import {
 } from "./types.js";
 import { FileStore } from "../storage/file-store.js";
 import { RelevanceScorer } from "./scorer.js";
+import { SearchIndexer } from "./indexer.js";
 import { Logger } from "../utils/logger.js";
+import { getProjectPaths } from "../utils/path-resolver.js";
 
 export class ContextRetriever {
   private storage: FileStore;
   private scorer: RelevanceScorer;
+  private indexer: SearchIndexer;
   private logger: Logger;
 
-  constructor(storage?: FileStore) {
+  constructor(storage?: FileStore, indexer?: SearchIndexer) {
     this.storage = storage || new FileStore();
     this.scorer = new RelevanceScorer();
+    this.indexer = indexer || new SearchIndexer();
     this.logger = new Logger("ContextRetriever");
   }
 
@@ -47,13 +51,8 @@ export class ContextRetriever {
 
     // Get contexts based on scope
     if (scope === "project") {
-      // For project scope, try multiple possible project paths
-      const possiblePaths = [
-        process.cwd(),
-        process.env.PWD || process.cwd(),
-        "/home/user/projects/c0ntextKeeper", // Fallback example
-        "/home/user/Projects/c0ntextKeeper", // Case variation
-      ];
+      // For project scope, try multiple possible project paths dynamically
+      const possiblePaths = getProjectPaths();
 
       // Try each path until we find contexts
       for (const projectPath of possiblePaths) {
@@ -116,6 +115,55 @@ export class ContextRetriever {
     } = input;
 
     this.logger.info(`Searching archive: query="${query}", sortBy=${sortBy}`);
+
+    // Try using search index first for faster results
+    try {
+      const indexResults = await this.indexer.search(query, limit * 2);
+      if (indexResults.length > 0) {
+        this.logger.info(`Found ${indexResults.length} results using search index`);
+
+        // Convert index results to full contexts
+        const contexts: ExtractedContext[] = [];
+        for (const result of indexResults) {
+          try {
+            const context = await this.storage.getBySessionId(result.sessionId);
+            if (context) {
+              contexts.push(context);
+            }
+          } catch (err) {
+            this.logger.warn(`Failed to load session ${result.sessionId}:`, err);
+          }
+        }
+
+        if (contexts.length > 0) {
+          // Apply additional filters if specified
+          let filtered = contexts;
+
+          if (dateRange) {
+            filtered = filtered.filter(c => {
+              const timestamp = new Date(c.timestamp).getTime();
+              const from = dateRange.from ? new Date(dateRange.from).getTime() : 0;
+              const to = dateRange.to ? new Date(dateRange.to).getTime() : Date.now();
+              return timestamp >= from && timestamp <= to;
+            });
+          }
+
+          // Sort and limit results
+          if (sortBy === "date") {
+            filtered.sort((a, b) =>
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+          }
+
+          const limitedResults = filtered.slice(0, limit);
+
+          // Convert to SearchResult format
+          return this.contextsToSearchResults(limitedResults, query);
+        }
+      }
+    } catch (indexError) {
+      this.logger.warn('Failed to use search index, falling back to full search:', indexError);
+    }
 
     // Create search predicate
     const predicate = (context: ExtractedContext): boolean => {
@@ -543,5 +591,66 @@ export class ContextRetriever {
     // Return percentage of matched words (ANY match strategy)
     // Even one word match gives some score
     return matchedWords / queryWords.length;
+  }
+
+  /**
+   * Convert contexts to SearchResult format
+   */
+  private contextsToSearchResults(
+    contexts: ExtractedContext[],
+    query: string
+  ): SearchResult[] {
+    const results: SearchResult[] = [];
+
+    for (const context of contexts) {
+      const matches: Match[] = [];
+
+      // Check for matches in problems
+      if (context.problems) {
+        for (const problem of context.problems) {
+          if (problem.question.toLowerCase().includes(query.toLowerCase())) {
+            matches.push({
+              field: 'problem',
+              snippet: problem.question.substring(0, 200),
+              score: 1.0
+            });
+          }
+          if (problem.solution?.approach.toLowerCase().includes(query.toLowerCase())) {
+            matches.push({
+              field: 'solution',
+              snippet: problem.solution.approach.substring(0, 200),
+              score: 0.8
+            });
+          }
+        }
+      }
+
+      // Check for matches in implementations
+      if (context.implementations) {
+        for (const impl of context.implementations) {
+          if (impl.description.toLowerCase().includes(query.toLowerCase())) {
+            matches.push({
+              field: 'implementation',
+              snippet: impl.description.substring(0, 200),
+              score: 0.7
+            });
+          }
+        }
+      }
+
+      // Calculate overall relevance
+      const relevance = this.calculateRelevance(context, query);
+
+      results.push({
+        context,
+        matches,
+        relevance
+      });
+    }
+
+    // Sort by relevance
+    results.sort((a, b) => b.relevance - a.relevance);
+
+    return results;
   }
 }

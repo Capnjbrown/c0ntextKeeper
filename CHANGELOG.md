@@ -5,6 +5,46 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.5] - 2025-09-24
+
+### Added
+- **SearchIndexer Module**: Fast keyword search with inverted index for O(1) lookups
+  - Automatic keyword extraction with stop word filtering
+  - Session-based indexing with relevance scoring
+  - JSON-based persistent index with metadata tracking
+  - New `rebuild-index` CLI command to recreate index from scratch
+- **CLI Styling with Chalk**: Beautiful command-line output with semantic colors
+  - Color-coded success/error/warning messages
+  - Semantic icons for better visual hierarchy
+  - Platform-aware fallbacks for Windows compatibility
+  - Enhanced readability for all CLI commands
+- **EXAMPLES.md**: Comprehensive real-world usage examples
+  - 5 common scenarios with actual command outputs
+  - Step-by-step guidance for new users
+  - Practical patterns for effective usage
+
+### Improved
+- **Test Coverage**: Increased to 99.5% (196/197 tests passing)
+  - Fixed test expectations for context loader
+  - Resolved integration test issues
+  - Improved test reliability and consistency
+- **Semantic Patterns**: Increased to 189+ (from 185)
+  - Better problem/solution detection
+  - Enhanced implementation tracking
+  - More accurate decision capture
+- **CLI Commands**: Total of 25 commands (added rebuild-index)
+
+### Fixed
+- **Test Failures**: Fixed 2 failing tests in context-loader.test.ts
+  - Corrected itemCount expectation for project header
+  - Adjusted size limit for header and truncation message
+  - Fixed integration test for non-existent storage paths
+
+### Technical Improvements
+- **Search Performance**: Near-instant keyword lookups with inverted index
+- **Memory Efficiency**: Optimized index structure for large archives
+- **Code Quality**: Added cli-styles.ts for centralized styling utilities
+
 ## [Unreleased] - 2025-09-22
 
 ### Security

@@ -9,9 +9,11 @@ import { Command } from "commander";
 import { ContextArchiver } from "./core/archiver.js";
 import { ContextRetriever } from "./core/retriever.js";
 import { PatternAnalyzer } from "./core/patterns.js";
+import { SearchIndexer } from "./core/indexer.js";
 import { FileStore } from "./storage/file-store.js";
 import { Logger } from "./utils/logger.js";
 import { formatTimestamp, formatFileSize } from "./utils/formatter.js";
+import { styles, formatHeader, formatSuccess, formatWarning, formatError, formatTable } from "./utils/cli-styles.js";
 import { initCommand, statusCommand } from "./cli/init.js";
 import { execSync } from "child_process";
 import path from "path";
@@ -73,18 +75,19 @@ program
       const result = await archiver.archiveFromTranscript(transcriptPath);
 
       if (result.success) {
-        console.log("✅ Context archived successfully!");
-        console.log(`📁 Location: ${result.archivePath}`);
-        console.log("\n📊 Statistics:");
-        console.log(`  Problems: ${result.stats?.problems || 0}`);
-        console.log(`  Implementations: ${result.stats?.implementations || 0}`);
-        console.log(`  Decisions: ${result.stats?.decisions || 0}`);
-        console.log(`  Patterns: ${result.stats?.patterns || 0}`);
+        console.log(formatSuccess("✅ Context archived successfully!"));
+        console.log(styles.info(`📁 Location: ${result.archivePath}`));
+        console.log();
+        console.log(styles.header("📊 Statistics:"));
+        console.log(styles.muted(`  Problems: ${result.stats?.problems || 0}`));
+        console.log(styles.muted(`  Implementations: ${result.stats?.implementations || 0}`));
+        console.log(styles.muted(`  Decisions: ${result.stats?.decisions || 0}`));
+        console.log(styles.muted(`  Patterns: ${result.stats?.patterns || 0}`));
         console.log(
-          `  Relevance: ${((result.stats?.relevanceScore || 0) * 100).toFixed(0)}%`,
+          styles.highlight(`  Relevance: ${((result.stats?.relevanceScore || 0) * 100).toFixed(0)}%`),
         );
       } else {
-        console.error("❌ Archive failed:", result.error);
+        console.error(formatError(`Archive failed: ${result.error}`));
         process.exit(1);
       }
     } catch (error) {
@@ -105,25 +108,19 @@ program
 
       // If no query provided, show recent archives
       if (!query) {
-        console.log(
-          "📚 Recent Archives (use a search query to find specific content)\n",
-        );
+        console.log(formatHeader("📚 Recent Archives"));
+        console.log(styles.muted("Use a search query to find specific content\n"));
 
         const storage = new FileStore();
         const stats = await storage.getStats();
 
         if (stats.totalSessions === 0) {
-          console.log("No archives found yet.");
-          console.log("\n💡 Tips:");
-          console.log(
-            "  • Archives are created automatically during compaction",
-          );
-          console.log(
-            "  • Use 'c0ntextkeeper archive <file>' to manually archive",
-          );
-          console.log(
-            "  • Try 'c0ntextkeeper search authentication' to search for specific topics",
-          );
+          console.log(styles.warning("No archives found yet."));
+          console.log();
+          console.log(styles.info("💡 Tips:"));
+          console.log(styles.muted("  • Archives are created automatically during compaction"));
+          console.log(styles.muted("  • Use 'c0ntextkeeper archive <file>' to manually archive"));
+          console.log(styles.muted("  • Try 'c0ntextkeeper search authentication' to search for specific topics"));
           return;
         }
 
@@ -134,25 +131,26 @@ program
           projectPath: options.project,
         });
 
-        console.log(
-          `Showing ${Math.min(5, results.length)} most recent archives:\n`,
-        );
+        console.log(styles.info(`Showing ${Math.min(5, results.length)} most recent archives:\n`));
 
         results.slice(0, 5).forEach((result, index) => {
-          console.log(`${index + 1}. Session: ${result.context.sessionId}`);
-          console.log(`   Project: ${result.context.projectPath}`);
-          console.log(`   Date: ${formatTimestamp(result.context.timestamp)}`);
+          console.log(styles.header(`${index + 1}. Session: ${result.context.sessionId}`));
+          console.log(styles.muted(`   Project: ${result.context.projectPath}`));
+          console.log(styles.muted(`   Date: ${formatTimestamp(result.context.timestamp)}`));
           console.log();
         });
 
-        console.log("💡 Search examples:");
-        console.log("  • c0ntextkeeper search 'authentication'");
-        console.log("  • c0ntextkeeper search 'error' --limit 20");
-        console.log("  • c0ntextkeeper search 'bug fix' --project ~/myproject");
+        console.log(styles.info("💡 Search examples:"));
+        console.log(styles.code("  c0ntextkeeper search 'authentication'"));
+        console.log(styles.code("  c0ntextkeeper search 'error' --limit 20"));
+        console.log(styles.code("  c0ntextkeeper search 'bug fix' --project ~/myproject"));
         return;
       }
 
       // Original search logic when query is provided
+      console.log(formatHeader(`🔍 Searching for: "${query}"`));
+      console.log();
+
       const results = await retriever.searchArchive({
         query,
         limit: parseInt(options.limit),
@@ -160,28 +158,32 @@ program
       });
 
       if (results.length === 0) {
-        console.log("No results found.");
+        console.log(formatWarning("No results found."));
+        console.log();
+        console.log(styles.tip("💡 Try using different keywords or check your spelling"));
         return;
       }
 
-      console.log(`Found ${results.length} results:\n`);
+      console.log(formatSuccess(`Found ${results.length} result${results.length > 1 ? 's' : ''}:`));
+      console.log();
 
       results.forEach((result, index) => {
-        console.log(`Result ${index + 1}:`);
-        console.log(`  Session: ${result.context.sessionId}`);
-        console.log(`  Project: ${result.context.projectPath}`);
-        console.log(`  Date: ${result.context.timestamp}`);
-        console.log(`  Relevance: ${(result.relevance * 100).toFixed(0)}%`);
+        console.log(styles.header(`Result ${index + 1}:`));
+        console.log(styles.info(`  🆔 Session: ${result.context.sessionId}`));
+        console.log(styles.muted(`  📁 Project: ${result.context.projectPath}`));
+        console.log(styles.muted(`  📅 Date: ${formatTimestamp(result.context.timestamp)}`));
+        console.log(styles.highlight(`  📈 Relevance: ${(result.relevance * 100).toFixed(0)}%`));
 
         if (result.matches.length > 0) {
-          console.log("  Matches:");
+          console.log(styles.info("  🎯 Matches:"));
           result.matches.slice(0, 3).forEach((match) => {
-            console.log(`    - ${match.field}: ${match.snippet}`);
+            console.log(styles.muted(`    • ${match.field}:`), styles.text(match.snippet));
           });
         }
         console.log();
       });
     } catch (error) {
+      console.error(formatError("Search failed:"));
       logger.error("Search error:", error);
       process.exit(1);
     }
@@ -199,6 +201,9 @@ program
   .option("-m, --min <number>", "Minimum frequency", "2")
   .action(async (options: any) => {
     try {
+      console.log(formatHeader("🌐 Pattern Analysis"));
+      console.log();
+
       const analyzer = new PatternAnalyzer();
       const patterns = await analyzer.getPatterns({
         type: options.type,
@@ -206,21 +211,30 @@ program
       });
 
       if (patterns.length === 0) {
-        console.log("No patterns found.");
+        console.log(formatWarning("No patterns found."));
+        console.log();
+        console.log(styles.tip("💡 Patterns are discovered after multiple similar actions"));
+        console.log(styles.muted("  Lower the minimum frequency with --min 1"));
         return;
       }
 
-      console.log(`Found ${patterns.length} patterns:\n`);
+      console.log(formatSuccess(`Found ${patterns.length} pattern${patterns.length > 1 ? 's' : ''}:`));
+      console.log();
 
       patterns.forEach((pattern, index) => {
-        console.log(`Pattern ${index + 1}: ${pattern.type}`);
-        console.log(`  Frequency: ${pattern.frequency}`);
-        console.log(`  Value: ${pattern.value}`);
-        console.log(`  First seen: ${pattern.firstSeen}`);
-        console.log(`  Last seen: ${pattern.lastSeen}`);
+        const typeIcon = pattern.type === 'code' ? '📝' :
+                         pattern.type === 'command' ? '⚡' :
+                         pattern.type === 'architecture' ? '🏗️' : '🔹';
+
+        console.log(styles.header(`${typeIcon} Pattern ${index + 1}: ${pattern.type}`));
+        console.log(styles.highlight(`  📊 Frequency: ${pattern.frequency} occurrences`));
+        console.log(styles.info(`  💭 Value:`), styles.code(pattern.value));
+        console.log(styles.muted(`  🕐 First seen: ${formatTimestamp(pattern.firstSeen)}`));
+        console.log(styles.muted(`  🕑 Last seen: ${formatTimestamp(pattern.lastSeen)}`));
         console.log();
       });
     } catch (error) {
+      console.error(formatError("Pattern analysis failed:"));
       logger.error("Pattern analysis error:", error);
       process.exit(1);
     }
@@ -235,18 +249,43 @@ program
       const storage = new FileStore();
       const stats = await storage.getStats();
 
-      console.log("📊 c0ntextKeeper Statistics\n");
-      console.log(`Total Projects: ${stats.totalProjects}`);
-      console.log(`Total Sessions: ${stats.totalSessions}`);
-      console.log(`Storage Size: ${formatFileSize(stats.totalSize)}`);
+      console.log(formatHeader("📊 c0ntextKeeper Statistics"));
+      console.log(styles.muted("─".repeat(50)));
+      console.log();
 
-      if (stats.oldestSession) {
-        console.log(`Oldest Session: ${formatTimestamp(stats.oldestSession)}`);
+      console.log(styles.info("🏗️ Storage Overview:"));
+      console.log(styles.text(`  Total Projects:`), styles.highlight(`${stats.totalProjects}`));
+      console.log(styles.text(`  Total Sessions:`), styles.highlight(`${stats.totalSessions}`));
+      console.log(styles.text(`  Storage Size:`), styles.highlight(formatFileSize(stats.totalSize)));
+
+      if (stats.oldestSession || stats.newestSession) {
+        console.log();
+        console.log(styles.info("📅 Timeline:"));
+        if (stats.oldestSession) {
+          console.log(styles.text(`  Oldest Session:`), styles.muted(formatTimestamp(stats.oldestSession)));
+        }
+        if (stats.newestSession) {
+          console.log(styles.text(`  Newest Session:`), styles.success(formatTimestamp(stats.newestSession)));
+        }
       }
-      if (stats.newestSession) {
-        console.log(`Newest Session: ${formatTimestamp(stats.newestSession)}`);
+
+      // Add usage insights
+      if (stats.totalSessions > 0) {
+        const avgSizePerSession = stats.totalSize / stats.totalSessions;
+        console.log();
+        console.log(styles.info("💡 Insights:"));
+        console.log(styles.muted(`  Average size per session: ${formatFileSize(avgSizePerSession)}`));
+
+        if (stats.totalProjects > 0) {
+          const avgSessionsPerProject = Math.round(stats.totalSessions / stats.totalProjects);
+          console.log(styles.muted(`  Average sessions per project: ${avgSessionsPerProject}`));
+        }
       }
+
+      console.log();
+      console.log(styles.muted("─".repeat(50)));
     } catch (error) {
+      console.error(formatError("Failed to retrieve statistics:"));
       logger.error("Stats error:", error);
       process.exit(1);
     }
@@ -646,6 +685,44 @@ program
     }
   });
 
+// Rebuild index command
+program
+  .command("rebuild-index")
+  .description("Rebuild the search index from all archived sessions")
+  .option("-p, --project <path>", "Rebuild index for specific project only")
+  .action(async (options: any) => {
+    try {
+      console.log(formatHeader("🔄 Rebuilding Search Index"));
+      console.log();
+
+      const indexer = new SearchIndexer(options.project);
+      await indexer.rebuildIndex();
+
+      // Get and display stats
+      const stats = await indexer.getStats();
+      console.log(formatSuccess("✅ Index rebuilt successfully!"));
+      console.log();
+      console.log(styles.info("📊 Index Statistics:"));
+      console.log(styles.muted(`  Version: ${stats.version}`));
+      console.log(styles.muted(`  Total Sessions: ${stats.totalSessions}`));
+      console.log(styles.muted(`  Total Keywords: ${stats.totalKeywords}`));
+      console.log(styles.muted(`  Avg Keywords/Session: ${stats.avgKeywordsPerSession}`));
+      console.log(styles.muted(`  Last Updated: ${formatTimestamp(stats.lastUpdated)}`));
+
+      if (stats.topKeywords && stats.topKeywords.length > 0) {
+        console.log();
+        console.log(styles.info("🔝 Top Keywords:"));
+        stats.topKeywords.forEach(([keyword, count]: [string, number], index: number) => {
+          console.log(styles.muted(`  ${index + 1}. ${keyword} (${count} sessions)`));
+        });
+      }
+    } catch (error) {
+      console.error(formatError("Failed to rebuild index:"));
+      logger.error("Rebuild index error:", error);
+      process.exit(1);
+    }
+  });
+
 // Context command group for auto-load features
 const context = program
   .command("context")
@@ -655,12 +732,98 @@ const context = program
 context
   .command("preview")
   .description("Preview what context will be auto-loaded")
-  .action(async () => {
+  .option("-v, --verbose", "Show detailed preview with full content")
+  .option("-s, --strategy <type>", "Preview with specific strategy (smart, recent, relevant)")
+  .action(async (options: any) => {
     try {
       const { contextLoader } = await import("./core/context-loader.js");
+
+      // Get the preview content
       const preview = await contextLoader.previewAutoLoad();
-      console.log(preview);
+
+      // Create a beautifully formatted output
+      console.log(formatHeader("🔮 Context Auto-Load Preview"));
+      console.log(styles.muted("=".repeat(60)));
+      console.log();
+
+      // Parse and format the preview content
+      const lines = preview.split('\n');
+      let currentSection = '';
+
+      for (const line of lines) {
+        // Skip empty lines
+        if (!line.trim()) {
+          console.log();
+          continue;
+        }
+
+        // Format headers
+        if (line.startsWith('###')) {
+          const header = line.replace(/^###\s*/, '');
+          console.log(styles.header(`\n📦 ${header}`));
+          console.log(styles.muted('─'.repeat(40)));
+          currentSection = header.toLowerCase();
+        }
+        // Format session entries
+        else if (line.includes('Session:') || line.includes('Date:')) {
+          const [label, value] = line.split(':').map(s => s.trim());
+          if (label && value) {
+            if (label.includes('Session')) {
+              console.log(styles.info(`  🆔 ${label}:`), styles.highlight(value));
+            } else {
+              console.log(styles.muted(`  ${label}:`), styles.text(value));
+            }
+          }
+        }
+        // Format problem entries
+        else if (line.includes('**Key Problems:**')) {
+          console.log(styles.warning(`\n  🔍 ${line.replace(/\*\*/g, '')}`));
+        }
+        // Format implementation entries
+        else if (line.includes('Implementation:')) {
+          const impl = line.replace('Implementation:', '').trim();
+          console.log(styles.success(`  ✅ Implementation: ${impl}`));
+        }
+        // Format pattern entries
+        else if (line.includes('Pattern:')) {
+          const pattern = line.replace(/^\s*[-•]\s*Pattern:\s*/, '').trim();
+          console.log(styles.code(`  🌐 Pattern: ${pattern}`));
+        }
+        // Format decision entries
+        else if (line.includes('Decision:')) {
+          const decision = line.replace(/^\s*[-•]\s*Decision:\s*/, '').trim();
+          console.log(styles.info(`  💡 Decision: ${decision}`));
+        }
+        // Format bullet points
+        else if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+          const content = line.replace(/^\s*[-•]\s*/, '').trim();
+          console.log(styles.muted(`    • ${content}`));
+        }
+        // Format strategy info
+        else if (line.includes('Strategy:') || line.includes('Size:')) {
+          const [label, value] = line.split(':').map(s => s.trim());
+          if (label && value) {
+            console.log(styles.info(`${label}:`), styles.highlight(value));
+          }
+        }
+        // Default formatting
+        else {
+          console.log(styles.text(`  ${line.trim()}`));
+        }
+      }
+
+      // Add usage tip
+      console.log();
+      console.log(styles.muted('─'.repeat(60)));
+      console.log(styles.tip('💡 Tip: This context is automatically loaded when you start a new session'));
+      console.log(styles.muted('  Use "c0ntextkeeper context configure" to adjust settings'));
+
+      if (options.verbose) {
+        console.log();
+        console.log(styles.info('📄 Full context available via MCP resources'));
+      }
     } catch (error) {
+      console.error(formatError("Context preview failed:"));
       logger.error("Context preview error:", error);
       process.exit(1);
     }
