@@ -171,7 +171,7 @@ node dist/server/index.js
 - **Version**: 0.7.4
 - **Test Pass Rate**: 95.9% (189/197 tests passing) - Updated 2025-09-19
 - **Performance**: <10ms average operations
-- **Features**: 25 core modules operational
+- **Features**: 27 core modules operational
 - **Hooks**: All 4 hooks operational (PreCompact, UserPromptSubmit, PostToolUse, Stop)
 - **Documentation**: 100% complete
 - **Breaking Changes**: None

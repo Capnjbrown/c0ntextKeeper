@@ -40,7 +40,7 @@ c0ntextKeeper v0.7.4 is production-ready with critical production fixes:
 - ✅ **Unified Storage Architecture** - Intelligent project-name based organization
 - ✅ **Fully Automatic Operation** - Works with manual and auto compaction
 - ✅ **Claude Code Compatibility** - Parses JSONL transcripts, stores as JSON
-- ✅ **185 Semantic Patterns** - Superior context extraction
+- ✅ **189+ Semantic Patterns** - Superior context extraction
 - ✅ **4 Working Hooks** - NOW CAPTURING 100% OF DATA (fixed from 50%)
 - ✅ **3 MCP Tools + Resources** - Enhanced search with tokenized word matching
 - ✅ **Analytics Dashboard** - Rich insights in every archive
@@ -51,9 +51,9 @@ c0ntextKeeper v0.7.4 is production-ready with critical production fixes:
 
 ## Implementation Summary
 
-### Core System (25 Modules)
+### Core System (27 Modules)
 
-**25 Core Modules:**
+**27 Core Modules:**
 - `extractor.ts` - Intelligent context extraction with problem/solution mapping
 - `scorer.ts` - Multi-factor relevance scoring engine with scoreContent method (v0.7.4: properly capped at 100%)
 - `archiver.ts` - Context archival management
@@ -65,6 +65,7 @@ c0ntextKeeper v0.7.4 is production-ready with critical production fixes:
 - `posttool.ts` - PostToolUse hook (v0.7.4: captures ALL MCP tools properly)
 - `stop.ts` - Stop hook for Q&A knowledge base (v0.7.4: enhanced reliability)
 - `hooks-manager.ts` - CLI hook management system (v0.7.4: added health diagnostics)
+- `hooks-health.ts` - CLI hook health diagnostics and troubleshooting (v0.7.4)
 - `config.ts` - Configuration management system
 - `transcript.ts` - JSONL streaming parser (v0.7.4: deterministic sessionId generation)
 - `logger.ts` - Logging utility for MCP servers
@@ -78,11 +79,12 @@ c0ntextKeeper v0.7.4 is production-ready with critical production fixes:
 - `migrate.ts` - Archive migration utilities (v0.7.4: fixes unknown sessionIds)
 - `path-resolver.ts` - Hybrid storage path resolution
 - `project-utils.ts` - Project name/path utilities
+- `security-filter.ts` - Sensitive data filtering and redaction
 - `session-namer.ts` - Intelligent session naming
 
 ### Production Features
 - **Automatic Context Preservation** - Zero manual intervention required
-- **Intelligent Extraction** - 185 semantic patterns for context detection
+- **Intelligent Extraction** - 189+ semantic patterns for context detection
 - **JSON Storage Format** - All data stored as readable JSON (not JSONL)
 - **Full MCP Tool Support** - PostToolUse tracks all MCP server tools
 - **Test Project Filtering** - Automatically filters `/tmp/` and `/var/folders/`
@@ -108,7 +110,7 @@ c0ntextKeeper v0.7.4 is production-ready with critical production fixes:
   - Added natural language query tokenization with stop words
   - Enhanced output formatting for better readability
   - Created migration script for existing archives
-- **v0.7.1** (2025-09-12) - Bug fixes, comprehensive CLI documentation (30+ commands), test reliability
+- **v0.7.1** (2025-09-12) - Bug fixes, comprehensive CLI documentation (24 commands), test reliability
   - Added complete CLI Commands section with 7 categories
   - Fixed CLI archive command error handling
   - Updated all documentation to v0.7.1
@@ -736,7 +738,7 @@ When updating documentation:
 1. **Create GitHub Release** - Tag v0.7.4 with critical hook fixes
 2. **Publish to npm** - Make available via `npm install c0ntextkeeper`
 3. **Community Announcement** - Alert users about critical 50% → 100% data capture fix
-4. **Highlight** - Comprehensive CLI documentation with 30+ commands
+4. **Highlight** - Comprehensive CLI documentation with 24 commands
 
 > **📋 Pre-Release Checklist**: See [docs/development/pre-release-checklist.md](docs/development/pre-release-checklist.md) for complete release steps.
 

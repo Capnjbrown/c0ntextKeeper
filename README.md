@@ -30,7 +30,7 @@
 - 🎯 **Auto-Load Context** - Claude automatically reads your project context on startup
 - 🤖 **Fully Automatic** - Preserves context without any manual intervention
 - ⚡ **Blazing Fast** - All operations under 10ms average performance
-- 🧠 **Intelligent Extraction** - 185 semantic patterns for context detection
+- 🧠 **Intelligent Extraction** - 189+ semantic patterns for context detection
 - 📊 **Rich Analytics** - Track tools, patterns, and session insights
 - 🔍 **Natural Language Search** - Enhanced query understanding in v0.7.4
 - 🔒 **Security First** - Automatic filtering of sensitive data
@@ -505,9 +505,9 @@ Decision from 2025-08-10:
 - Impact: 10x faster session retrieval
 ```
 
-## 🛠️ CLI Commands (30+ Commands Available!)
+## 🛠️ CLI Commands (24 Commands Available)
 
-c0ntextKeeper provides a comprehensive CLI with over 30 commands for complete control:
+c0ntextKeeper provides a comprehensive CLI with 24 commands for complete control:
 
 ### Setup & Configuration
 
@@ -617,7 +617,7 @@ c0ntextkeeper logs            # View recent hook execution logs
   --lines <n>                 # Show last n lines
 
 # Help and version
-c0ntextkeeper --help          # Show all 30+ commands with descriptions
+c0ntextkeeper --help          # Show all 24 commands with descriptions
 c0ntextkeeper <cmd> --help    # Show detailed help for specific command
 c0ntextkeeper --version       # Show version (currently 0.7.3)
 c0ntextkeeper changelog       # View recent changes and updates
@@ -947,7 +947,7 @@ For more troubleshooting, see the [User Guide](docs/guides/user-guide.md#trouble
 - **v0.5.3** - Unified JSON format, test data separation
 - **v0.5.2** - CLI improvements, version consistency fixes
 - **v0.5.1** - Better content preservation (2000 char limits), smarter session naming
-- **v0.5.0** - Critical Claude Code compatibility, 185 semantic patterns
+- **v0.5.0** - Critical Claude Code compatibility, 189+ semantic patterns
 
 ### v0.4.0 and Earlier
 - **v0.4.0** - Open source migration, security hardening

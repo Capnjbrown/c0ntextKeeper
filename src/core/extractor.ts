@@ -93,7 +93,7 @@ export class ContextExtractor {
         toolCounts: {},
         filesModified: [],
         relevanceScore: 0,
-        extractionVersion: "0.7.3", // Critical hook reliability fixes
+        extractionVersion: "0.7.4", // Critical production fixes
       },
     };
 

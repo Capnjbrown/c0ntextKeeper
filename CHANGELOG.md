@@ -34,6 +34,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced project-context.md as authoritative source of truth
   - Cleaned up migration and troubleshooting guides
   - Polished all technical documentation for public consumption
+- **Module count correction**: Fixed documentation accuracy
+  - Corrected module count from 25 to 27 in CLAUDE.md and pre-release-checklist.md
+  - Added missing `hooks-health.ts` module description (CLI hook health diagnostics)
+  - Added missing `security-filter.ts` module description (sensitive data filtering)
+  - Verified consistency across all project documentation
+- **Documentation consistency fixes**: Aligned documentation with actual implementation
+  - Corrected CLI command count from "30+" to actual 24 commands
+  - Updated semantic patterns count from 185 to actual 189+ patterns (understated)
+  - Fixed extraction version from 0.7.3 to 0.7.4 in extractor.ts
+  - Removed empty `/src/tools/` directory (tools implemented in server/index.ts)
+  - Fixed hook script reference in cli.ts to use existing setup-hooks.js
 
 ## [0.7.4] - 2025-09-19 (Evening Update)
 

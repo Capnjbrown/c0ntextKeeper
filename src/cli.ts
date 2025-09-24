@@ -33,25 +33,14 @@ program
   .description("Configure c0ntextKeeper hooks for Claude Code")
   .action(async () => {
     try {
-      // Use the new install-hook.js script instead of setup-hooks.js
-      const installScript = path.join(
+      // Use the setup-hooks.js script
+      const setupScript = path.join(
         __dirname,
         "..",
         "scripts",
-        "install-hook.js",
+        "setup-hooks.js",
       );
-      if (!require("fs").existsSync(installScript)) {
-        // Fall back to old script if new one doesn't exist
-        const setupScript = path.join(
-          __dirname,
-          "..",
-          "scripts",
-          "setup-hooks.js",
-        );
-        execSync(`node ${setupScript}`, { stdio: "inherit" });
-      } else {
-        execSync(`node ${installScript}`, { stdio: "inherit" });
-      }
+      execSync(`node ${setupScript}`, { stdio: "inherit" });
     } catch (error) {
       logger.error("Setup failed:", error);
       process.exit(1);
