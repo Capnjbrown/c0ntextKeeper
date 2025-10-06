@@ -24,65 +24,61 @@ Located at `[project-root]/.c0ntextkeeper/`
 
 ```
 .c0ntextkeeper/
-├── archive/
-│   ├── projects/
-│   │   └── [project-name]/     # Human-readable name
-│   │       ├── sessions/        # Individual JSON files
-│   │       ├── test/           # Test data (auto-separated)
-│   │       ├── index.json      # Project statistics
-│   │       └── README.md       # Rich analytics dashboard
-│   └── global/
-│       └── index.json          # Cross-project index
-├── prompts/                    # UserPromptSubmit hook data
-│   └── [project-name]/         # Same as archive/projects/
-│       └── YYYY-MM-DD-prompts.json    # Daily JSON arrays
-├── patterns/                   # PostToolUse hook data
-│   └── [project-name]/         # Human-readable names
-│       └── YYYY-MM-DD-patterns.json   # Daily JSON arrays (with MCP tools)
-├── knowledge/                  # Stop hook Q&A pairs
-│   └── [project-name]/         # Consistent naming
-│       └── YYYY-MM-DD-knowledge.json  # Daily JSON arrays
-├── errors/                     # Error patterns
-│   └── YYYY-MM-DD-errors.json         # Daily JSON arrays
-├── solutions/                  # Solutions index
-│   └── index.json
-├── config.json                 # Project configuration
-└── logs/                       # Execution logs
+├── archive/                   # Main session archives (FileStore basePath)
+│   └── projects/              # Per-project storage
+│       └── [project-name]/    # Human-readable name (from directory)
+│           ├── sessions/       # Individual JSON session files
+│           │   └── YYYY-MM-DD_HHMM_MT_[description].json
+│           ├── test/           # Test data (auto-separated)
+│           ├── search-index.json  # Inverted index for fast search (v0.7.5)
+│           ├── index.json      # Project statistics & tool tracking
+│           └── README.md       # Auto-generated analytics dashboard
+├── prompts/                   # UserPromptSubmit hook data
+│   └── [project-name]/        # Same naming as archive/projects/
+│       └── YYYY-MM-DD-prompts.json
+├── patterns/                  # PostToolUse hook data
+│   └── [project-name]/        # Human-readable project names
+│       └── YYYY-MM-DD-patterns.json  # Includes MCP tool tracking
+├── knowledge/                 # Stop hook Q&A pairs
+│   └── [project-name]/        # Consistent naming across hooks
+│       └── YYYY-MM-DD-knowledge.json
+├── config.json                # Project-specific configuration
+└── logs/                      # Hook execution logs
     └── hook.log
 ```
+
+**Actual Implementation Note**: Project-local storage follows the same structure as global, but is located at the project root. The code in `src/storage/file-store.ts` and `src/utils/path-resolver.ts` creates these directories as needed.
 
 ### Global Structure
 Located at `~/.c0ntextkeeper/`
 
 ```
 .c0ntextkeeper/
-├── archive/
-│   ├── projects/               # Per-project storage
-│   │   ├── c0ntextKeeper/     # Actual project names!
-│   │   │   ├── sessions/       # Individual JSON sessions
-│   │   │   ├── test/          # Test data (auto-filtered)
-│   │   │   ├── index.json     # Project analytics
-│   │   │   └── README.md      # Rich analytics dashboard
-│   └── global/
-│       └── index.json         # Master index (test-filtered)
-├── prompts/                   # Hook data by project name
-│   └── [project-name]/        # Same names as archive/projects/
+├── archive/                   # Main session archives (FileStore basePath)
+│   └── projects/              # Per-project storage
+│       └── [project-name]/    # Actual project names (e.g., "c0ntextKeeper")
+│           ├── sessions/       # Individual JSON session files
+│           │   └── YYYY-MM-DD_HHMM_MT_[description].json
+│           ├── test/           # Test data (auto-separated)
+│           ├── search-index.json  # Inverted index for O(1) lookups (v0.7.5)
+│           ├── index.json      # Project analytics & statistics
+│           └── README.md       # Auto-generated analytics dashboard
+├── prompts/                   # UserPromptSubmit hook data
+│   └── [project-name]/        # Same naming as archive/projects/
 │       └── YYYY-MM-DD-prompts.json
-├── patterns/                  # Tool patterns (includes MCP)
-│   └── [project-name]/        # Human-readable names
-│       └── YYYY-MM-DD-patterns.json
-├── knowledge/                 # Q&A knowledge base
-│   └── [project-name]/        # Consistent across all hooks
+├── patterns/                  # PostToolUse hook data
+│   └── [project-name]/        # Human-readable project names
+│       └── YYYY-MM-DD-patterns.json  # Includes MCP tool tracking
+├── knowledge/                 # Stop hook Q&A pairs
+│   └── [project-name]/        # Consistent naming across all hooks
 │       └── YYYY-MM-DD-knowledge.json
-├── errors/                    # Error tracking
-│   └── YYYY-MM-DD-errors.json
-├── solutions/
-│   └── index.json
-├── config.json               # Global configuration
-├── index.json               # Project registry (test-filtered)
-└── logs/                    # Global logs
+├── config.json                # Global configuration
+├── index.json                 # Project registry (test projects filtered)
+└── logs/                      # Hook execution logs
     └── hook.log
 ```
+
+**Note**: The `errors/` and `solutions/` directories shown in older documentation are not currently created by the implemented code. Sessions contain error patterns within their JSON structure.
 
 **Key Features:**
 - Projects organized by actual name (e.g., `c0ntextKeeper`, not `a1b2c3d4`)

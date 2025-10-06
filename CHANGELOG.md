@@ -5,6 +5,43 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.5.1] - 2025-10-06
+
+### Improved
+- **CLI Output Quality**: Dramatically increased truncation limits for complete context visibility
+  - Preview command: 500 → 5000 chars (10x increase) for full session context
+  - Problem/Solution display: 300 → 1500 chars (5x increase) for complete technical details
+  - Search snippets: 200 → 600 chars (3x increase) for better match context
+  - Implementation descriptions: 150 → 800 chars (5.3x increase) for full code context
+  - Context loader questions: 150 → 800 chars (5.3x increase)
+  - Context loader solutions: 100-200 → 1000 chars (5-10x increase)
+  - Knowledge Q&A answers: 150-300 → 1000 chars (3-6x increase)
+  - Pattern descriptions: 80-100 → 400 chars (4-5x increase)
+  - Formatter default: 100 → 1000 chars (10x increase) across all utilities
+- **User Experience**: Eliminated frustrating "..." cutoffs in CLI results
+  - Commands now show complete problems, solutions, and context
+  - MCP tool responses provide full technical details without truncation
+  - Search results include sufficient context for decision-making
+
+### Fixed
+- **CLI Commands**: Resolved issue where results showed incomplete information with ellipsis
+  - `c0ntextkeeper context preview` now shows 5000 chars instead of 500
+  - `c0ntextkeeper search` provides 600 char snippets instead of 200
+  - All MCP tools (fetch_context, search_archive) return complete responses
+- **MCP Tool Responses**: Fixed critical context truncation mid-sentence
+  - Problems and solutions no longer cut off at arbitrary character limits
+  - Implementation details show full file paths and descriptions
+- **Search Results**: Fixed truncating at unhelpful breakpoints
+  - Tokenized queries now return sufficient context for relevance evaluation
+
+### Technical
+- **Files Modified**: 5 core modules updated
+  - src/utils/formatter.ts: Base truncation utility
+  - src/core/context-loader.ts: 13 truncation calls updated
+  - src/server/index.ts: 4 MCP response truncation calls updated
+  - src/cli.ts: Preview display limit updated
+  - src/core/retriever.ts: 3 search snippet calls updated
+
 ## [0.7.5] - 2025-09-24
 
 ### Added
@@ -28,10 +65,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed test expectations for context loader
   - Resolved integration test issues
   - Improved test reliability and consistency
-- **Semantic Patterns**: Increased to 189+ (from 185)
-  - Better problem/solution detection
-  - Enhanced implementation tracking
-  - More accurate decision capture
+- **Semantic Patterns**: Verified count of 187 patterns (code audit 2025-10-06)
+  - 116 problem indicators (error, debugging, questions, dev tasks, etc.)
+  - 41 request indicators (polite, direct, imperative, planning, advice, dev requests)
+  - 23 solution indicators (action words, code blocks, resolutions)
+  - 7 decision regex patterns (architectural and design decisions)
 - **CLI Commands**: Total of 25 commands (added rebuild-index)
 
 ### Fixed
@@ -81,7 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Verified consistency across all project documentation
 - **Documentation consistency fixes**: Aligned documentation with actual implementation
   - Corrected CLI command count from "30+" to actual 24 commands
-  - Updated semantic patterns count from 185 to actual 189+ patterns (understated)
+  - Updated semantic patterns count to verified 187 patterns via systematic code audit (2025-10-06)
   - Fixed extraction version from 0.7.3 to 0.7.4 in extractor.ts
   - Removed empty `/src/tools/` directory (tools implemented in server/index.ts)
   - Fixed hook script reference in cli.ts to use existing setup-hooks.js

@@ -3,7 +3,7 @@
  * Centralized styling for consistent, beautiful CLI output
  */
 
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 
 /**
  * Semantic color styles for different types of output

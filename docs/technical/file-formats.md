@@ -33,13 +33,12 @@ The system automatically finds the appropriate storage:
 |-------------|--------|--------------|------------------|-------------|
 | **Sessions** | JSON | `YYYY-MM-DD_HHMM_MT_description.json` | `archive/projects/[name]/sessions/` | Individual session archives with full extracted context |
 | **Test Sessions** | JSON | `validation-*.json` | `archive/projects/[name]/test/` | Test/validation data (automatically separated from production) |
-| **Prompts** | JSON | `YYYY-MM-DD-prompts.json` | `archive/projects/[name]/prompts/` | Daily JSON array of UserPromptSubmit hook data |
-| **Patterns** | JSON | `YYYY-MM-DD-patterns.json` | `archive/projects/[name]/patterns/` | Daily JSON array of PostToolUse hook data (includes MCP tools) |
-| **Knowledge** | JSON | `YYYY-MM-DD-knowledge.json` | `archive/projects/[name]/knowledge/` | Daily JSON array of Stop hook Q&A pairs |
-| **Errors** | JSON | `YYYY-MM-DD-errors.json` | `errors/` | Daily JSON array of error patterns from all tools |
-| **Solutions** | JSON | `index.json` | `solutions/` | Indexed solutions for quick retrieval |
+| **Search Index** | JSON | `search-index.json` | `archive/projects/[name]/` | Inverted index for O(1) keyword lookups (v0.7.5) |
+| **Prompts** | JSON | `YYYY-MM-DD-prompts.json` | `prompts/[name]/` | Daily JSON array of UserPromptSubmit hook data |
+| **Patterns** | JSON | `YYYY-MM-DD-patterns.json` | `patterns/[name]/` | Daily JSON array of PostToolUse hook data (includes MCP tools) |
+| **Knowledge** | JSON | `YYYY-MM-DD-knowledge.json` | `knowledge/[name]/` | Daily JSON array of Stop hook Q&A pairs |
 | **Project Index** | JSON | `index.json` | `archive/projects/[name]/` | Project statistics, tool usage, analytics |
-| **Global Index** | JSON | `index.json` | `archive/global/` | Master index with test project filtering |
+| **Global Index** | JSON | `index.json` | Root directory | Master project registry with test filtering |
 | **README Analytics** | Markdown | `README.md` | `archive/projects/[name]/` | Auto-generated analytics dashboard |
 
 ## Storage Structure
@@ -50,12 +49,11 @@ The storage structure is the same for both project-local and global modes, just 
 ```
 .c0ntextkeeper/                          # In your project directory
 ├── archive/
-│   ├── global/
-│   │   └── index.json                    # Master index (JSON)
 │   └── projects/
 │       └── [project-name]/
 │           ├── README.md                 # Rich analytics dashboard
 │           ├── index.json                # Project statistics (JSON)
+│           ├── search-index.json         # Inverted index (v0.7.5)
 │           ├── sessions/                 # Real session data
 │           │   └── YYYY-MM-DD_HHMM_MT_description.json
 │           └── test/                     # Test/validation data
@@ -69,26 +67,38 @@ The storage structure is the same for both project-local and global modes, just 
 ├── knowledge/
 │   └── [project-name]/
 │       └── YYYY-MM-DD-knowledge.json    # Daily Q&A pairs array (JSON)
-├── errors/
-│   └── YYYY-MM-DD-errors.json           # Daily error patterns (JSON)
-├── solutions/
-│   └── index.json                       # Solutions index (JSON)
-├── config.json                          # System configuration (JSON)
+├── config.json                          # Project configuration (JSON)
+├── index.json                           # Project registry (JSON)
 └── logs/
-    └── hook.log                          # Execution logs (Plain text)
+    └── hook.log                          # Hook execution logs (Plain text)
 ```
 
 ### Global Mode
 ```
 ~/.c0ntextkeeper/                        # In your home directory
-├── projects/                            # Per-project storage (by name)
-│   └── [project-name]/                  # Project-specific archives
-│       └── (same structure as above)
-├── global/
-│   └── solutions/                       # Shared solutions
+├── archive/
+│   └── projects/
+│       └── [project-name]/
+│           ├── README.md                 # Rich analytics dashboard
+│           ├── index.json                # Project statistics (JSON)
+│           ├── search-index.json         # Inverted index (v0.7.5)
+│           ├── sessions/                 # Real session data
+│           │   └── YYYY-MM-DD_HHMM_MT_description.json
+│           └── test/                     # Test/validation data
+│               └── validation-*.json
+├── prompts/
+│   └── [project-name]/
+│       └── YYYY-MM-DD-prompts.json      # Daily prompts array (JSON)
+├── patterns/
+│   └── [project-name]/
+│       └── YYYY-MM-DD-patterns.json     # Daily patterns array (JSON)
+├── knowledge/
+│   └── [project-name]/
+│       └── YYYY-MM-DD-knowledge.json    # Daily Q&A pairs array (JSON)
 ├── config.json                          # Global configuration
-├── index.json                           # Project registry
-└── logs/                               # Global logs
+├── index.json                           # Project registry (test-filtered)
+└── logs/
+    └── hook.log                          # Hook execution logs (Plain text)
 ```
 
 ## File Format Details

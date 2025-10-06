@@ -31,9 +31,10 @@ project-context.md contains:
 
 ⚠️ **This CLAUDE.md file provides workflow guidelines, but project-context.md is the authoritative technical reference.**
 
-## Current State: Production Ready v0.7.5 🎉
+## Current State: Production Ready v0.7.5.1 🎉
 
-**⚡ NEW**: v0.7.5 (Released 2025-09-24) adds search indexing with O(1) lookups and beautiful CLI styling!
+**⚡ LATEST**: v0.7.5.1 (Released 2025-10-06) dramatically improves CLI output quality with 3-10x truncation limit increases!
+**🎨 NEW**: v0.7.5 (Released 2025-09-24) adds search indexing with O(1) lookups and beautiful CLI styling!
 **🚨 CRITICAL UPDATE**: v0.7.4 (Released 2025-09-19 Evening) fixes critical production failures - hooks now capture 100% of data!
 
 c0ntextKeeper v0.7.5 is production-ready with search indexing and beautiful CLI:
@@ -41,7 +42,7 @@ c0ntextKeeper v0.7.5 is production-ready with search indexing and beautiful CLI:
 - ✅ **Unified Storage Architecture** - Intelligent project-name based organization
 - ✅ **Fully Automatic Operation** - Works with manual and auto compaction
 - ✅ **Claude Code Compatibility** - Parses JSONL transcripts, stores as JSON
-- ✅ **189+ Semantic Patterns** - Superior context extraction (increased from 185)
+- ✅ **187 Semantic Patterns** - Superior context extraction (116 problem + 41 request + 23 solution + 7 decision patterns)
 - ✅ **4 Working Hooks** - NOW CAPTURING 100% OF DATA (fixed from 50%)
 - ✅ **3 MCP Tools + Resources** - Enhanced search with tokenized word matching
 - ✅ **Analytics Dashboard** - Rich insights in every archive
@@ -86,24 +87,33 @@ c0ntextKeeper v0.7.5 is production-ready with search indexing and beautiful CLI:
 
 ### Production Features
 - **Automatic Context Preservation** - Zero manual intervention required
-- **Intelligent Extraction** - 189+ semantic patterns for context detection
+- **Intelligent Extraction** - 187 semantic patterns for context detection (verified via code audit)
 - **JSON Storage Format** - All data stored as readable JSON (not JSONL)
 - **Full MCP Tool Support** - PostToolUse tracks all MCP server tools
 - **Test Project Filtering** - Automatically filters `/tmp/` and `/var/folders/`
 - **Rich Analytics** - Tool usage, patterns, and session insights
 - **Security First** - Automatic filtering of sensitive data
 - **Full TypeScript** - Type-safe with strict mode
-- **Comprehensive Testing** - 95.9% test pass rate (189/197 tests passing)
+- **Comprehensive Testing** - 99.5% test pass rate (196/197 tests passing)
 
 ## Completed Development Milestones
 
 ### Version History
+- **v0.7.5.1** (2025-10-06) - CLI output quality improvements with 3-10x truncation limit increases
+  - Preview command: 500 → 5000 chars (10x) for full session context
+  - Problem/Solution display: 300 → 1500 chars (5x) for complete technical details
+  - Search snippets: 200 → 600 chars (3x) for better match context
+  - Implementation descriptions: 150 → 800 chars (5.3x) for full code context
+  - Context loader Q&A: 150-300 → 800-1000 chars (3-6x) for complete answers
+  - Formatter default: 100 → 1000 chars (10x) across all utilities
+  - Eliminated frustrating "..." cutoffs in CLI results
+  - MCP tool responses provide full technical details without truncation
 - **v0.7.5** (2025-09-24) - Search indexing, chalk styling, improved test coverage
   - Added SearchIndexer with inverted index for O(1) keyword lookups
   - Beautiful CLI output with chalk styling and semantic colors
   - Test coverage improved to 99.5% (196/197 tests passing)
   - Added `rebuild-index` CLI command
-  - Increased semantic patterns to 189+ (from 185)
+  - Verified semantic patterns: 187 total (116 problem + 41 request + 23 solution + 7 decision)
   - Fixed failing tests in context-loader.test.ts
   - Added comprehensive EXAMPLES.md documentation
 - **v0.7.4** (2025-09-19) - 🚨 CRITICAL: Fixed hooks capturing only 50% of data

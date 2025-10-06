@@ -1,7 +1,7 @@
 # Project Context Document
 <!-- Generated: 2025-09-03 -->
 <!-- Generator: Claude Code CLI Context Discovery -->
-<!-- Last Updated: 2025-09-19 (Evening) for v0.7.4 with critical production fixes restoring 100% data capture -->
+<!-- Last Updated: 2025-10-06 for v0.7.5.1 with CLI output quality improvements (3-10x truncation limit increases) -->
 
 ## Project Identification
 
@@ -9,11 +9,11 @@
 - **Project Name**: c0ntextKeeper
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
-- **Version**: 0.7.4 (Package) / 0.7.4 (Extraction Algorithm) / 0.7.4 (MCP Server)
+- **Version**: 0.7.5 (Package) / 0.7.5 (Extraction Algorithm) / 0.7.5 (MCP Server)
 - **Repository**: https://github.com/yourusername/c0ntextKeeper
 
 ### Purpose Statement
-c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 185 semantic patterns, making them instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding (v0.7.3 with tokenized word matching). The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.0 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.0 adds automatic context loading via MCP resources**, and **v0.7.3 critically fixes hooks that were only capturing 50% of data**. **Version 0.7.4 delivers critical production fixes** including PostToolUse field name normalization for production environments, Stop hook updates for Claude Code v1.0.119+ transcript format, enhanced project name resolution to prevent storage fragmentation, and complete TypeScript type error resolution, restoring 100% data capture functionality. The system works fully automatically, requiring zero manual intervention after initial setup.
+c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 187 verified semantic patterns (116 problem + 41 request + 23 solution + 7 decision), making them instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding (v0.7.3 with tokenized word matching). The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.0 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.0 adds automatic context loading via MCP resources**, and **v0.7.3 critically fixes hooks that were only capturing 50% of data**. **Version 0.7.4 delivers critical production fixes** including PostToolUse field name normalization for production environments, Stop hook updates for Claude Code v1.0.119+ transcript format, enhanced project name resolution to prevent storage fragmentation, and complete TypeScript type error resolution, restoring 100% data capture functionality. **Version 0.7.5 adds search indexing** with inverted index for O(1) keyword lookups, beautiful CLI styling with chalk for semantic colors, and verified semantic pattern count of 187 total via code audit. **Version 0.7.5.1 dramatically improves CLI output quality** with 3-10x truncation limit increases across 5 core modules (formatter, context-loader, server, cli, retriever), eliminating frustrating "..." cutoffs and providing complete context visibility in all commands - preview increased from 500 to 5000 chars, problems/solutions from 300 to 1500 chars, and search snippets from 200 to 600 chars. The system works fully automatically, requiring zero manual intervention after initial setup.
 
 ## Discovery Findings
 
@@ -107,7 +107,7 @@ c0ntextKeeper/
 ### Entry Points & Main Components
 - **Main Entry**: `dist/cli.js` (CLI) and `dist/server/index.js` (MCP server)
 - **Core Modules**:
-  - **Extractor**: Analyzes JSONL transcripts with 185 semantic patterns (v0.5.1: configurable content limits up to 2000 chars)
+  - **Extractor**: Analyzes JSONL transcripts with 187 verified semantic patterns (v0.5.1: configurable content limits up to 2000 chars; verified via code audit 2025-10-06)
   - **Scorer**: Multi-factor relevance scoring (v0.7.2: Added scoreContent() method, capped at 100%)
   - **Archiver**: Manages context storage with analytics
   - **Retriever**: Fast context search and retrieval (v0.7.2: Natural language query tokenization with stop words)
@@ -128,7 +128,7 @@ c0ntextKeeper/
 | PostToolUse hook | `/src/hooks/posttool.ts` | Captures tool usage patterns | ✅ Implemented |
 | Stop hook | `/src/hooks/stop.ts` | Saves complete Q&A exchanges | ✅ Implemented |
 | JSONL transcript parsing | `/src/utils/transcript.ts` | Claude Code format with embedded arrays | ✅ Active |
-| Problem/solution extraction | `/src/core/extractor.ts` | 185 semantic patterns, configurable limits (v0.5.1) | ✅ Active |
+| Problem/solution extraction | `/src/core/extractor.ts` | 187 verified semantic patterns, configurable limits (v0.5.1) | ✅ Active |
 | Relevance scoring | `/src/core/scorer.ts` | Enhanced admin tool scoring (v0.5.1) | ✅ Active |
 | Session naming | `/src/utils/session-namer.ts` | 100+ stopwords, smart fallbacks (v0.5.1) | ✅ Active |
 | Content preservation | `/src/core/config.ts` | Configurable limits: 2000/1000 chars (v0.5.1) | ✅ Active |
@@ -377,7 +377,7 @@ c0ntextkeeper setup     # Configure hooks
 - **Chalk Styling**: Beautiful CLI output with semantic colors and icons
 - **Test Coverage**: Improved to 99.5% (196/197 tests passing)
 - **CLI Commands**: Total of 25 commands including new `rebuild-index`
-- **Semantic Patterns**: Increased to 189+ for better context extraction
+- **Semantic Patterns**: Verified count of 187 patterns via systematic code audit (2025-10-06)
 - **Keyword Extraction**: Stop word filtering and tokenization
 - **Index Persistence**: JSON-based index with metadata tracking
 - **Performance**: Search operations now near-instant with inverted index
@@ -542,7 +542,7 @@ npm publish           # Publish to npm
   - `src/cli.ts` - CLI entry point
   - `src/server/index.ts` - MCP server (v0.5.3)
 - **Critical Logic**: 
-  - `src/core/extractor.ts` - 185 semantic patterns for extraction
+  - `src/core/extractor.ts` - 187 verified semantic patterns for extraction (code audit 2025-10-06)
   - `src/core/scorer.ts` - Relevance scoring (1.0 for questions)
   - `src/hooks/precompact.ts` - Automatic capture hook
   - `src/core/archiver.ts` - Analytics dashboard generation

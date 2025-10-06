@@ -28,7 +28,7 @@ c0ntextKeeper v0.7.4 demonstrates **excellent performance** across all critical 
 
 ### 1. Context Extraction Pipeline
 
-**Test Configuration**: 185 semantic patterns, full JSONL parsing
+**Test Configuration**: 187 verified semantic patterns (116 problem + 41 request + 23 solution + 7 decision), full JSONL parsing
 
 | Scenario | Time | Memory Usage | CPU Usage |
 |----------|------|--------------|-----------|

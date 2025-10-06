@@ -13,7 +13,7 @@ import { SearchIndexer } from "./core/indexer.js";
 import { FileStore } from "./storage/file-store.js";
 import { Logger } from "./utils/logger.js";
 import { formatTimestamp, formatFileSize } from "./utils/formatter.js";
-import { styles, formatHeader, formatSuccess, formatWarning, formatError, formatTable } from "./utils/cli-styles.js";
+import { styles, formatHeader, formatSuccess, formatWarning, formatError } from "./utils/cli-styles.js";
 import { initCommand, statusCommand } from "./cli/init.js";
 import { execSync } from "child_process";
 import path from "path";
@@ -748,7 +748,7 @@ context
 
       // Parse and format the preview content
       const lines = preview.split('\n');
-      let currentSection = '';
+      let _currentSection = '';
 
       for (const line of lines) {
         // Skip empty lines
@@ -762,7 +762,7 @@ context
           const header = line.replace(/^###\s*/, '');
           console.log(styles.header(`\n📦 ${header}`));
           console.log(styles.muted('─'.repeat(40)));
-          currentSection = header.toLowerCase();
+          _currentSection = header.toLowerCase();
         }
         // Format session entries
         else if (line.includes('Session:') || line.includes('Date:')) {
@@ -845,10 +845,10 @@ context
       console.log(`Timestamp: ${new Date(context.timestamp).toLocaleString()}`);
 
       if (context.content) {
-        console.log("\n📄 Sample (first 500 chars):");
+        console.log("\n📄 Sample (first 5000 chars):");
         console.log("-".repeat(50));
-        console.log(context.content.substring(0, 500));
-        if (context.content.length > 500) {
+        console.log(context.content.substring(0, 5000));
+        if (context.content.length > 5000) {
           console.log("...[truncated]");
         }
       } else {

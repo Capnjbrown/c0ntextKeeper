@@ -611,14 +611,14 @@ export class ContextRetriever {
           if (problem.question.toLowerCase().includes(query.toLowerCase())) {
             matches.push({
               field: 'problem',
-              snippet: problem.question.substring(0, 200),
+              snippet: problem.question.substring(0, 600),
               score: 1.0
             });
           }
           if (problem.solution?.approach.toLowerCase().includes(query.toLowerCase())) {
             matches.push({
               field: 'solution',
-              snippet: problem.solution.approach.substring(0, 200),
+              snippet: problem.solution.approach.substring(0, 600),
               score: 0.8
             });
           }
@@ -631,7 +631,7 @@ export class ContextRetriever {
           if (impl.description.toLowerCase().includes(query.toLowerCase())) {
             matches.push({
               field: 'implementation',
-              snippet: impl.description.substring(0, 200),
+              snippet: impl.description.substring(0, 600),
               score: 0.7
             });
           }

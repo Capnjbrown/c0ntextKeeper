@@ -8,7 +8,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import * as chalk from "chalk";
+import chalk from "chalk";
 import { getStoragePath } from "../utils/path-resolver";
 
 interface HookHealthStatus {
@@ -152,7 +152,7 @@ export class HooksHealthChecker {
           }
         }
       }
-    } catch (error) {
+    } catch {
       status.issues.push("Failed to parse data file");
       status.suggestions.push("Data file may be corrupted");
     }
@@ -170,23 +170,20 @@ export class HooksHealthChecker {
    * Check if a hook is enabled
    */
   private async isHookEnabled(hookName: string): Promise<boolean> {
-    const hooksConfigPath = path.join(
+    const settingsPath = path.join(
       process.env.HOME || '',
       '.claude',
-      'hooks.json'
+      'settings.json'
     );
 
-    if (!fs.existsSync(hooksConfigPath)) {
+    if (!fs.existsSync(settingsPath)) {
       return false;
     }
 
     try {
-      const config = JSON.parse(fs.readFileSync(hooksConfigPath, 'utf-8'));
-      const hooks = config.hooks || [];
-      
-      return hooks.some((hook: any) => 
-        hook.name === hookName && hook.enabled !== false
-      );
+      const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+      // Check if hook exists in settings.hooks object (same as hooks-manager)
+      return !!(settings.hooks && settings.hooks[hookName]);
     } catch {
       return false;
     }

@@ -190,8 +190,9 @@ export function formatRelevance(score: number): string {
 
 /**
  * Truncate text with ellipsis
+ * Default increased from 100 to 1000 for better context visibility
  */
-export function truncateText(text: string, maxLength = 100): string {
+export function truncateText(text: string, maxLength = 1000): string {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength - 3) + "...";
 }

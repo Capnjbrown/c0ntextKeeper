@@ -1,6 +1,6 @@
 # 📚 c0ntextKeeper User Guide
 
-> Last Updated: 2025-09-24 for v0.7.5
+> Last Updated: 2025-10-06 for v0.7.5.1 (Documentation Audit Complete)
 
 ## 🎯 What's New in v0.7.5
 
@@ -9,7 +9,7 @@
 - **🎨 Beautiful CLI Output** - Semantic colors and icons with chalk
 - **📈 99.5% Test Coverage** - Up from 95.9% (196/197 tests)
 - **🆕 New Command** - `rebuild-index` for recreating search index
-- **🧠 189+ Patterns** - Enhanced semantic pattern detection
+- **🧠 187 Patterns** - Verified semantic pattern count (code audit 2025-10-06)
 
 ### Previous Release (v0.7.4): Enhanced MCP Tools Reliability
 - **✅ Fixed Relevance Scoring** - Now properly capped at 100%
@@ -22,7 +22,7 @@ Run `node scripts/fix-unknown-sessions.js` to migrate existing archives.
 
 ## 🏗️ Storage Modes (v0.7.0+)
 
-c0ntextKeeper v0.7.4 introduces flexible storage options to match your workflow:
+c0ntextKeeper v0.7.0 introduced flexible storage options to match your workflow:
 
 ### Project-Local Storage (Recommended)
 ```bash
@@ -86,15 +86,14 @@ c0ntextKeeper stores all data locally on your Mac. The exact location depends on
 └── .c0ntextkeeper/                     # ← Global preserved context
     ├── config.json                     # Global configuration
     ├── archive/                        # Main archive storage
-    │   ├── projects/                   # Per-project archives
-    │   │   ├── [project-name]/          # Actual project names (not hashes!)
-    │   │   │   ├── README.md           # Rich analytics dashboard
-    │   │   │   ├── index.json          # Project statistics & tool usage
-    │   │   │   ├── sessions/           # Individual JSON session files
-    │   │   │   │   └── YYYY-MM-DD_HHMM_MT_description.json
-    │   │   │   └── test/               # Test data (auto-separated)
-    │   └── global/                     
-    │       └── index.json              # Master index (test-filtered)
+    │   └── projects/                   # Per-project archives
+    │       └── [project-name]/          # Actual project names (not hashes!)
+    │           ├── README.md           # Rich analytics dashboard
+    │           ├── index.json          # Project statistics & tool usage
+    │           ├── search-index.json   # Inverted index for O(1) lookups (v0.7.5)
+    │           ├── sessions/           # Individual JSON session files
+    │           │   └── YYYY-MM-DD_HHMM_MT_description.json
+    │           └── test/               # Test data (auto-separated)
     ├── prompts/                        # UserPromptSubmit hook data
     │   └── [project-name]/             # Same project names as archive/projects/
     │       └── YYYY-MM-DD-prompts.json       # Daily JSON array (not JSONL)
@@ -104,10 +103,7 @@ c0ntextKeeper stores all data locally on your Mac. The exact location depends on
     ├── knowledge/                      # Stop hook Q&A pairs
     │   └── [project-name]/             # Consistent naming across all hooks
     │       └── YYYY-MM-DD-knowledge.json     # Daily JSON array
-    ├── errors/                         # Error pattern tracking
-    │   └── YYYY-MM-DD-errors.json            # Daily JSON array
-    ├── solutions/                      # Indexed solutions
-    │   └── index.json                  # Quick solution retrieval
+    ├── config.json                     # Global configuration
     ├── index.json                      # Project registry (test-filtered)
     └── logs/                           # Hook execution logs
         └── hook.log                    # Debug information
@@ -140,8 +136,8 @@ Current Directory: /home/user/projects/my-app
 Project Name: my-app
 ✓ Storage initialized (local)
   Location: /home/user/projects/my-app/.c0ntextkeeper
-  Version: 0.7.4
-  Created: 2025-09-09
+  Version: 0.7.5
+  Created: 2025-09-24
   Type: project
 ```
 
@@ -166,7 +162,7 @@ c0ntextkeeper search "query"     # Search for specific content
 
 ## 📊 Understanding Your Analytics Dashboard
 
-Starting with v0.7.4, every project archive includes a comprehensive analytics dashboard in its README.md file with improved extraction accuracy, better session naming, and organized storage structure. Here's what you'll find:
+Every project archive includes a comprehensive analytics dashboard in its README.md file (introduced in v0.3.0, enhanced in v0.5.1+ with improved extraction accuracy, better session naming, and organized storage structure). Here's what you'll find:
 
 ### Project Analytics Section
 - **Total Sessions**: Number of times context was preserved
@@ -185,7 +181,7 @@ Starting with v0.7.4, every project archive includes a comprehensive analytics d
 - **Average Relevance Score**: How valuable your preserved context is (0-100%)
   - v0.5.0+: User questions now properly score 100% relevance
   - v0.5.1+: Administrative tools (TodoWrite, Bash) have enhanced scoring
-  - Improved with 185 semantic patterns for better detection
+  - Improved with 187 verified semantic patterns for superior detection (v0.7.5)
 - **Files Modified**: Total unique files changed across sessions
 - **Archive Version**: Version of c0ntextKeeper that created the archive
   - Note: The extraction algorithm version tracks improvements to context detection

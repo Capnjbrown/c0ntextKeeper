@@ -63,7 +63,7 @@ c0ntextKeeper implements 4 powerful hooks:
      - Fixed duration calculation (no negatives)
    - v0.5.0 enhancements included:
      - Proper Claude Code JSONL format parsing (handles embedded content arrays)
-     - 185 semantic patterns for problem detection
+     - 187 verified semantic patterns for problem detection (code audit 2025-10-06)
      - User questions score 1.0 relevance
      - Tool usage counts and frequency
    - Storage: `archive/projects/[project-name]/sessions/` (JSON format)

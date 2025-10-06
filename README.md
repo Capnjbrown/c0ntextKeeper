@@ -1,8 +1,8 @@
 # 🧠 c0ntextKeeper
 
 > Fully automatic context preservation for Claude Code - Never lose valuable work again!
-> 
-> Last Updated: 2025-09-19
+>
+> Last Updated: 2025-10-06
 
 [![npm version](https://img.shields.io/npm/v/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
 [![Downloads](https://img.shields.io/npm/dt/c0ntextkeeper.svg)](https://www.npmjs.com/package/c0ntextkeeper)
@@ -30,7 +30,7 @@
 - 🎯 **Auto-Load Context** - Claude automatically reads your project context on startup
 - 🤖 **Fully Automatic** - Preserves context without any manual intervention
 - ⚡ **Blazing Fast** - All operations under 10ms average performance
-- 🧠 **Intelligent Extraction** - 189+ semantic patterns for context detection
+- 🧠 **Intelligent Extraction** - 187 semantic patterns for context detection (verified via code audit)
 - 🔍 **Fast Search** - O(1) keyword lookups with inverted index
 - 🎨 **Beautiful CLI** - Rich formatting with chalk styling
 - 📊 **Rich Analytics** - Track tools, patterns, and session insights
@@ -45,7 +45,7 @@
 - [Installation](#-installation)
 - [Storage Architecture](#-storage-architecture)
 - [Key Features](#key-features-works-out-of-the-box)
-- [CLI Commands](#-cli-commands-30-commands-available)
+- [CLI Commands](#-cli-commands-24-commands)
 - [MCP Tools](#mcp-tools)
 - [Future Vision](#-future-vision-cloud-based-intelligence)
 - [Troubleshooting](#-troubleshooting)
@@ -66,11 +66,23 @@ c0ntextkeeper status
 
 That's it! c0ntextKeeper is now preserving your context automatically.
 
-## 🚀 What's New in v0.7.4
+## 🚀 What's New
 
 **Package Version**: 0.7.5 | **Extraction Algorithm**: 0.7.5 | **Test Success**: 99.5% (196/197 tests)
 
-### 🚨 CRITICAL FIX: Production Hooks NOW 100% OPERATIONAL!
+### ⚡ v0.7.5.1 (2025-10-06) - CLI Output Quality Revolution!
+
+**Complete Context Visibility** - Eliminated frustrating "..." cutoffs in all CLI commands!
+- **Preview Command**: 500 → 5000 chars (10x) - See complete session context
+- **Problem/Solution Display**: 300 → 1500 chars (5x) - Full technical details without truncation
+- **Search Results**: 200 → 600 chars (3x) - Sufficient context for decision-making
+- **Implementation Details**: 150 → 800 chars (5.3x) - Complete code context and file paths
+- **MCP Tool Responses**: Full visibility without mid-sentence cutoffs
+- **User Experience**: No more incomplete information - every command shows what you need
+
+**Why This Matters**: Previously, CLI commands would cut off critical context mid-sentence with "...", making search results nearly useless. Now you see complete problems, full solutions, and sufficient context to understand and act on results.
+
+### 🚨 v0.7.4 (2025-09-19) - CRITICAL FIX: Production Hooks NOW 100% OPERATIONAL!
 
 **v0.7.4 fixes critical production failures** discovered in real-world usage:
 - **✅ PostToolUse Hook** - Fixed complete production failure due to field name mismatches
@@ -189,7 +201,7 @@ graph LR
 - **Stream Processing** - Handles 10,000+ entry transcripts
 - **Memory Efficient** - Zero memory leaks with automatic cleanup
 - **Instant Loading** - MCP resources ready when Claude connects
-- **95.9% Test Coverage** - Comprehensive testing ensures reliability (189/197 tests passing)
+- **99.5% Test Coverage** - Comprehensive testing ensures reliability (196/197 tests passing)
 
 ## ⚡ Performance
 
@@ -249,40 +261,35 @@ That's it! c0ntextKeeper is now automatically preserving your context.
 c0ntextKeeper uses human-readable project names for all storage - no more cryptic hashes!
 
 ```
-/Users/[directory-name]/                      # Your home directory (~)
+/Users/[directory-name]/                # Your home directory (~)
 │
 ├── .claude/                            # Claude Code configuration
 │   ├── settings.json                   # ← Hook configuration lives here
-│   └── hooks/                          # Hook scripts
+│   └── hooks/                          # Hook scripts (managed by setup)
 │
 └── .c0ntextkeeper/                     # ← Global preserved context
     ├── config.json                     # Global configuration
-    ├── archive/                        # Main archive storage
-    │   ├── projects/                   # Per-project archives
-    │   │   ├── [project-name]/          # Actual project names (not hashes!)
-    │   │   │   ├── README.md           # Rich analytics dashboard
-    │   │   │   ├── index.json          # Project statistics & tool usage
-    │   │   │   ├── sessions/           # Individual JSON session files
-    │   │   │   │   └── YYYY-MM-DD_HHMM_MT_description.json
-    │   │   │   └── test/               # Test data (auto-separated)
-    │   └── global/                     
-    │       └── index.json              # Master index (test-filtered)
+    ├── archive/                        # Main session archives
+    │   └── projects/                   # Per-project storage
+    │       └── [project-name]/         # Actual project names (e.g., "c0ntextKeeper")
+    │           ├── sessions/           # Individual JSON session files
+    │           │   └── YYYY-MM-DD_HHMM_MT_[description].json
+    │           ├── test/               # Test data (auto-separated)
+    │           ├── search-index.json   # Inverted index for O(1) lookups (v0.7.5)
+    │           ├── index.json          # Project statistics & tool tracking
+    │           └── README.md           # Auto-generated analytics dashboard
     ├── prompts/                        # UserPromptSubmit hook data
-    │   └── [project-name]/             # Same project names as archive/projects/
-    │       └── YYYY-MM-DD-prompts.json       # Daily JSON array (not JSONL)
-    ├── patterns/                       # PostToolUse hook data (includes MCP tools)
-    │   └── [project-name]/             # Human-readable names
-    │       └── YYYY-MM-DD-patterns.json      # Daily JSON array with MCP support
+    │   └── [project-name]/             # Same naming as archive/projects/
+    │       └── YYYY-MM-DD-prompts.json
+    ├── patterns/                       # PostToolUse hook data
+    │   └── [project-name]/             # Human-readable project names
+    │       └── YYYY-MM-DD-patterns.json   # Includes MCP tool tracking
     ├── knowledge/                      # Stop hook Q&A pairs
-    │   └── [project-name]/             # Consistent naming across all hooks
-    │       └── YYYY-MM-DD-knowledge.json     # Daily JSON array
-    ├── errors/                         # Error pattern tracking
-    │   └── YYYY-MM-DD-errors.json            # Daily JSON array
-    ├── solutions/                      # Indexed solutions
-    │   └── index.json                  # Quick solution retrieval
+    │   └── [project-name]/             # Consistent naming across hooks
+    │       └── YYYY-MM-DD-knowledge.json
     ├── index.json                      # Project registry (test-filtered)
     └── logs/                           # Hook execution logs
-        └── hook.log                    # Debug information
+        └── hook.log
 ```
 
 ### Key Storage Features
@@ -507,9 +514,9 @@ Decision from 2025-08-10:
 - Impact: 10x faster session retrieval
 ```
 
-## 🛠️ CLI Commands (25 Commands Available)
+## 🛠️ CLI Commands (24 Commands)
 
-c0ntextKeeper provides a comprehensive CLI with 25 commands for complete control:
+c0ntextKeeper provides a comprehensive CLI with 24 commands for complete control:
 
 ### Setup & Configuration
 
@@ -622,9 +629,9 @@ c0ntextkeeper logs            # View recent hook execution logs
   --lines <n>                 # Show last n lines
 
 # Help and version
-c0ntextkeeper --help          # Show all 24 commands with descriptions
+c0ntextkeeper --help          # Show all commands with descriptions
 c0ntextkeeper <cmd> --help    # Show detailed help for specific command
-c0ntextkeeper --version       # Show version (currently 0.7.3)
+c0ntextkeeper --version       # Show version (currently 0.7.5)
 c0ntextkeeper changelog       # View recent changes and updates
 ```
 
@@ -952,7 +959,7 @@ For more troubleshooting, see the [User Guide](docs/guides/user-guide.md#trouble
 - **v0.5.3** - Unified JSON format, test data separation
 - **v0.5.2** - CLI improvements, version consistency fixes
 - **v0.5.1** - Better content preservation (2000 char limits), smarter session naming
-- **v0.5.0** - Critical Claude Code compatibility, 189+ semantic patterns
+- **v0.5.0** - Critical Claude Code compatibility, 187 semantic patterns (verified count)
 
 ### v0.4.0 and Earlier
 - **v0.4.0** - Open source migration, security hardening

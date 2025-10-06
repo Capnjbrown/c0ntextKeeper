@@ -33,7 +33,7 @@ import {
 const server = new Server(
   {
     name: "c0ntextkeeper",
-    version: "0.7.4",
+    version: "0.7.5",
   },
   {
     capabilities: {
@@ -432,11 +432,11 @@ function formatContextResults(contexts: any[]): string {
     if (ctx.problems && ctx.problems.length > 0) {
       const firstProblem = ctx.problems[0];
       output += `### 🎯 Main Problem:\n`;
-      output += `${truncateText(firstProblem.question, 300)}\n\n`;
+      output += `${truncateText(firstProblem.question, 1500)}\n\n`;
 
       if (firstProblem.solution) {
         output += `### ✅ Solution:\n`;
-        output += `${truncateText(firstProblem.solution.approach, 300)}\n\n`;
+        output += `${truncateText(firstProblem.solution.approach, 1500)}\n\n`;
       }
 
       if (ctx.problems.length > 1) {
@@ -453,7 +453,7 @@ function formatContextResults(contexts: any[]): string {
         const impl = ctx.implementations[i];
         output += `- **${impl.tool || "Tool"}**: ${impl.file || "unknown file"}\n`;
         if (impl.description) {
-          output += `  ${truncateText(impl.description, 150)}\n`;
+          output += `  ${truncateText(impl.description, 800)}\n`;
         }
       }
 
@@ -467,7 +467,7 @@ function formatContextResults(contexts: any[]): string {
     if (ctx.decisions && ctx.decisions.length > 0) {
       const firstDecision = ctx.decisions[0];
       output += `### 💡 Key Decision:\n`;
-      output += `${truncateText(firstDecision.decision, 200)}\n`;
+      output += `${truncateText(firstDecision.decision, 800)}\n`;
 
       if (ctx.decisions.length > 1) {
         output += `*(...and ${ctx.decisions.length - 1} more decision${ctx.decisions.length > 2 ? "s" : ""})*\n`;

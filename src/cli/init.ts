@@ -95,8 +95,8 @@ ${CONTEXTKEEPER_DIR}/
     logger.info("  2. Archives will be stored in .c0ntextkeeper/archive/");
     logger.info("  3. View analytics in .c0ntextkeeper/archive/README.md");
     logger.info("  4. Use --global flag to access global storage");
-  } catch (error) {
-    logger.error("Failed to initialize c0ntextkeeper:", error);
+  } catch (_error) {
+    logger.error("Failed to initialize c0ntextkeeper:", _error);
     process.exit(1);
   }
 }

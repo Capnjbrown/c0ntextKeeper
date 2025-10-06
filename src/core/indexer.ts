@@ -9,7 +9,6 @@ import { ExtractedContext } from './types.js';
 import { Logger } from '../utils/logger.js';
 import { getProjectName } from '../utils/project-utils.js';
 import { getStoragePath } from '../utils/path-resolver.js';
-import * as crypto from 'crypto';
 
 /**
  * Structure of the search index

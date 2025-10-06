@@ -1,8 +1,49 @@
 # c0ntextKeeper Migration Guide
 
-> Last Updated: 2025-09-15 for v0.7.4
+> Last Updated: 2025-10-06 for v0.7.5.1 (Documentation Audit Complete)
 
-## v0.7.4 to v0.7.4 Migration
+## v0.7.4 to v0.7.5+ Migration
+
+### Overview
+Version 0.7.5 introduces search indexing with inverted index for O(1) lookups, beautiful CLI styling with chalk, and comprehensive test suite improvements. Version 0.7.5.1 dramatically improves CLI output quality with 3-10x truncation limit increases.
+
+### Key Improvements
+- **Search Indexing**: O(1) keyword lookups with inverted index
+- **CLI Styling**: Beautiful output with chalk semantic colors
+- **Test Coverage**: Improved from 95.9% to 99.5% (196/197 tests)
+- **Pattern Count**: Verified 187 semantic patterns via code audit
+- **Truncation Limits**: 3-10x increases for complete context visibility (v0.7.5.1)
+
+### Migration Steps
+
+#### Step 1: Update Package
+```bash
+npm update -g c0ntextkeeper@latest
+```
+
+#### Step 2: Rebuild Search Index
+After updating, rebuild the search index for better performance:
+```bash
+c0ntextkeeper rebuild-index
+```
+
+#### Step 3: Verify
+```bash
+# Check version
+c0ntextkeeper --version
+# Should show: 0.7.5 or higher
+
+# Test search with improved CLI output
+c0ntextkeeper search "recent work"
+# Should show: Full context without '...' cutoffs
+```
+
+### No Breaking Changes
+Version 0.7.5+ maintains full backward compatibility. All existing archives, configurations, and hooks continue to work without modification.
+
+---
+
+## v0.7.4 to Previous Migration History
 
 ### Overview
 Version 0.7.4 introduces critical improvements to MCP tools reliability, fixing relevance scoring and sessionId generation issues.
