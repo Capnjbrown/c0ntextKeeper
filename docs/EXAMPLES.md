@@ -340,6 +340,184 @@ jobs:
 }
 ```
 
+## Testing & Diagnostics
+
+### 1. Health Check Before Deployment
+
+**Scenario**: Before deploying your project, you want to ensure c0ntextKeeper is working correctly.
+
+```bash
+# Run comprehensive health diagnostics
+c0ntextkeeper doctor
+
+# Example output:
+# 🏥 c0ntextKeeper Health Check
+# 
+# 1️⃣ Checking Hook Configuration...
+#   ✅ PreCompact hook configured
+#   ℹ️  Optional hooks enabled: UserPromptSubmit, PostToolUse, Stop
+# 
+# 2️⃣ Verifying Storage Setup...
+#   ✅ Global storage exists
+#   ✅ Archive directory exists
+# 
+# 3️⃣ Validating Archive Integrity...
+#   ✅ 59 sessions in 3 projects
+#   ✅ Archive files validated
+# 
+# 📊 Diagnostic Summary
+# ✅ Passed: 6
+# 🎉 All systems operational!
+```
+
+### 2. Performance Validation
+
+**Scenario**: You want to verify c0ntextKeeper meets performance targets.
+
+```bash
+# Run performance benchmark suite
+c0ntextkeeper benchmark
+
+# Real output from testing:
+# ⚡ c0ntextKeeper Performance Benchmark
+# 
+# 1️⃣ Testing Transcript Parsing Speed...
+#   ✅ Parsed 1000 lines in 6.37ms
+#   Throughput: 156,886 lines/sec
+# 
+# 2️⃣ Testing Context Extraction Performance...
+#   ✅ Extracted context in 2.35ms
+# 
+# 3️⃣ Testing Archive Storage Operations...
+#   ✅ Write: 9.70ms
+#   ✅ Read: 6.81ms
+# 
+# 4️⃣ Testing Search Query Performance...
+#   ✅ Search completed in 9.76ms
+# 
+# 5️⃣ Testing Index Rebuild Performance...
+#   ✅ Index rebuilt in 21.23ms
+# 
+# 📊 Performance Report
+# ✅ Passed: 6/6
+# 🎉 All performance targets met!
+```
+
+### 3. Troubleshooting Hook Data Capture
+
+**Scenario**: You notice some context isn't being captured. Debug mode helps identify the issue.
+
+```bash
+# Enable debug mode with verbose logging
+c0ntextkeeper debug --follow
+
+# Stream logs in real-time
+# 📡 Streaming logs (Ctrl+C to exit)...
+# 
+# [2025-10-06 14:32:15] [Hook] PreCompact triggered
+# [2025-10-06 14:32:15] [Extractor] Processing 1234 transcript entries
+# [2025-10-06 14:32:15] [Extractor] Found 5 problems, 3 solutions
+# [2025-10-06 14:32:15] [Storage] Saved to ~/.c0ntextkeeper/archive/projects/myapp/
+
+# View last 50 log entries
+c0ntextkeeper debug --lines 50
+
+# Filter by component
+c0ntextkeeper debug --component Hook --severity error
+```
+
+### 4. Verifying Hook Configuration
+
+**Scenario**: After initial setup, verify all hooks are working correctly.
+
+```bash
+# Test all hooks with sample data
+c0ntextkeeper test-hook
+
+# Example output:
+# 🧪 c0ntextKeeper Hook Test Suite
+# 
+# 📋 Testing PreCompact Hook
+# ✅ PreCompact test passed
+# 
+# 📋 Testing UserPromptSubmit Hook
+# ✅ UserPromptSubmit test passed
+# 
+# 📋 Testing PostToolUse Hook
+# ✅ PostToolUse test passed
+# 
+# 📋 Testing Stop Hook
+# ✅ Stop test passed
+# 
+# 📊 Test Summary
+# Total Tests: 4
+# ✅ Passed: 4
+# ❌ Failed: 0
+# 🎉 All tests passed!
+
+# Check hook health and statistics
+c0ntextkeeper hooks health
+c0ntextkeeper hooks stats
+```
+
+### 5. Testing MCP Tool Integration
+
+**Scenario**: Verify MCP tools work correctly with natural language queries.
+
+```bash
+# Test all MCP tools
+c0ntextkeeper test-mcp
+
+# Example output:
+# 🧪 Testing c0ntextKeeper MCP Tools with Natural Language
+# 
+# 1️⃣ Testing fetch_context with various queries...
+#    📝 Test: Natural language - recent work
+#    Query: "what have we been working on lately"
+#    ✅ Found 3 contexts
+#    📌 Result 1:
+#       📊 Relevance: 95%
+#       🆔 Session: session-20251006...
+#       📁 Project: c0ntextKeeper
+# 
+# 2️⃣ Testing search_archive...
+#    ✅ Search working correctly
+# 
+# 3️⃣ Testing get_patterns...
+#    ✅ Pattern detection working
+# 
+# 📊 All MCP tools operational!
+
+# Test specific tool with custom query
+c0ntextkeeper test-mcp --tool fetch_context --query "authentication bug fixes"
+```
+
+### 6. Pre-Release Validation Workflow
+
+**Scenario**: Complete validation before releasing a new version.
+
+```bash
+# Step 1: Run health check
+c0ntextkeeper doctor
+
+# Step 2: Verify performance
+c0ntextkeeper benchmark
+
+# Step 3: Test all hooks
+c0ntextkeeper test-hook
+
+# Step 4: Test MCP tools
+c0ntextkeeper test-mcp
+
+# Step 5: Validate installation
+c0ntextkeeper validate
+
+# Step 6: Check statistics
+c0ntextkeeper stats
+
+# If all pass: Ready for release!
+```
+
 ## Troubleshooting Common Issues
 
 ### No Archives Found

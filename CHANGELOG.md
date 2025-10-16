@@ -70,7 +70,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 41 request indicators (polite, direct, imperative, planning, advice, dev requests)
   - 23 solution indicators (action words, code blocks, resolutions)
   - 7 decision regex patterns (architectural and design decisions)
-- **CLI Commands**: Total of 25 commands (added rebuild-index)
+- **CLI Commands**: Total of 28 commands
+  - `rebuild-index` - Recreate search index from all sessions
+  - `doctor` - Comprehensive health diagnostics with auto-fix
+  - `benchmark` - Performance testing suite (6 tests: parsing, extraction, storage, search, indexing)
+  - `debug` - Enhanced logging with verbose output and log streaming
+  - `test-hook` - Verify all hooks functionality (PreCompact, UserPromptSubmit, PostToolUse, Stop)
+  - `test-mcp` - Test MCP tools with natural language queries
 
 ### Fixed
 - **Test Failures**: Fixed 2 failing tests in context-loader.test.ts

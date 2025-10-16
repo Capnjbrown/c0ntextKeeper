@@ -9,7 +9,7 @@
 - **Project Name**: c0ntextKeeper
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
-- **Version**: 0.7.5 (Package) / 0.7.5 (Extraction Algorithm) / 0.7.5 (MCP Server)
+- **Version**: 0.7.5.1 (Package) / 0.7.5 (Extraction Algorithm) / 0.7.5.1 (MCP Server)
 - **Repository**: https://github.com/yourusername/c0ntextKeeper
 
 ### Purpose Statement
@@ -138,8 +138,13 @@ c0ntextKeeper/
 | MCP tool serving | `/src/server/index.ts` | Three active tools | ✅ Active |
 | MCP resource serving | `/src/server/index.ts` | Auto-loaded context via resources (v0.7.2) | ✅ Active |
 | Auto-load context | `/src/core/context-loader.ts` | Proactive context loading on startup | ✅ Active |
-| CLI interface | `/src/cli.ts` | Comprehensive command set | ✅ Active |
+| CLI interface | `/src/cli.ts` | Comprehensive command set (28 commands) | ✅ Active |
 | Hook management | `/src/cli/hooks-manager.ts` | Enable/disable/test/configure hooks | ✅ Active |
+| Health diagnostics | `/src/cli/doctor.ts` | Comprehensive health check with auto-fix | ✅ Active |
+| Performance benchmarking | `/src/cli/benchmark.ts` | 6-test performance suite (parsing, extraction, storage, search, indexing) | ✅ Active |
+| Debug mode | `/src/cli/debug.ts` | Enhanced logging with verbose output and log streaming | ✅ Active |
+| Hook testing | `/src/cli.ts` (test-hook) | Verify all hooks functionality (4 hooks tested) | ✅ Active |
+| MCP tool testing | `/src/cli.ts` (test-mcp) | Test MCP tools with natural language queries | ✅ Active |
 
 ### API Surface
 
@@ -183,22 +188,50 @@ The ContextRetriever class (`src/core/retriever.ts`) provides the following meth
    - Knowledge base resource
    - Q&A pairs and learned information
 
-#### CLI Commands
+#### CLI Commands (28 Total)
 ```bash
+# Setup & Configuration
+c0ntextkeeper setup             # Configure hooks (interactive wizard)
+c0ntextkeeper validate          # Verify installation
+c0ntextkeeper doctor            # Diagnose and auto-fix issues
+
+# Storage Management
 c0ntextkeeper init              # Initialize storage (project-local or global)
 c0ntextkeeper init --global     # Initialize global storage
 c0ntextkeeper status            # Check storage configuration and status
-c0ntextkeeper setup             # Configure hooks
+
+# Core Operations
 c0ntextkeeper archive <file>    # Manual archive
 c0ntextkeeper search [query]    # Search archives (shows recent if no query)
 c0ntextkeeper patterns          # Analyze patterns
 c0ntextkeeper stats             # Storage statistics
-c0ntextkeeper migrate           # Migrate old archives
-c0ntextkeeper validate          # Verify installation
-c0ntextkeeper hooks <subcommand> # Hook management
+
+# Context Management
 c0ntextkeeper context preview   # Preview auto-loaded context
 c0ntextkeeper context test      # Test context loading
 c0ntextkeeper context configure # Configure auto-load settings
+
+# Hook Management
+c0ntextkeeper hooks list        # Show all hooks and status
+c0ntextkeeper hooks enable      # Enable specific hook
+c0ntextkeeper hooks disable     # Disable specific hook
+c0ntextkeeper hooks test        # Test hook functionality
+c0ntextkeeper hooks stats       # Hook execution statistics
+c0ntextkeeper hooks config      # Configure hook settings
+c0ntextkeeper hooks health      # Hook health diagnostics
+
+# Maintenance & Migration
+c0ntextkeeper cleanup           # Clean invalid/test projects
+c0ntextkeeper migrate           # Migrate old archives
+c0ntextkeeper migrate:restore   # Restore from backup
+c0ntextkeeper rebuild-index     # Rebuild search index
+
+# Development & Testing
+c0ntextkeeper test-hook         # Test all 4 hooks (PreCompact, UserPromptSubmit, PostToolUse, Stop)
+c0ntextkeeper test-mcp          # Test MCP tools with natural language
+c0ntextkeeper server            # Start MCP server manually
+c0ntextkeeper benchmark         # Run performance benchmarks (6 tests)
+c0ntextkeeper debug             # Enable debug mode with verbose logging
 ```
 
 ## Data & State Management
@@ -356,7 +389,7 @@ c0ntextkeeper setup     # Configure hooks
 - **Release Pattern**: Semantic versioning with CHANGELOG.md
 
 ### Version History
-- **Current Version**: 0.7.2
+- **Current Version**: 0.7.5.1
 - **Major Milestones**:
   - v0.7.2: Bug fixes, documentation improvements, test reliability enhancements
   - v0.7.2: Auto-load context via MCP resources, intelligent loading strategies
@@ -370,7 +403,24 @@ c0ntextkeeper setup     # Configure hooks
   - v0.2.0: Critical bug fixes
   - v0.1.0: Initial release
 
-### Recent Changes (v0.7.5)
+### Recent Changes (v0.7.5.1)
+
+#### CLI Output Quality & Documentation
+- **Truncation Limits**: Dramatically increased across 5 modules for complete context visibility
+  - Preview: 500 → 5000 chars (10x)
+  - Problems/Solutions: 300 → 1500 chars (5x)
+  - Search snippets: 200 → 600 chars (3x)
+  - Implementations: 150 → 800 chars (5.3x)
+  - Formatter default: 100 → 1000 chars (10x)
+- **CLI Command Documentation**: Completed documentation of all 28 commands
+  - `doctor` - Comprehensive health diagnostics (6 checks: hooks, storage, archives, permissions, file structure)
+  - `benchmark` - Performance testing suite (6 tests: parsing, extraction, storage read/write, search, index rebuild)
+  - `debug` - Enhanced logging with verbose output and log streaming
+  - `test-hook` - Verify all 4 hooks functionality
+  - `test-mcp` - Test MCP tools with natural language queries
+- **User Experience**: Eliminated frustrating "..." cutoffs in all CLI commands
+
+### Previous Changes (v0.7.5)
 
 #### Search Indexing & UI Improvements
 - **SearchIndexer Module**: Added inverted index for O(1) keyword lookups
@@ -456,7 +506,7 @@ c0ntextkeeper setup     # Configure hooks
 
 ### Code Quality Indicators
 - **TODO/FIXME Count**: Minimal (well-maintained codebase)
-- **Test Pass Rate**: 95.9% (189/197 tests passing) across all test suites
+- **Test Pass Rate**: 99.5% (196/197 tests passing) across all test suites
 - **Test Suite**: Comprehensive unit, integration, and performance tests
 - **Complex Functions**: Extractor has high complexity (50+ patterns - by design)
 - **TypeScript Strict Mode**: Enabled (excellent type safety)

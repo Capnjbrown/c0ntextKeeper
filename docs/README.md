@@ -5,7 +5,7 @@ Welcome to the c0ntextKeeper documentation! This directory contains all technica
 ## 📊 Latest Updates (v0.7.4)
 
 - **[Performance Benchmarks](technical/performance-benchmarks.md)** - Comprehensive performance analysis showing <10ms operations
-- **[Test Results Summary](technical/test-results-summary.md)** - Complete test suite results (95.9% test pass rate)
+- **[Test Results Summary](technical/test-results-summary.md)** - Complete test suite results (99.5% test pass rate)
 - **[Auto-Load Guide](guides/auto-load-guide.md)** - New automatic context loading feature
 
 ## 📁 Documentation Structure
@@ -92,9 +92,9 @@ All documentation in this directory follows these standards:
 
 ## 🔄 Version Information
 
-- **Documentation Version**: 0.7.4
-- **Last Updated**: 2025-09-12
-- **Project Version**: 0.7.4
+- **Documentation Version**: 0.7.5.1
+- **Last Updated**: 2025-10-06
+- **Project Version**: 0.7.5.1
 
 ## 📝 Notes
 

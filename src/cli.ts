@@ -26,7 +26,7 @@ const program = new Command();
 program
   .name("c0ntextkeeper")
   .description("Intelligent context preservation for Claude Code")
-  .version("0.7.4")
+  .version("0.7.5")
   .showHelpAfterError("(add --help for additional information)");
 
 // Setup command
@@ -602,14 +602,67 @@ program
     }
   });
 
+// Doctor command - Comprehensive diagnostics
+program
+  .command("doctor")
+  .description("Diagnose and fix common issues")
+  .action(async () => {
+    try {
+      const { runDoctorDiagnostics } = await import("./cli/doctor.js");
+      await runDoctorDiagnostics();
+    } catch (error) {
+      logger.error("Doctor diagnostics failed:", error);
+      process.exit(1);
+    }
+  });
+
+// Benchmark command - Performance testing
+program
+  .command("benchmark")
+  .description("Run performance benchmarks")
+  .action(async () => {
+    try {
+      const { runBenchmarks } = await import("./cli/benchmark.js");
+      await runBenchmarks();
+    } catch (error) {
+      logger.error("Benchmark failed:", error);
+      process.exit(1);
+    }
+  });
+
+// Debug command - Verbose logging
+program
+  .command("debug")
+  .description("Enable verbose logging and troubleshooting")
+  .option("-c, --component <name>", "Filter by component (Hook, Archiver, etc.)")
+  .option("-s, --severity <level>", "Filter by severity (debug, info, warn, error)")
+  .option("-f, --follow", "Follow logs in real-time")
+  .option("-e, --export", "Export logs to file")
+  .option("-l, --lines <number>", "Number of lines to show", "50")
+  .action(async (options: any) => {
+    try {
+      const { runDebugMode } = await import("./cli/debug.js");
+      await runDebugMode({
+        component: options.component,
+        severity: options.severity,
+        follow: options.follow,
+        export: options.export,
+        lines: parseInt(options.lines),
+      });
+    } catch (error) {
+      logger.error("Debug mode failed:", error);
+      process.exit(1);
+    }
+  });
+
 // Test-hook command
 program
   .command("test-hook")
   .description("Test the PreCompact hook with sample data")
   .action(async () => {
     try {
-      console.log("🧪 Testing PreCompact hook...");
-      const testScript = path.join(__dirname, "..", "scripts", "test-hook.js");
+      console.log("🧪 Testing c0ntextKeeper hooks...");
+      const testScript = path.join(__dirname, "..", "scripts", "test-hooks", "test-all.js");
       if (require("fs").existsSync(testScript)) {
         execSync(`node ${testScript}`, { stdio: "inherit" });
       } else {
@@ -620,6 +673,30 @@ program
       }
     } catch (error) {
       logger.error("Test failed:", error);
+      process.exit(1);
+    }
+  });
+
+// Test MCP tools command
+program
+  .command("test-mcp")
+  .description("Test all MCP tools (v0.7.2)")
+  .option("--tool <name>", "Test specific tool")
+  .option("--query <text>", "Test with specific query")
+  .action(async (options: any) => {
+    try {
+      console.log("🧪 Testing MCP tools...");
+      const testScript = path.join(__dirname, "..", "scripts", "test-mcp-tools.js");
+      if (require("fs").existsSync(testScript)) {
+        execSync(`node ${testScript}`, { stdio: "inherit" });
+      } else {
+        console.error(
+          "Test script not found. Please ensure the project is properly installed.",
+        );
+        process.exit(1);
+      }
+    } catch (error) {
+      logger.error("MCP test failed:", error);
       process.exit(1);
     }
   });

@@ -45,7 +45,7 @@
 - [Installation](#-installation)
 - [Storage Architecture](#-storage-architecture)
 - [Key Features](#key-features-works-out-of-the-box)
-- [CLI Commands](#-cli-commands-24-commands)
+- [CLI Commands](#-cli-commands-28-commands)
 - [MCP Tools](#mcp-tools)
 - [Future Vision](#-future-vision-cloud-based-intelligence)
 - [Troubleshooting](#-troubleshooting)
@@ -68,7 +68,7 @@ That's it! c0ntextKeeper is now preserving your context automatically.
 
 ## 🚀 What's New
 
-**Package Version**: 0.7.5 | **Extraction Algorithm**: 0.7.5 | **Test Success**: 99.5% (196/197 tests)
+**Package Version**: 0.7.5.1 | **Extraction Algorithm**: 0.7.5 | **Test Success**: 99.5% (196/197 tests)
 
 ### ⚡ v0.7.5.1 (2025-10-06) - CLI Output Quality Revolution!
 
@@ -514,9 +514,9 @@ Decision from 2025-08-10:
 - Impact: 10x faster session retrieval
 ```
 
-## 🛠️ CLI Commands (24 Commands)
+## 🛠️ CLI Commands (28 Commands)
 
-c0ntextKeeper provides a comprehensive CLI with 24 commands for complete control:
+c0ntextKeeper provides a comprehensive CLI with 28 commands for complete control:
 
 ### Setup & Configuration
 
@@ -631,7 +631,7 @@ c0ntextkeeper logs            # View recent hook execution logs
 # Help and version
 c0ntextkeeper --help          # Show all commands with descriptions
 c0ntextkeeper <cmd> --help    # Show detailed help for specific command
-c0ntextkeeper --version       # Show version (currently 0.7.5)
+c0ntextkeeper --version       # Show version (currently 0.7.5.1)
 c0ntextkeeper changelog       # View recent changes and updates
 ```
 

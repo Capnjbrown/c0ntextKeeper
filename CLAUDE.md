@@ -130,7 +130,7 @@ c0ntextKeeper v0.7.5 is production-ready with search indexing and beautiful CLI:
   - Added natural language query tokenization with stop words
   - Enhanced output formatting for better readability
   - Created migration script for existing archives
-- **v0.7.1** (2025-09-12) - Bug fixes, comprehensive CLI documentation (24 commands), test reliability
+- **v0.7.1** (2025-09-12) - Bug fixes, comprehensive CLI documentation (28 commands documented), test reliability
   - Added complete CLI Commands section with 7 categories
   - Fixed CLI archive command error handling
   - Updated all documentation to v0.7.1
@@ -758,7 +758,7 @@ When updating documentation:
 1. **Create GitHub Release** - Tag v0.7.4 with critical hook fixes
 2. **Publish to npm** - Make available via `npm install c0ntextkeeper`
 3. **Community Announcement** - Alert users about critical 50% → 100% data capture fix
-4. **Highlight** - Comprehensive CLI documentation with 24 commands
+4. **Highlight** - Comprehensive CLI documentation with 28 commands
 
 > **📋 Pre-Release Checklist**: See [docs/development/pre-release-checklist.md](docs/development/pre-release-checklist.md) for complete release steps.
 
