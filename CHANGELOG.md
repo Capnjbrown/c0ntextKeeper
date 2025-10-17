@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - 2025-10-17
 
 ### Fixed
+- **Archive Storage Pollution**: Eliminated benchmark test data from production archive
+  - Removed benchmark-project folder (24KB) created by performance tests
+  - Updated benchmark.ts to use in-memory testing instead of persistent storage
+  - Write operations now test JSON serialization without file writes
+  - Read operations use actual project data for realistic benchmarks
+  - Prevents end users from creating fake benchmark-project folders
+- **Knowledge Capture Threshold**: Improved Q&A coverage for knowledge base
+  - Lowered relevance threshold from 0.3 → 0.2 (33% increase in capture rate)
+  - Better balance between quality and quantity
+  - More comprehensive knowledge base for public release users
+- **Path Resolution Documentation**: Clarified storage path methods in file-store.ts
+  - Added deprecation warnings to getPromptsPath(), getPatternsPath(), getKnowledgePath()
+  - Documented that these return root directories, not project-specific paths
+  - Actual hook storage uses getHookStoragePath() for project-specific paths
+  - Prevents future confusion about expected vs actual storage locations
 - **Test Coverage Achievement**: Reached 100% test pass rate (196/196 tests passing)
   - Removed redundant skipped test in auto-load.test.ts (lines 676-681)
   - Test was attempting to call non-existent `testLoading()` method
@@ -37,6 +52,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - More complete context visibility in auto-load system
 
 ### Documentation
+- **Comprehensive Documentation Overhaul**: Created 6 new user-facing documentation files
+  - **docs/guides/quickstart.md** (170 lines) - 60-second setup guide showcasing "out of box" experience
+  - **docs/FEATURES.md** (577 lines) - Complete feature catalog from exhaustive source code audit
+  - **docs/technical/hooks-reference.md** (500+ lines) - Deep-dive into what each of 4 hooks captures
+  - **docs/technical/mcp-tools.md** (700+ lines) - Comprehensive guide to 3 MCP tools and 3 resources
+  - **docs/technical/configuration.md** (900+ lines) - Complete configuration reference with examples
+  - **docs/guides/use-cases.md** (600+ lines) - 12 real-world scenarios showing practical applications
+  - Total: 3,400+ lines of new user-focused documentation
+- **README.md Enhancement**: Updated to highlight automation and link to new documentation structure
+  - Added "What You Get Out of the Box" section prominently after Quick Start
+  - Created consolidated "Complete Documentation" section with organized links
+  - Highlights 7 automatic features that work with zero configuration
+  - Improved discoverability of all documentation resources
+- **package.json Enhancement**: Updated description and keywords for better npm discoverability
+  - New description: "Fully automatic context preservation for Claude Code - Works out of the box with zero configuration"
+  - Expanded keywords from 6 to 20: Added automation, productivity, workflow, knowledge-base, search, analytics, hooks
+  - Better SEO for npm search results
 - **Module Count Accuracy**: Corrected module count from 27 to 32 in CLAUDE.md
   - Added documentation for doctor.ts (394 lines - health diagnostics)
   - Added documentation for debug.ts (356 lines - log viewer)

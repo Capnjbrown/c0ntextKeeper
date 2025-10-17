@@ -92,7 +92,11 @@ export class FileStore {
   }
 
   /**
-   * Get prompts path
+   * Get prompts path (root directory)
+   * Note: Actual hook data is stored at project-specific paths via getHookStoragePath()
+   * This returns the parent directory: ~/.c0ntextkeeper/prompts/
+   * Actual storage: ~/.c0ntextkeeper/archive/projects/[name]/prompts/
+   * @deprecated Consider using getHookStoragePath() from project-utils instead
    */
   getPromptsPath(): string {
     const storagePath = getStoragePath({ createIfMissing: false });
@@ -100,7 +104,11 @@ export class FileStore {
   }
 
   /**
-   * Get patterns path
+   * Get patterns path (root directory)
+   * Note: Actual hook data is stored at project-specific paths via getHookStoragePath()
+   * This returns the parent directory: ~/.c0ntextkeeper/patterns/
+   * Actual storage: ~/.c0ntextkeeper/archive/projects/[name]/patterns/
+   * @deprecated Consider using getHookStoragePath() from project-utils instead
    */
   getPatternsPath(): string {
     const storagePath = getStoragePath({ createIfMissing: false });
@@ -108,7 +116,11 @@ export class FileStore {
   }
 
   /**
-   * Get knowledge path
+   * Get knowledge path (root directory)
+   * Note: Actual hook data is stored at project-specific paths via getHookStoragePath()
+   * This returns the parent directory: ~/.c0ntextkeeper/knowledge/
+   * Actual storage: ~/.c0ntextkeeper/archive/projects/[name]/knowledge/
+   * @deprecated Consider using getHookStoragePath() from project-utils instead
    */
   getKnowledgePath(): string {
     const storagePath = getStoragePath({ createIfMissing: false });

@@ -110,8 +110,8 @@ async function processExchange(input: StopHookInput): Promise<void> {
       },
     });
 
-    // Skip low-value exchanges
-    if (relevanceScore < 0.3 && !hasSolution && !hasError) {
+    // Skip low-value exchanges (threshold lowered from 0.3 to 0.2 for better knowledge coverage)
+    if (relevanceScore < 0.2 && !hasSolution && !hasError) {
       // Skip low relevance exchanges
       return;
     }

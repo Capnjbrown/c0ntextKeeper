@@ -66,6 +66,23 @@ c0ntextkeeper status
 
 That's it! c0ntextKeeper is now preserving your context automatically.
 
+### 🎁 What You Get Out of the Box
+
+After the 60-second setup above, c0ntextKeeper **automatically**:
+- ✅ **Preserves context** before every compaction (manual `/compact` or automatic)
+- ✅ **Extracts valuable patterns** using 187 semantic detection rules
+- ✅ **Builds searchable archive** with problems, solutions, decisions, implementations
+- ✅ **Auto-loads context** at session start via MCP resources (Claude knows your project!)
+- ✅ **Filters sensitive data** (API keys, secrets, credentials, PII)
+- ✅ **Generates analytics** dashboards showing tool usage and patterns
+- ✅ **Provides MCP tools** for instant context retrieval (`fetch_context`, `search_archive`, `get_patterns`)
+
+**Zero ongoing configuration required!** Just work normally in Claude Code.
+
+**📖 See the [Quick Start Guide](docs/guides/quickstart.md) for a complete walkthrough.**
+
+---
+
 ## 🚀 What's New
 
 **Package Version**: 0.7.5.1 | **Extraction Algorithm**: 0.7.5 | **Test Success**: 100% (196/196 tests)
@@ -852,16 +869,39 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 - 📝 Documentation improvements
 - 🔒 Security enhancements
 
+## 📚 Complete Documentation
+
+### 📖 Getting Started
+- **[⚡ Quick Start (60 seconds)](docs/guides/quickstart.md)** - Get running immediately
+- **[👤 User Guide](docs/guides/user-guide.md)** - Comprehensive usage guide
+- **[🎯 Use Cases & Examples](docs/guides/use-cases.md)** - Real-world scenarios (12+ examples)
+
+### 📘 Feature Documentation
+- **[✨ Complete Feature Catalog](docs/FEATURES.md)** - Every feature, command, and capability
+- **[🔧 MCP Tools & Resources](docs/technical/mcp-tools.md)** - Detailed tool usage guide
+- **[🎣 Hooks Reference](docs/technical/hooks-reference.md)** - What each hook captures
+- **[⚙️ Configuration Guide](docs/technical/configuration.md)** - All configuration options
+
+### 🔨 Technical Docs
+- **[Hook Integration](docs/technical/hook-integration.md)** - Set up automatic context preservation
+- **[File Formats](docs/technical/file-formats.md)** - Archive format specifications
+- **[Storage Architecture](docs/technical/storage.md)** - Hybrid storage system
+- **[MCP Usage](docs/technical/mcp-usage.md)** - MCP tool patterns
+
+### 🛠️ Development
+- **[Project Context](docs/development/project-context.md)** - Technical architecture
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
+- **[Migration Guide](docs/guides/migration-guide.md)** - Version migration procedures
+
+---
+
 ## 📝 License
 
 MIT - See [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-Special thanks to:
-- The Claude Code team at Anthropic for creating an amazing development environment
-- The MCP community for protocol development and support
-- All contributors who help make c0ntextKeeper better
+
 
 ## 🧪 Testing
 
@@ -1009,18 +1049,13 @@ We're planning a revolutionary upgrade to take c0ntextKeeper to the cloud:
 
 ### 📚 Documentation
 
-#### Quick Links
-- **[📖 Documentation Index](docs/README.md)** - Complete documentation map
-- **[👤 User Guide](docs/guides/user-guide.md)** - Installation and usage
-- **[🔧 Technical Specs](docs/technical/)** - Technical documentation
-- **[🛠️ Development](docs/development/)** - Development guidelines
+**Complete documentation now available** - See the [Complete Documentation](#-complete-documentation) section below for all guides.
 
-#### Key Documents
-- [Hook Integration](docs/technical/hook-integration.md) - Set up automatic context preservation
-- [File Formats](docs/technical/file-formats.md) - Archive format specifications
-- [Storage Architecture](docs/technical/storage.md) - Hybrid storage system
-- [Migration Guide](docs/guides/migration-guide.md) - Version migration procedures
-- [MCP Usage](docs/technical/mcp-usage.md) - MCP tool patterns
+#### Quick Links
+- **[⚡ Quick Start (60 seconds)](docs/guides/quickstart.md)** - Get running immediately
+- **[✨ Complete Features](docs/FEATURES.md)** - Every feature, command, and capability
+- **[🎯 Use Cases](docs/guides/use-cases.md)** - 12+ real-world examples
+- **[⚙️ Configuration](docs/technical/configuration.md)** - All settings explained
 
 ### External Resources
 - [Homepage](https://c0ntextkeeper.com)

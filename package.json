@@ -1,7 +1,7 @@
 {
   "name": "c0ntextkeeper",
   "version": "0.7.5.1",
-  "description": "Intelligent context preservation and retrieval for Claude Code with analytics dashboard",
+  "description": "Fully automatic context preservation for Claude Code - Works out of the box with zero configuration. Never lose valuable work again!",
   "main": "dist/index.js",
   "bin": {
     "c0ntextkeeper": "dist/cli.js",
@@ -25,7 +25,28 @@
     "prepublishOnly": "npm run build",
     "postinstall": "node scripts/post-install.js 2>/dev/null || true"
   },
-  "keywords": ["claude", "mcp", "context", "ai", "development", "claude-code"],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "mcp",
+    "mcp-server",
+    "context",
+    "context-preservation",
+    "ai",
+    "ai-tools",
+    "development",
+    "developer-tools",
+    "automation",
+    "automatic",
+    "productivity",
+    "workflow",
+    "knowledge-base",
+    "search",
+    "analytics",
+    "hooks",
+    "typescript",
+    "cli"
+  ],
   "author": "c0ntextKeeper Contributors",
   "license": "MIT",
   "repository": {
