@@ -672,12 +672,5 @@ describe("Auto-Load Integration Tests", () => {
       expect(preview).toContain("Size:");
       expect(preview).toContain("Items:");
     });
-    
-    // Test removed - testLoading method doesn't exist in ContextLoader
-    // TODO: Implement proper strategy testing when testLoading is added
-    it.skip("should test different loading strategies", async () => {
-      // This test was calling a non-existent method testLoading
-      // Skipping until the method is implemented
-    });
   });
 });

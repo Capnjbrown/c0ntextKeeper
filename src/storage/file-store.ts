@@ -5,7 +5,6 @@
 
 import fs from "fs/promises";
 import path from "path";
-import crypto from "crypto";
 import {
   ExtractedContext,
   ProjectIndex,
@@ -379,18 +378,6 @@ export class FileStore {
   }
 
   // Private helper methods
-
-  /**
-   * Generate project hash - kept for backward compatibility
-   * @deprecated Use extractProjectName instead
-   */
-  private generateProjectHash(projectPath: string): string {
-    return crypto
-      .createHash("md5")
-      .update(projectPath)
-      .digest("hex")
-      .slice(0, 8);
-  }
 
   /**
    * Create or update README file for project navigation

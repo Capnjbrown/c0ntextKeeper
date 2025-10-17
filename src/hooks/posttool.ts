@@ -10,6 +10,7 @@ import { SecurityFilter } from "../utils/security-filter";
 import { FileStore } from "../storage/file-store";
 import { getStoragePath } from "../utils/path-resolver";
 import { getHookStoragePath } from "../utils/project-utils";
+import { isTestSession } from "../utils/test-helpers";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -30,16 +31,6 @@ const debugLog = (message: string, data?: any, forceLog = false) => {
   const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n\n`;
 
   fs.appendFileSync(logFile, logEntry, 'utf-8');
-};
-
-// Helper to check if this is a test session
-const isTestSession = (sessionId: string): boolean => {
-  return !!(sessionId && (
-    sessionId.includes('test-session') ||
-    sessionId.includes('test_session') ||
-    sessionId.startsWith('test-') ||
-    sessionId.includes('session-17582') // Test timestamp pattern
-  ));
 };
 
 interface PostToolHookInput {

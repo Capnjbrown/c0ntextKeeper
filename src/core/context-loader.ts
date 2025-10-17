@@ -203,10 +203,10 @@ export class ContextLoader {
             if (problems.length > 0) {
               sections.push("**Key Problems:**");
               problems.forEach((p: any) => {
-                const question = this.truncateText(p.question, 800);
+                const question = this.truncateText(p.question, 1500);
                 sections.push(`- ${question}`);
                 if (p.solution) {
-                  const solution = this.truncateText(p.solution.approach, 1000);
+                  const solution = this.truncateText(p.solution.approach, 2000);
                   sections.push(`  → ${solution}`);
                 }
               });
@@ -218,7 +218,7 @@ export class ContextLoader {
             if (implementations.length > 0) {
               sections.push("**Key Actions:**");
               implementations.forEach((impl: any) => {
-                const desc = this.truncateText(impl.description, 500);
+                const desc = this.truncateText(impl.description, 800);
                 sections.push(`- ${impl.tool}: ${desc}`);
               });
             }
@@ -238,10 +238,10 @@ export class ContextLoader {
             if (session.context.problems?.length > 0) {
               sections.push("**Problems & Solutions:**");
               session.context.problems.slice(0, 3).forEach((p: any) => {
-                sections.push(`- Q: ${this.truncateText(p.question, 800)}`);
+                sections.push(`- Q: ${this.truncateText(p.question, 1500)}`);
                 if (p.solution) {
                   sections.push(
-                    `  A: ${this.truncateText(p.solution.approach, 1000)}`,
+                    `  A: ${this.truncateText(p.solution.approach, 2000)}`,
                   );
                 }
               });
@@ -285,11 +285,11 @@ export class ContextLoader {
     patterns.forEach((pattern: Pattern) => {
       if (this.config.formatStyle === "summary") {
         sections.push(
-          `- **${pattern.type}** (${pattern.frequency}x): \`${this.truncateText(pattern.value, 400)}\``,
+          `- **${pattern.type}** (${pattern.frequency}x): \`${this.truncateText(pattern.value, 800)}\``,
         );
         if ((pattern as any).description) {
           sections.push(
-            `  ${this.truncateText((pattern as any).description, 400)}`,
+            `  ${this.truncateText((pattern as any).description, 800)}`,
           );
         }
       } else if (this.config.formatStyle === "detailed") {
@@ -353,11 +353,11 @@ export class ContextLoader {
 
           recentEntries.forEach((entry: any) => {
             if (this.config.formatStyle === "summary") {
-              sections.push(`- Q: ${this.truncateText(entry.question, 800)}`);
-              sections.push(`  A: ${this.truncateText(entry.answer, 1000)}`);
+              sections.push(`- Q: ${this.truncateText(entry.question, 1500)}`);
+              sections.push(`  A: ${this.truncateText(entry.answer, 2000)}`);
             } else if (this.config.formatStyle === "detailed") {
               sections.push(`**Q:** ${entry.question}`);
-              sections.push(`**A:** ${this.truncateText(entry.answer, 1000)}`);
+              sections.push(`**A:** ${this.truncateText(entry.answer, 2000)}`);
               sections.push("");
             }
             itemCount++;
@@ -413,7 +413,7 @@ export class ContextLoader {
 
           recentPrompts.forEach((entry: any) => {
             sections.push(
-              `- ${this.truncateText(entry.prompt || entry.content, 800)}`,
+              `- ${this.truncateText(entry.prompt || entry.content, 1500)}`,
             );
             itemCount++;
           });
@@ -471,9 +471,9 @@ export class ContextLoader {
       if (ctx.problems && ctx.problems.length > 0) {
         sections.push("## Problems & Solutions");
         ctx.problems.forEach((p) => {
-          sections.push(`- ${this.truncateText(p.question, 800)}`);
+          sections.push(`- ${this.truncateText(p.question, 1500)}`);
           if (p.solution) {
-            sections.push(`  → ${this.truncateText(p.solution.approach, 1000)}`);
+            sections.push(`  → ${this.truncateText(p.solution.approach, 2000)}`);
           }
         });
       }

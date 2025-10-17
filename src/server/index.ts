@@ -33,7 +33,7 @@ import {
 const server = new Server(
   {
     name: "c0ntextkeeper",
-    version: "0.7.5",
+    version: "0.7.5.1",
   },
   {
     capabilities: {
