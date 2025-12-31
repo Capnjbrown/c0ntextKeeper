@@ -35,16 +35,16 @@ done
 echo ""
 echo "Scanning for sensitive data..."
 
-# Check for .env file (should not exist)
-if [ -f ".env" ]; then
-  echo "❌ .env file exists - REMOVE IMMEDIATELY"
+# Check for .env file in git (should not be tracked)
+if git ls-files --error-unmatch .env 2>/dev/null; then
+  echo "❌ .env file is tracked in git - REMOVE FROM GIT IMMEDIATELY"
   ((ISSUES++))
 else
-  echo "✅ No .env file found"
+  echo "✅ .env file not tracked in git (local .env is OK)"
 fi
 
-# Check for sensitive patterns
-if grep -r "ghp_\|ghs_\|github_pat_" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude="*.md" 2>/dev/null | grep -v ".env.example"; then
+# Check for sensitive patterns (exclude security-filter.ts which contains detection regex patterns)
+if grep -r "ghp_\|ghs_\|github_pat_" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=coverage --exclude="*.md" --exclude="security-filter.ts" --exclude="security-filter.test.ts" 2>/dev/null | grep -v ".env.example"; then
   echo "⚠️  Potential GitHub tokens found"
   ((WARNINGS++))
 else
@@ -80,11 +80,11 @@ fi
 echo ""
 echo "Checking documentation..."
 
-# Check README has key sections
-if grep -q "## Installation" README.md && grep -q "## Usage" README.md && grep -q "## Contributing" README.md; then
+# Check README has key sections (modern README uses Quick Start instead of Installation)
+if grep -q "## Quick Start" README.md && grep -q "## How It Works" README.md && grep -q "## Contributing" README.md; then
   echo "✅ README has essential sections"
 else
-  echo "⚠️  README missing essential sections"
+  echo "⚠️  README missing essential sections (Quick Start, How It Works, Contributing)"
   ((WARNINGS++))
 fi
 

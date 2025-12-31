@@ -12,7 +12,7 @@ export class PatternAnalyzer {
   private logger: Logger;
 
   constructor(storage?: FileStore) {
-    this.storage = storage || new FileStore();
+    this.storage = storage || new FileStore({ global: true });
     this.logger = new Logger("PatternAnalyzer");
   }
 

@@ -24,9 +24,9 @@ export class ContextRetriever {
   private logger: Logger;
 
   constructor(storage?: FileStore, indexer?: SearchIndexer) {
-    this.storage = storage || new FileStore();
+    this.storage = storage || new FileStore({ global: true });
     this.scorer = new RelevanceScorer();
-    this.indexer = indexer || new SearchIndexer();
+    this.indexer = indexer || new SearchIndexer(undefined, { global: true });
     this.logger = new Logger("ContextRetriever");
   }
 
@@ -120,7 +120,9 @@ export class ContextRetriever {
     try {
       const indexResults = await this.indexer.search(query, limit * 2);
       if (indexResults.length > 0) {
-        this.logger.info(`Found ${indexResults.length} results using search index`);
+        this.logger.info(
+          `Found ${indexResults.length} results using search index`,
+        );
 
         // Convert index results to full contexts
         const contexts: ExtractedContext[] = [];
@@ -131,7 +133,10 @@ export class ContextRetriever {
               contexts.push(context);
             }
           } catch (err) {
-            this.logger.warn(`Failed to load session ${result.sessionId}:`, err);
+            this.logger.warn(
+              `Failed to load session ${result.sessionId}:`,
+              err,
+            );
           }
         }
 
@@ -140,18 +145,24 @@ export class ContextRetriever {
           let filtered = contexts;
 
           if (dateRange) {
-            filtered = filtered.filter(c => {
+            filtered = filtered.filter((c) => {
               const timestamp = new Date(c.timestamp).getTime();
-              const from = dateRange.from ? new Date(dateRange.from).getTime() : 0;
-              const to = dateRange.to ? new Date(dateRange.to).getTime() : Date.now();
+              const from = dateRange.from
+                ? new Date(dateRange.from).getTime()
+                : 0;
+              const to = dateRange.to
+                ? new Date(dateRange.to).getTime()
+                : Date.now();
               return timestamp >= from && timestamp <= to;
             });
           }
 
           // Sort and limit results
           if (sortBy === "date") {
-            filtered.sort((a, b) =>
-              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            filtered.sort(
+              (a, b) =>
+                new Date(b.timestamp).getTime() -
+                new Date(a.timestamp).getTime(),
             );
           }
 
@@ -162,7 +173,10 @@ export class ContextRetriever {
         }
       }
     } catch (indexError) {
-      this.logger.warn('Failed to use search index, falling back to full search:', indexError);
+      this.logger.warn(
+        "Failed to use search index, falling back to full search:",
+        indexError,
+      );
     }
 
     // Create search predicate
@@ -383,7 +397,10 @@ export class ContextRetriever {
     // Search in problems
     for (const problem of context.problems) {
       const questionLower = problem.question.toLowerCase();
-      const questionScore = this.calculateWordMatchScore(questionLower, queryWords);
+      const questionScore = this.calculateWordMatchScore(
+        questionLower,
+        queryWords,
+      );
       if (questionScore > 0) {
         matches.push({
           field: "problem.question",
@@ -391,10 +408,13 @@ export class ContextRetriever {
           score: 0.8 * questionScore,
         });
       }
-      
+
       if (problem.solution?.approach) {
         const solutionLower = problem.solution.approach.toLowerCase();
-        const solutionScore = this.calculateWordMatchScore(solutionLower, queryWords);
+        const solutionScore = this.calculateWordMatchScore(
+          solutionLower,
+          queryWords,
+        );
         if (solutionScore > 0) {
           matches.push({
             field: "problem.solution",
@@ -421,7 +441,10 @@ export class ContextRetriever {
     // Search in decisions
     for (const decision of context.decisions) {
       const decisionLower = decision.decision.toLowerCase();
-      const decisionScore = this.calculateWordMatchScore(decisionLower, queryWords);
+      const decisionScore = this.calculateWordMatchScore(
+        decisionLower,
+        queryWords,
+      );
       if (decisionScore > 0) {
         matches.push({
           field: "decision",
@@ -434,7 +457,10 @@ export class ContextRetriever {
     // Search in patterns
     for (const pattern of context.patterns) {
       const patternLower = pattern.value.toLowerCase();
-      const patternScore = this.calculateWordMatchScore(patternLower, queryWords);
+      const patternScore = this.calculateWordMatchScore(
+        patternLower,
+        queryWords,
+      );
       if (patternScore > 0) {
         matches.push({
           field: "pattern",
@@ -598,7 +624,7 @@ export class ContextRetriever {
    */
   private contextsToSearchResults(
     contexts: ExtractedContext[],
-    query: string
+    query: string,
   ): SearchResult[] {
     const results: SearchResult[] = [];
 
@@ -610,16 +636,20 @@ export class ContextRetriever {
         for (const problem of context.problems) {
           if (problem.question.toLowerCase().includes(query.toLowerCase())) {
             matches.push({
-              field: 'problem',
+              field: "problem",
               snippet: problem.question.substring(0, 600),
-              score: 1.0
+              score: 1.0,
             });
           }
-          if (problem.solution?.approach.toLowerCase().includes(query.toLowerCase())) {
+          if (
+            problem.solution?.approach
+              .toLowerCase()
+              .includes(query.toLowerCase())
+          ) {
             matches.push({
-              field: 'solution',
+              field: "solution",
               snippet: problem.solution.approach.substring(0, 600),
-              score: 0.8
+              score: 0.8,
             });
           }
         }
@@ -630,9 +660,9 @@ export class ContextRetriever {
         for (const impl of context.implementations) {
           if (impl.description.toLowerCase().includes(query.toLowerCase())) {
             matches.push({
-              field: 'implementation',
+              field: "implementation",
               snippet: impl.description.substring(0, 600),
-              score: 0.7
+              score: 0.7,
             });
           }
         }
@@ -644,7 +674,7 @@ export class ContextRetriever {
       results.push({
         context,
         matches,
-        relevance
+        relevance,
       });
     }
 

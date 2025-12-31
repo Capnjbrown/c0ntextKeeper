@@ -641,7 +641,7 @@ c0ntextKeeper/
 ## Additional Resources
 
 - [MCP SDK Documentation](https://modelcontextprotocol.io)
-- [c0ntextKeeper Repository](https://github.com/yourusername/c0ntextKeeper)
+- [c0ntextKeeper Repository](https://github.com/Capnjbrown/c0ntextKeeper)
 - [Claude Code Hooks Guide](https://docs.anthropic.com/en/docs/claude-code/hooks)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Jest Testing Guide](https://jestjs.io/docs/getting-started)

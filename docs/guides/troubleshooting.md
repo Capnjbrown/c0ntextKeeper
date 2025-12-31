@@ -42,11 +42,14 @@ This will show:
 
 1. **Enable the hooks:**
 ```bash
-# Enable all hooks
+# Enable all 7 hooks
 c0ntextkeeper hooks enable precompact
 c0ntextkeeper hooks enable userprompt
 c0ntextkeeper hooks enable posttool
 c0ntextkeeper hooks enable stop
+c0ntextkeeper hooks enable notification
+c0ntextkeeper hooks enable sessionstart
+c0ntextkeeper hooks enable sessionend
 
 # Verify they're enabled
 c0ntextkeeper hooks list
@@ -291,6 +294,20 @@ c0ntextkeeper stats
 
 ## FAQ
 
+### Command Not Found: c0ntextKeeper (capital K)
+
+**Problem**: Running `c0ntextKeeper` (capital K) returns "command not found"
+
+**Solution**: The CLI command is **all lowercase**: `c0ntextkeeper` (with zero, not O)
+
+```bash
+# WRONG - Capital K
+c0ntextKeeper setup
+
+# CORRECT - All lowercase
+c0ntextkeeper setup
+```
+
 ### Q: Why aren't my hooks capturing data?
 **A:** Most commonly:
 1. Hooks not enabled (run `c0ntextkeeper hooks enable all`)
@@ -348,7 +365,7 @@ If issues persist:
 
 1. **Enable debug mode** and collect logs
 2. **Run health check** and save output
-3. **Check GitHub issues**: https://github.com/yourusername/c0ntextKeeper/issues
+3. **Check GitHub issues**: https://github.com/Capnjbrown/c0ntextKeeper/issues
 4. **Report new issues** with:
    - c0ntextKeeper version (`c0ntextkeeper --version`)
    - Claude Code version

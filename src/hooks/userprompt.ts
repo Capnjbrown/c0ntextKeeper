@@ -8,25 +8,28 @@
 
 import { SecurityFilter } from "../utils/security-filter";
 import { getStoragePath } from "../utils/path-resolver";
-import { getHookStoragePath } from "../utils/project-utils";
+import { writeHookData, getHookStorageDir } from "../utils/hook-storage";
 import * as fs from "fs";
 import * as path from "path";
 
 // Debug logging utility
-const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === 'true';
+const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === "true";
 const debugLog = (message: string, data?: any) => {
   if (!DEBUG) return;
-  
-  const logDir = path.join(process.env.HOME || '', '.c0ntextkeeper', 'debug');
+
+  const logDir = path.join(process.env.HOME || "", ".c0ntextkeeper", "debug");
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
   }
-  
-  const logFile = path.join(logDir, `userprompt-${new Date().toISOString().split('T')[0]}.log`);
+
+  const logFile = path.join(
+    logDir,
+    `userprompt-${new Date().toISOString().split("T")[0]}.log`,
+  );
   const timestamp = new Date().toISOString();
-  const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n\n`;
-  
-  fs.appendFileSync(logFile, logEntry, 'utf-8');
+  const logEntry = `[${timestamp}] ${message}${data ? "\n" + JSON.stringify(data, null, 2) : ""}\n\n`;
+
+  fs.appendFileSync(logFile, logEntry, "utf-8");
 };
 
 interface UserPromptHookInput {
@@ -52,11 +55,11 @@ interface UserPromptContext {
 
 async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
   const securityFilter = new SecurityFilter();
-  
-  debugLog('processUserPrompt called', {
+
+  debugLog("processUserPrompt called", {
     session_id: input.session_id,
     promptLength: input.prompt?.length,
-    timestamp: input.timestamp
+    timestamp: input.timestamp,
   });
 
   try {
@@ -88,8 +91,8 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
       return;
     }
 
-    // Store in JSON format for better readability
-    const dateString = new Date().toISOString().split("T")[0];
+    // Store in unique per-session JSON file
+    // Uses timestamped filenames like: 2025-12-29_1305_MT_abc12345-prompts.json
     const workingDir = context.projectPath || process.cwd();
 
     // Use proper storage resolution (respects env vars and storage hierarchy)
@@ -98,72 +101,50 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
       createIfMissing: true,
     });
 
-    // Use unified project-based storage structure
-    const storagePath = getHookStoragePath(
+    // Check if this is a follow-up prompt by counting existing files with session ID
+    const promptsDir = getHookStorageDir(basePath, "prompts", workingDir);
+    const shortSessionId = context.sessionId.slice(-8);
+    let promptNumber = 1;
+
+    if (fs.existsSync(promptsDir)) {
+      const existingFiles = fs.readdirSync(promptsDir)
+        .filter((f) => f.includes(shortSessionId) && f.endsWith("-prompts.json"));
+      promptNumber = existingFiles.length + 1;
+    }
+
+    context.isFollowUp = promptNumber > 1;
+    context.promptNumber = promptNumber;
+
+    if (context.isFollowUp) {
+      debugLog("Follow-up prompt detected", {
+        sessionId: context.sessionId,
+        promptNumber: context.promptNumber,
+      });
+    }
+
+    // Write single prompt to unique per-session file (no read-modify-write needed)
+    const storagePath = writeHookData(
       basePath,
       "prompts",
       workingDir,
-      dateString,
-      "prompts.json",
+      context.sessionId,
+      context,
     );
 
-    // Ensure directory exists
-    const dir = path.dirname(storagePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    // Read existing prompts or create new array
-    let prompts: UserPromptContext[] = [];
-    if (fs.existsSync(storagePath)) {
-      try {
-        const existingData = fs.readFileSync(storagePath, "utf-8");
-        prompts = JSON.parse(existingData);
-        // Ensure it's an array
-        if (!Array.isArray(prompts)) {
-          prompts = [];
-        }
-      } catch (error) {
-        debugLog('Failed to parse existing prompts file', { error });
-        prompts = [];
-      }
-    }
-
-    // Check if this is a follow-up prompt in the same session
-    const existingSessionPrompts = prompts.filter(p => p.sessionId === context.sessionId);
-    if (existingSessionPrompts.length > 0) {
-      context.isFollowUp = true;
-      context.promptNumber = existingSessionPrompts.length + 1;
-      debugLog('Follow-up prompt detected', {
-        sessionId: context.sessionId,
-        promptNumber: context.promptNumber
-      });
-    } else {
-      context.isFollowUp = false;
-      context.promptNumber = 1;
-    }
-
-    // Add new prompt to array
-    prompts.push(context);
-
-    // Write back as formatted JSON
-    fs.writeFileSync(storagePath, JSON.stringify(prompts, null, 2), "utf-8");
-
-    debugLog('Prompt stored successfully', {
+    debugLog("Prompt stored successfully", {
       storagePath,
-      promptsCount: prompts.length,
-      sessionPromptsCount: prompts.filter(p => p.sessionId === context.sessionId).length,
+      promptNumber: context.promptNumber,
       isFollowUp: context.isFollowUp,
-      topics: context.topics
+      topics: context.topics,
     });
-    
+
     // Remove console.log to avoid interfering with Claude Code
   } catch (error) {
-    debugLog('Error in processUserPrompt', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+    debugLog("Error in processUserPrompt", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
     });
-    
+
     // Only output errors to Claude Code
     console.error(
       JSON.stringify({
@@ -208,8 +189,8 @@ function extractTopics(text: string): string[] {
 
 // Main execution
 async function main() {
-  debugLog('UserPromptSubmit hook started');
-  
+  debugLog("UserPromptSubmit hook started");
+
   let input = "";
 
   // Read from stdin
@@ -218,31 +199,39 @@ async function main() {
   });
 
   process.stdin.on("end", async () => {
-    debugLog('Input received', { length: input.length });
-    
+    debugLog("Input received", { length: input.length });
+
     if (!input) {
-      debugLog('No input provided, exiting');
+      debugLog("No input provided, exiting");
       // Remove console output to avoid interfering with Claude Code
       process.exit(0);
     }
 
     try {
       const hookData = JSON.parse(input) as UserPromptHookInput;
-      
-      debugLog('Parsed hook data', {
+
+      debugLog("Parsed hook data", {
         hook_event_name: hookData.hook_event_name,
         session_id: hookData.session_id,
-        promptLength: hookData.prompt?.length
+        promptLength: hookData.prompt?.length,
       });
 
       // Validate hook event - be more flexible with event names
-      const validEventNames = ['UserPromptSubmit', 'userPromptSubmit', 'userpromptsubmit', 'user-prompt-submit'];
-      if (!validEventNames.some(name => 
-        hookData.hook_event_name?.toLowerCase() === name.toLowerCase()
-      )) {
-        debugLog('Not a UserPromptSubmit event', {
+      const validEventNames = [
+        "UserPromptSubmit",
+        "userPromptSubmit",
+        "userpromptsubmit",
+        "user-prompt-submit",
+      ];
+      if (
+        !validEventNames.some(
+          (name) =>
+            hookData.hook_event_name?.toLowerCase() === name.toLowerCase(),
+        )
+      ) {
+        debugLog("Not a UserPromptSubmit event", {
           received: hookData.hook_event_name,
-          expected: validEventNames
+          expected: validEventNames,
         });
         // Remove console output to avoid interfering with Claude Code
         process.exit(0);
@@ -286,4 +275,4 @@ if (require.main === module) {
   });
 }
 
-export { processUserPrompt, UserPromptHookInput, UserPromptContext };
+export { processUserPrompt, extractTopics, UserPromptHookInput, UserPromptContext };

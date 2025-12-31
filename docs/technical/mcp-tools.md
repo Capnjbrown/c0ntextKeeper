@@ -782,6 +782,7 @@ c0ntextkeeper stats
 
 ## See Also
 
+- **[MCP Guide](../guides/mcp-guide.md)** - User-friendly guide to natural language search and MCP tools
 - **[FEATURES.md](../FEATURES.md)** - Complete feature catalog
 - **[Configuration Guide](./configuration.md)** - Detailed config options
 - **[Hooks Reference](./hooks-reference.md)** - What data hooks capture

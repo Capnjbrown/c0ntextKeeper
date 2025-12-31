@@ -55,10 +55,10 @@ describe('SecurityFilter', () => {
       expect(filtered).not.toContain('john.doe');
     });
 
-    it('should partially redact IP addresses', () => {
+    it('should fully redact IP addresses for privacy', () => {
       const text = 'Server IP: 192.168.1.100';
       const filtered = filter.filterText(text);
-      expect(filtered).toBe('Server IP: 192.168.***.***');
+      expect(filtered).toBe('Server IP: [IP_REDACTED]');
     });
 
     it('should redact passwords', () => {

@@ -12,7 +12,12 @@ import { ContextExtractor } from "../core/extractor.js";
 import { FileStore } from "../storage/file-store.js";
 import { ContextRetriever } from "../core/retriever.js";
 import { SearchIndexer } from "../core/indexer.js";
-import { formatHeader, formatSuccess, formatWarning, styles } from "../utils/cli-styles.js";
+import {
+  formatHeader,
+  formatSuccess,
+  formatWarning,
+  styles,
+} from "../utils/cli-styles.js";
 
 interface BenchmarkResult {
   name: string;
@@ -65,7 +70,11 @@ export async function runBenchmarks(): Promise<void> {
   console.log(styles.info("6️⃣ Analyzing Memory Usage..."));
   const endMemory = process.memoryUsage().heapUsed;
   const memoryUsed = (endMemory - startMemory) / 1024 / 1024; // MB
-  console.log(styles.muted(`  Memory used during benchmarks: ${memoryUsed.toFixed(2)} MB`));
+  console.log(
+    styles.muted(
+      `  Memory used during benchmarks: ${memoryUsed.toFixed(2)} MB`,
+    ),
+  );
   console.log();
 
   // Generate Performance Report
@@ -78,7 +87,12 @@ export async function runBenchmarks(): Promise<void> {
   let failCount = 0;
 
   results.forEach((result) => {
-    const icon = result.status === "pass" ? "✅" : result.status === "warning" ? "⚠️" : "❌";
+    const icon =
+      result.status === "pass"
+        ? "✅"
+        : result.status === "warning"
+          ? "⚠️"
+          : "❌";
     const statusColor =
       result.status === "pass"
         ? styles.success
@@ -90,17 +104,27 @@ export async function runBenchmarks(): Promise<void> {
     console.log(statusColor(`   Duration: ${result.duration.toFixed(2)}ms`));
 
     if (result.throughput) {
-      console.log(styles.muted(`   Throughput: ${result.throughput.toFixed(0)} ${result.unit || "ops/sec"}`));
+      console.log(
+        styles.muted(
+          `   Throughput: ${result.throughput.toFixed(0)} ${result.unit || "ops/sec"}`,
+        ),
+      );
     }
 
     if (result.target) {
-      const comparison = result.duration <= result.target ? "within" : "exceeds";
-      const comparisonColor = result.duration <= result.target ? styles.success : styles.warning;
-      console.log(comparisonColor(`   Target: ${result.target}ms (${comparison} target)`));
+      const comparison =
+        result.duration <= result.target ? "within" : "exceeds";
+      const comparisonColor =
+        result.duration <= result.target ? styles.success : styles.warning;
+      console.log(
+        comparisonColor(`   Target: ${result.target}ms (${comparison} target)`),
+      );
     }
 
     if (result.memoryUsed) {
-      console.log(styles.muted(`   Memory: ${result.memoryUsed.toFixed(2)} MB`));
+      console.log(
+        styles.muted(`   Memory: ${result.memoryUsed.toFixed(2)} MB`),
+      );
     }
 
     console.log();
@@ -132,18 +156,25 @@ export async function runBenchmarks(): Promise<void> {
   } else if (failCount === 0) {
     console.log(formatWarning("⚠️  Some operations slower than target"));
     console.log();
-    console.log(styles.tip("💡 Performance is acceptable but could be optimized."));
+    console.log(
+      styles.tip("💡 Performance is acceptable but could be optimized."),
+    );
   } else {
     console.log(styles.error("❌ Performance issues detected"));
     console.log();
-    console.log(styles.tip("💡 Some operations are significantly slower than targets."));
+    console.log(
+      styles.tip("💡 Some operations are significantly slower than targets."),
+    );
     process.exit(1);
   }
 }
 
 async function benchmarkTranscriptParsing(): Promise<BenchmarkResult> {
   const testData = generateTestTranscript(1000); // 1000 lines
-  const tmpFile = path.join(os.tmpdir(), "c0ntextkeeper-benchmark-transcript.jsonl");
+  const tmpFile = path.join(
+    os.tmpdir(),
+    "c0ntextkeeper-benchmark-transcript.jsonl",
+  );
 
   try {
     fs.writeFileSync(tmpFile, testData);
@@ -154,11 +185,18 @@ async function benchmarkTranscriptParsing(): Promise<BenchmarkResult> {
     const lineCount = entries.length;
     const throughput = (lineCount / duration) * 1000; // lines per second
 
-    console.log(styles.success(`  ✅ Parsed ${lineCount} lines in ${duration.toFixed(2)}ms`));
-    console.log(styles.muted(`  Throughput: ${throughput.toFixed(0)} lines/sec`));
+    console.log(
+      styles.success(
+        `  ✅ Parsed ${lineCount} lines in ${duration.toFixed(2)}ms`,
+      ),
+    );
+    console.log(
+      styles.muted(`  Throughput: ${throughput.toFixed(0)} lines/sec`),
+    );
 
     // Target: Should handle 1000 lines in under 100ms
-    const status = duration <= 100 ? "pass" : duration <= 200 ? "warning" : "fail";
+    const status =
+      duration <= 100 ? "pass" : duration <= 200 ? "warning" : "fail";
 
     return {
       name: "Transcript Parsing",
@@ -194,7 +232,9 @@ async function benchmarkContextExtraction(): Promise<BenchmarkResult> {
   const implementationsFound = context.implementations?.length || 0;
 
   console.log(
-    styles.success(`  ✅ Extracted ${problemsFound} problems, ${implementationsFound} implementations`),
+    styles.success(
+      `  ✅ Extracted ${problemsFound} problems, ${implementationsFound} implementations`,
+    ),
   );
   console.log(styles.muted(`  Processing time: ${duration.toFixed(2)}ms`));
 
@@ -227,7 +267,8 @@ async function benchmarkStorageOperations(): Promise<BenchmarkResult[]> {
   results.push({
     name: "Storage Write",
     duration: writeDuration,
-    status: writeDuration <= 10 ? "pass" : writeDuration <= 20 ? "warning" : "fail",
+    status:
+      writeDuration <= 10 ? "pass" : writeDuration <= 20 ? "warning" : "fail",
     target: 10,
   });
 
@@ -241,7 +282,8 @@ async function benchmarkStorageOperations(): Promise<BenchmarkResult[]> {
   results.push({
     name: "Storage Read",
     duration: readDuration,
-    status: readDuration <= 10 ? "pass" : readDuration <= 20 ? "warning" : "fail",
+    status:
+      readDuration <= 10 ? "pass" : readDuration <= 20 ? "warning" : "fail",
     target: 10,
   });
 
@@ -259,7 +301,9 @@ async function benchmarkSearchQueries(): Promise<BenchmarkResult> {
   });
   const duration = performance.now() - startTime;
 
-  console.log(styles.success(`  ✅ Search completed in ${duration.toFixed(2)}ms`));
+  console.log(
+    styles.success(`  ✅ Search completed in ${duration.toFixed(2)}ms`),
+  );
 
   // Target: Search should complete in under 10ms
   const status = duration <= 10 ? "pass" : duration <= 50 ? "warning" : "fail";
@@ -282,7 +326,8 @@ async function benchmarkIndexRebuild(): Promise<BenchmarkResult> {
   console.log(styles.success(`  ✅ Index rebuilt in ${duration.toFixed(2)}ms`));
 
   // Target: Index rebuild should complete in under 500ms
-  const status = duration <= 500 ? "pass" : duration <= 1000 ? "warning" : "fail";
+  const status =
+    duration <= 500 ? "pass" : duration <= 1000 ? "warning" : "fail";
 
   return {
     name: "Index Rebuild",
@@ -374,7 +419,7 @@ function generateTestContext(): any {
       toolCounts: { Write: 50, Edit: 50 },
       filesModified: ["src/database/optimizer.ts"],
       relevanceScore: 0.85,
-      extractionVersion: "0.7.5",
+      extractionVersion: "0.7.6",
     },
   };
 }

@@ -13,7 +13,13 @@ import { SearchIndexer } from "./core/indexer.js";
 import { FileStore } from "./storage/file-store.js";
 import { Logger } from "./utils/logger.js";
 import { formatTimestamp, formatFileSize } from "./utils/formatter.js";
-import { styles, formatHeader, formatSuccess, formatWarning, formatError } from "./utils/cli-styles.js";
+import {
+  styles,
+  formatHeader,
+  formatSuccess,
+  formatWarning,
+  formatError,
+} from "./utils/cli-styles.js";
 import { initCommand, statusCommand } from "./cli/init.js";
 import { execSync } from "child_process";
 import path from "path";
@@ -26,7 +32,7 @@ const program = new Command();
 program
   .name("c0ntextkeeper")
   .description("Intelligent context preservation for Claude Code")
-  .version("0.7.5")
+  .version("0.7.8")
   .showHelpAfterError("(add --help for additional information)");
 
 // Setup command
@@ -80,11 +86,19 @@ program
         console.log();
         console.log(styles.header("📊 Statistics:"));
         console.log(styles.muted(`  Problems: ${result.stats?.problems || 0}`));
-        console.log(styles.muted(`  Implementations: ${result.stats?.implementations || 0}`));
-        console.log(styles.muted(`  Decisions: ${result.stats?.decisions || 0}`));
+        console.log(
+          styles.muted(
+            `  Implementations: ${result.stats?.implementations || 0}`,
+          ),
+        );
+        console.log(
+          styles.muted(`  Decisions: ${result.stats?.decisions || 0}`),
+        );
         console.log(styles.muted(`  Patterns: ${result.stats?.patterns || 0}`));
         console.log(
-          styles.highlight(`  Relevance: ${((result.stats?.relevanceScore || 0) * 100).toFixed(0)}%`),
+          styles.highlight(
+            `  Relevance: ${((result.stats?.relevanceScore || 0) * 100).toFixed(0)}%`,
+          ),
         );
       } else {
         console.error(formatError(`Archive failed: ${result.error}`));
@@ -109,18 +123,32 @@ program
       // If no query provided, show recent archives
       if (!query) {
         console.log(formatHeader("📚 Recent Archives"));
-        console.log(styles.muted("Use a search query to find specific content\n"));
+        console.log(
+          styles.muted("Use a search query to find specific content\n"),
+        );
 
-        const storage = new FileStore();
+        const storage = new FileStore({ global: true });
         const stats = await storage.getStats();
 
         if (stats.totalSessions === 0) {
           console.log(styles.warning("No archives found yet."));
           console.log();
           console.log(styles.info("💡 Tips:"));
-          console.log(styles.muted("  • Archives are created automatically during compaction"));
-          console.log(styles.muted("  • Use 'c0ntextkeeper archive <file>' to manually archive"));
-          console.log(styles.muted("  • Try 'c0ntextkeeper search authentication' to search for specific topics"));
+          console.log(
+            styles.muted(
+              "  • Archives are created automatically during compaction",
+            ),
+          );
+          console.log(
+            styles.muted(
+              "  • Use 'c0ntextkeeper archive <file>' to manually archive",
+            ),
+          );
+          console.log(
+            styles.muted(
+              "  • Try 'c0ntextkeeper search authentication' to search for specific topics",
+            ),
+          );
           return;
         }
 
@@ -131,19 +159,33 @@ program
           projectPath: options.project,
         });
 
-        console.log(styles.info(`Showing ${Math.min(5, results.length)} most recent archives:\n`));
+        console.log(
+          styles.info(
+            `Showing ${Math.min(5, results.length)} most recent archives:\n`,
+          ),
+        );
 
         results.slice(0, 5).forEach((result, index) => {
-          console.log(styles.header(`${index + 1}. Session: ${result.context.sessionId}`));
-          console.log(styles.muted(`   Project: ${result.context.projectPath}`));
-          console.log(styles.muted(`   Date: ${formatTimestamp(result.context.timestamp)}`));
+          console.log(
+            styles.header(`${index + 1}. Session: ${result.context.sessionId}`),
+          );
+          console.log(
+            styles.muted(`   Project: ${result.context.projectPath}`),
+          );
+          console.log(
+            styles.muted(
+              `   Date: ${formatTimestamp(result.context.timestamp)}`,
+            ),
+          );
           console.log();
         });
 
         console.log(styles.info("💡 Search examples:"));
         console.log(styles.code("  c0ntextkeeper search 'authentication'"));
         console.log(styles.code("  c0ntextkeeper search 'error' --limit 20"));
-        console.log(styles.code("  c0ntextkeeper search 'bug fix' --project ~/myproject"));
+        console.log(
+          styles.code("  c0ntextkeeper search 'bug fix' --project ~/myproject"),
+        );
         return;
       }
 
@@ -160,24 +202,43 @@ program
       if (results.length === 0) {
         console.log(formatWarning("No results found."));
         console.log();
-        console.log(styles.tip("💡 Try using different keywords or check your spelling"));
+        console.log(
+          styles.tip("💡 Try using different keywords or check your spelling"),
+        );
         return;
       }
 
-      console.log(formatSuccess(`Found ${results.length} result${results.length > 1 ? 's' : ''}:`));
+      console.log(
+        formatSuccess(
+          `Found ${results.length} result${results.length > 1 ? "s" : ""}:`,
+        ),
+      );
       console.log();
 
       results.forEach((result, index) => {
         console.log(styles.header(`Result ${index + 1}:`));
         console.log(styles.info(`  🆔 Session: ${result.context.sessionId}`));
-        console.log(styles.muted(`  📁 Project: ${result.context.projectPath}`));
-        console.log(styles.muted(`  📅 Date: ${formatTimestamp(result.context.timestamp)}`));
-        console.log(styles.highlight(`  📈 Relevance: ${(result.relevance * 100).toFixed(0)}%`));
+        console.log(
+          styles.muted(`  📁 Project: ${result.context.projectPath}`),
+        );
+        console.log(
+          styles.muted(
+            `  📅 Date: ${formatTimestamp(result.context.timestamp)}`,
+          ),
+        );
+        console.log(
+          styles.highlight(
+            `  📈 Relevance: ${(result.relevance * 100).toFixed(0)}%`,
+          ),
+        );
 
         if (result.matches.length > 0) {
           console.log(styles.info("  🎯 Matches:"));
           result.matches.slice(0, 3).forEach((match) => {
-            console.log(styles.muted(`    • ${match.field}:`), styles.text(match.snippet));
+            console.log(
+              styles.muted(`    • ${match.field}:`),
+              styles.text(match.snippet),
+            );
           });
         }
         console.log();
@@ -213,24 +274,47 @@ program
       if (patterns.length === 0) {
         console.log(formatWarning("No patterns found."));
         console.log();
-        console.log(styles.tip("💡 Patterns are discovered after multiple similar actions"));
+        console.log(
+          styles.tip(
+            "💡 Patterns are discovered after multiple similar actions",
+          ),
+        );
         console.log(styles.muted("  Lower the minimum frequency with --min 1"));
         return;
       }
 
-      console.log(formatSuccess(`Found ${patterns.length} pattern${patterns.length > 1 ? 's' : ''}:`));
+      console.log(
+        formatSuccess(
+          `Found ${patterns.length} pattern${patterns.length > 1 ? "s" : ""}:`,
+        ),
+      );
       console.log();
 
       patterns.forEach((pattern, index) => {
-        const typeIcon = pattern.type === 'code' ? '📝' :
-                         pattern.type === 'command' ? '⚡' :
-                         pattern.type === 'architecture' ? '🏗️' : '🔹';
+        const typeIcon =
+          pattern.type === "code"
+            ? "📝"
+            : pattern.type === "command"
+              ? "⚡"
+              : pattern.type === "architecture"
+                ? "🏗️"
+                : "🔹";
 
-        console.log(styles.header(`${typeIcon} Pattern ${index + 1}: ${pattern.type}`));
-        console.log(styles.highlight(`  📊 Frequency: ${pattern.frequency} occurrences`));
+        console.log(
+          styles.header(`${typeIcon} Pattern ${index + 1}: ${pattern.type}`),
+        );
+        console.log(
+          styles.highlight(`  📊 Frequency: ${pattern.frequency} occurrences`),
+        );
         console.log(styles.info(`  💭 Value:`), styles.code(pattern.value));
-        console.log(styles.muted(`  🕐 First seen: ${formatTimestamp(pattern.firstSeen)}`));
-        console.log(styles.muted(`  🕑 Last seen: ${formatTimestamp(pattern.lastSeen)}`));
+        console.log(
+          styles.muted(
+            `  🕐 First seen: ${formatTimestamp(pattern.firstSeen)}`,
+          ),
+        );
+        console.log(
+          styles.muted(`  🕑 Last seen: ${formatTimestamp(pattern.lastSeen)}`),
+        );
         console.log();
       });
     } catch (error) {
@@ -246,7 +330,7 @@ program
   .description("Show storage statistics")
   .action(async () => {
     try {
-      const storage = new FileStore();
+      const storage = new FileStore({ global: true });
       const stats = await storage.getStats();
 
       console.log(formatHeader("📊 c0ntextKeeper Statistics"));
@@ -254,18 +338,33 @@ program
       console.log();
 
       console.log(styles.info("🏗️ Storage Overview:"));
-      console.log(styles.text(`  Total Projects:`), styles.highlight(`${stats.totalProjects}`));
-      console.log(styles.text(`  Total Sessions:`), styles.highlight(`${stats.totalSessions}`));
-      console.log(styles.text(`  Storage Size:`), styles.highlight(formatFileSize(stats.totalSize)));
+      console.log(
+        styles.text(`  Total Projects:`),
+        styles.highlight(`${stats.totalProjects}`),
+      );
+      console.log(
+        styles.text(`  Total Sessions:`),
+        styles.highlight(`${stats.totalSessions}`),
+      );
+      console.log(
+        styles.text(`  Storage Size:`),
+        styles.highlight(formatFileSize(stats.totalSize)),
+      );
 
       if (stats.oldestSession || stats.newestSession) {
         console.log();
         console.log(styles.info("📅 Timeline:"));
         if (stats.oldestSession) {
-          console.log(styles.text(`  Oldest Session:`), styles.muted(formatTimestamp(stats.oldestSession)));
+          console.log(
+            styles.text(`  Oldest Session:`),
+            styles.muted(formatTimestamp(stats.oldestSession)),
+          );
         }
         if (stats.newestSession) {
-          console.log(styles.text(`  Newest Session:`), styles.success(formatTimestamp(stats.newestSession)));
+          console.log(
+            styles.text(`  Newest Session:`),
+            styles.success(formatTimestamp(stats.newestSession)),
+          );
         }
       }
 
@@ -274,11 +373,21 @@ program
         const avgSizePerSession = stats.totalSize / stats.totalSessions;
         console.log();
         console.log(styles.info("💡 Insights:"));
-        console.log(styles.muted(`  Average size per session: ${formatFileSize(avgSizePerSession)}`));
+        console.log(
+          styles.muted(
+            `  Average size per session: ${formatFileSize(avgSizePerSession)}`,
+          ),
+        );
 
         if (stats.totalProjects > 0) {
-          const avgSessionsPerProject = Math.round(stats.totalSessions / stats.totalProjects);
-          console.log(styles.muted(`  Average sessions per project: ${avgSessionsPerProject}`));
+          const avgSessionsPerProject = Math.round(
+            stats.totalSessions / stats.totalProjects,
+          );
+          console.log(
+            styles.muted(
+              `  Average sessions per project: ${avgSessionsPerProject}`,
+            ),
+          );
         }
       }
 
@@ -550,12 +659,19 @@ program
         valid = false;
       }
 
-      // Check hook script exists
-      const hookScript = path.join(__dirname, "hooks", "precompact.js");
-      if (fs.existsSync(hookScript)) {
-        console.log("✅ Hook script exists");
+      // Check hook script exists (check multiple possible locations)
+      const possibleHookPaths = [
+        path.join(__dirname, "hooks", "precompact.js"),           // Production (dist/)
+        path.join(__dirname, "hooks", "precompact.ts"),           // Development (src/)
+        path.resolve(__dirname, "..", "dist", "hooks", "precompact.js"),  // Global install
+        path.resolve(__dirname, "..", "hooks", "precompact.js"),  // Alternative structure
+      ];
+      const hookScript = possibleHookPaths.find(p => fs.existsSync(p));
+      if (hookScript) {
+        console.log(`✅ Hook script exists at: ${hookScript}`);
       } else {
         console.log('❌ Hook script not found (run "npm run build")');
+        console.log(`   Checked paths: ${possibleHookPaths.join(", ")}`);
         valid = false;
       }
 
@@ -565,7 +681,7 @@ program
         console.log("✅ Archive directory exists");
 
         // Count archived sessions
-        const storage = new FileStore();
+        const storage = new FileStore({ global: true });
         const stats = await storage.getStats();
         if (stats.totalSessions > 0) {
           console.log(`✅ Found ${stats.totalSessions} archived sessions`);
@@ -634,8 +750,14 @@ program
 program
   .command("debug")
   .description("Enable verbose logging and troubleshooting")
-  .option("-c, --component <name>", "Filter by component (Hook, Archiver, etc.)")
-  .option("-s, --severity <level>", "Filter by severity (debug, info, warn, error)")
+  .option(
+    "-c, --component <name>",
+    "Filter by component (Hook, Archiver, etc.)",
+  )
+  .option(
+    "-s, --severity <level>",
+    "Filter by severity (debug, info, warn, error)",
+  )
   .option("-f, --follow", "Follow logs in real-time")
   .option("-e, --export", "Export logs to file")
   .option("-l, --lines <number>", "Number of lines to show", "50")
@@ -662,7 +784,13 @@ program
   .action(async () => {
     try {
       console.log("🧪 Testing c0ntextKeeper hooks...");
-      const testScript = path.join(__dirname, "..", "scripts", "test-hooks", "test-all.js");
+      const testScript = path.join(
+        __dirname,
+        "..",
+        "scripts",
+        "test-hooks",
+        "test-all.js",
+      );
       if (require("fs").existsSync(testScript)) {
         execSync(`node ${testScript}`, { stdio: "inherit" });
       } else {
@@ -683,10 +811,15 @@ program
   .description("Test all MCP tools (v0.7.2)")
   .option("--tool <name>", "Test specific tool")
   .option("--query <text>", "Test with specific query")
-  .action(async (options: any) => {
+  .action(async (_options: any) => {
     try {
       console.log("🧪 Testing MCP tools...");
-      const testScript = path.join(__dirname, "..", "scripts", "test-mcp-tools.js");
+      const testScript = path.join(
+        __dirname,
+        "..",
+        "scripts",
+        "test-mcp-tools.js",
+      );
       if (require("fs").existsSync(testScript)) {
         execSync(`node ${testScript}`, { stdio: "inherit" });
       } else {
@@ -783,15 +916,23 @@ program
       console.log(styles.muted(`  Version: ${stats.version}`));
       console.log(styles.muted(`  Total Sessions: ${stats.totalSessions}`));
       console.log(styles.muted(`  Total Keywords: ${stats.totalKeywords}`));
-      console.log(styles.muted(`  Avg Keywords/Session: ${stats.avgKeywordsPerSession}`));
-      console.log(styles.muted(`  Last Updated: ${formatTimestamp(stats.lastUpdated)}`));
+      console.log(
+        styles.muted(`  Avg Keywords/Session: ${stats.avgKeywordsPerSession}`),
+      );
+      console.log(
+        styles.muted(`  Last Updated: ${formatTimestamp(stats.lastUpdated)}`),
+      );
 
       if (stats.topKeywords && stats.topKeywords.length > 0) {
         console.log();
         console.log(styles.info("🔝 Top Keywords:"));
-        stats.topKeywords.forEach(([keyword, count]: [string, number], index: number) => {
-          console.log(styles.muted(`  ${index + 1}. ${keyword} (${count} sessions)`));
-        });
+        stats.topKeywords.forEach(
+          ([keyword, count]: [string, number], index: number) => {
+            console.log(
+              styles.muted(`  ${index + 1}. ${keyword} (${count} sessions)`),
+            );
+          },
+        );
       }
     } catch (error) {
       console.error(formatError("Failed to rebuild index:"));
@@ -810,7 +951,10 @@ context
   .command("preview")
   .description("Preview what context will be auto-loaded")
   .option("-v, --verbose", "Show detailed preview with full content")
-  .option("-s, --strategy <type>", "Preview with specific strategy (smart, recent, relevant)")
+  .option(
+    "-s, --strategy <type>",
+    "Preview with specific strategy (smart, recent, relevant)",
+  )
   .action(async (options: any) => {
     try {
       const { contextLoader } = await import("./core/context-loader.js");
@@ -824,8 +968,8 @@ context
       console.log();
 
       // Parse and format the preview content
-      const lines = preview.split('\n');
-      let _currentSection = '';
+      const lines = preview.split("\n");
+      let _currentSection = "";
 
       for (const line of lines) {
         // Skip empty lines
@@ -835,50 +979,53 @@ context
         }
 
         // Format headers
-        if (line.startsWith('###')) {
-          const header = line.replace(/^###\s*/, '');
+        if (line.startsWith("###")) {
+          const header = line.replace(/^###\s*/, "");
           console.log(styles.header(`\n📦 ${header}`));
-          console.log(styles.muted('─'.repeat(40)));
+          console.log(styles.muted("─".repeat(40)));
           _currentSection = header.toLowerCase();
         }
         // Format session entries
-        else if (line.includes('Session:') || line.includes('Date:')) {
-          const [label, value] = line.split(':').map(s => s.trim());
+        else if (line.includes("Session:") || line.includes("Date:")) {
+          const [label, value] = line.split(":").map((s) => s.trim());
           if (label && value) {
-            if (label.includes('Session')) {
-              console.log(styles.info(`  🆔 ${label}:`), styles.highlight(value));
+            if (label.includes("Session")) {
+              console.log(
+                styles.info(`  🆔 ${label}:`),
+                styles.highlight(value),
+              );
             } else {
               console.log(styles.muted(`  ${label}:`), styles.text(value));
             }
           }
         }
         // Format problem entries
-        else if (line.includes('**Key Problems:**')) {
-          console.log(styles.warning(`\n  🔍 ${line.replace(/\*\*/g, '')}`));
+        else if (line.includes("**Key Problems:**")) {
+          console.log(styles.warning(`\n  🔍 ${line.replace(/\*\*/g, "")}`));
         }
         // Format implementation entries
-        else if (line.includes('Implementation:')) {
-          const impl = line.replace('Implementation:', '').trim();
+        else if (line.includes("Implementation:")) {
+          const impl = line.replace("Implementation:", "").trim();
           console.log(styles.success(`  ✅ Implementation: ${impl}`));
         }
         // Format pattern entries
-        else if (line.includes('Pattern:')) {
-          const pattern = line.replace(/^\s*[-•]\s*Pattern:\s*/, '').trim();
+        else if (line.includes("Pattern:")) {
+          const pattern = line.replace(/^\s*[-•]\s*Pattern:\s*/, "").trim();
           console.log(styles.code(`  🌐 Pattern: ${pattern}`));
         }
         // Format decision entries
-        else if (line.includes('Decision:')) {
-          const decision = line.replace(/^\s*[-•]\s*Decision:\s*/, '').trim();
+        else if (line.includes("Decision:")) {
+          const decision = line.replace(/^\s*[-•]\s*Decision:\s*/, "").trim();
           console.log(styles.info(`  💡 Decision: ${decision}`));
         }
         // Format bullet points
-        else if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
-          const content = line.replace(/^\s*[-•]\s*/, '').trim();
+        else if (line.trim().startsWith("-") || line.trim().startsWith("•")) {
+          const content = line.replace(/^\s*[-•]\s*/, "").trim();
           console.log(styles.muted(`    • ${content}`));
         }
         // Format strategy info
-        else if (line.includes('Strategy:') || line.includes('Size:')) {
-          const [label, value] = line.split(':').map(s => s.trim());
+        else if (line.includes("Strategy:") || line.includes("Size:")) {
+          const [label, value] = line.split(":").map((s) => s.trim());
           if (label && value) {
             console.log(styles.info(`${label}:`), styles.highlight(value));
           }
@@ -891,13 +1038,21 @@ context
 
       // Add usage tip
       console.log();
-      console.log(styles.muted('─'.repeat(60)));
-      console.log(styles.tip('💡 Tip: This context is automatically loaded when you start a new session'));
-      console.log(styles.muted('  Use "c0ntextkeeper context configure" to adjust settings'));
+      console.log(styles.muted("─".repeat(60)));
+      console.log(
+        styles.tip(
+          "💡 Tip: This context is automatically loaded when you start a new session",
+        ),
+      );
+      console.log(
+        styles.muted(
+          '  Use "c0ntextkeeper context configure" to adjust settings',
+        ),
+      );
 
       if (options.verbose) {
         console.log();
-        console.log(styles.info('📄 Full context available via MCP resources'));
+        console.log(styles.info("📄 Full context available via MCP resources"));
       }
     } catch (error) {
       console.error(formatError("Context preview failed:"));

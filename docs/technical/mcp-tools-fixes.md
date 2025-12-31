@@ -306,7 +306,7 @@ Enhanced `scripts/test-mcp-tools.js` with:
 ✅ Output includes meaningful content snippets
 ✅ Migration script successfully repairs old archives
 
-## Phase 3 Improvements (v0.7.5.1)
+## Phase 3 Improvements (v0.7.6)
 
 ### Critical CLI Output Quality Issue
 
@@ -413,7 +413,7 @@ The MCP tools are now fully functional with:
 - ✅ Robust path resolution with fallbacks
 - ✅ Filtered, actionable pattern results
 - ✅ Helpful error messages with troubleshooting
-- ✅ **Complete context visibility** (v0.7.5.1)
-- ✅ **Professional truncation limits** (v0.7.5.1)
+- ✅ **Complete context visibility** (v0.7.6)
+- ✅ **Professional truncation limits** (v0.7.6)
 
 All three MCP tools (fetch_context, search_archive, get_patterns) now work reliably across different invocation contexts with complete, useful output.

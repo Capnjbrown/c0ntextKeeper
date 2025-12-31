@@ -96,11 +96,8 @@ export class SecurityFilter {
             return `***@${domain}`;
           });
         } else if (name === "ip_address") {
-          // Keep first two octets for debugging
-          filtered = filtered.replace(pattern, (match) => {
-            const parts = match.split(".");
-            return `${parts[0]}.${parts[1]}.***.***`;
-          });
+          // Fully mask IP addresses for privacy
+          filtered = filtered.replace(pattern, "[IP_REDACTED]");
         } else {
           // Check if this is a custom pattern that should replace entire match
           if (name.startsWith("_custom_full_")) {

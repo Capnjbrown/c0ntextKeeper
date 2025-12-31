@@ -72,7 +72,7 @@ node scripts/test-mcp-server.js
 
 ## 🎣 How It Works Together
 
-1. **Hooks Capture** (4 hooks capture different data):
+1. **Hooks Capture** (7 hooks capture different data):
    - PreCompact → Full session transcripts
    - UserPromptSubmit → Your questions
    - PostToolUse → Tool results

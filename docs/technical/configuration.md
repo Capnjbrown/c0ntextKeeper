@@ -464,7 +464,7 @@ c0ntextkeeper hooks enable stop --min-length 20
 - `0.9` - Very strict (critical content only)
 
 **Pattern Recognition**:
-- 187 semantic patterns
+- 180 semantic patterns
 - 116 problem indicators
 - 41 request indicators
 - 23 solution indicators

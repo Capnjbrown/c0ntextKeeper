@@ -1,7 +1,7 @@
 # Project Context Document
-<!-- Generated: 2025-09-03 -->
+<!-- Generated: 2025-12-26 -->
 <!-- Generator: Claude Code CLI Context Discovery -->
-<!-- Last Updated: 2025-10-06 for v0.7.5.1 with CLI output quality improvements (3-10x truncation limit increases) -->
+<!-- Last Updated: 2025-12-31 for v0.7.8 - MCP Guide added, documentation audit complete -->
 
 ## Project Identification
 
@@ -9,11 +9,11 @@
 - **Project Name**: c0ntextKeeper
 - **Project Type**: MCP Server / CLI Tool / Node.js Library
 - **Primary Language(s)**: TypeScript (100%)
-- **Version**: 0.7.5.1 (Package) / 0.7.5 (Extraction Algorithm) / 0.7.5.1 (MCP Server)
-- **Repository**: https://github.com/yourusername/c0ntextKeeper
+- **Version**: 0.7.8 (Package) / 0.7.8 (Extraction Algorithm) / 0.7.8 (MCP Server)
+- **Repository**: https://github.com/Capnjbrown/c0ntextKeeper
 
 ### Purpose Statement
-c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 187 verified semantic patterns (116 problem + 41 request + 23 solution + 7 decision), making them instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding (v0.7.3 with tokenized word matching). The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.0 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.0 adds automatic context loading via MCP resources**, and **v0.7.3 critically fixes hooks that were only capturing 50% of data**. **Version 0.7.4 delivers critical production fixes** including PostToolUse field name normalization for production environments, Stop hook updates for Claude Code v1.0.119+ transcript format, enhanced project name resolution to prevent storage fragmentation, and complete TypeScript type error resolution, restoring 100% data capture functionality. **Version 0.7.5 adds search indexing** with inverted index for O(1) keyword lookups, beautiful CLI styling with chalk for semantic colors, and verified semantic pattern count of 187 total via code audit. **Version 0.7.5.1 dramatically improves CLI output quality** with 3-10x truncation limit increases across 5 core modules (formatter, context-loader, server, cli, retriever), eliminating frustrating "..." cutoffs and providing complete context visibility in all commands - preview increased from 500 to 5000 chars, problems/solutions from 300 to 1500 chars, and search snippets from 200 to 600 chars. The system works fully automatically, requiring zero manual intervention after initial setup.
+c0ntextKeeper is an intelligent context preservation and retrieval system for Claude Code that **automatically** captures valuable context before compaction - both when you manually run `/compact` AND when Claude Code automatically compacts context due to size limits. It solves the critical problem of context loss during Claude Code sessions by extracting, scoring, and archiving problems, solutions, implementations, and decisions with 187 verified semantic patterns (116 problem + 41 request + 23 solution + 7 decision), making them instantly retrievable through **highly reliable MCP tools** with enhanced natural language understanding (v0.7.3 with tokenized word matching). The system features a comprehensive analytics dashboard (v0.3.0+) showing tool usage statistics, session metrics, and quality scores. With v0.5.0's Claude Code JSONL format compatibility, it properly handles embedded content arrays and ensures user questions score 1.0 relevance. Version 0.5.1 enhances content preservation with configurable limits (2000 chars for questions/solutions), improved session naming with 100+ stopwords, better file path tracking, and enhanced relevance scoring for administrative tools. Version 0.5.3 standardizes all archive storage to JSON format for consistency and readability, adds automatic test data separation, and provides comprehensive file format documentation. Version 0.7.0 introduces a hybrid storage architecture with intelligent path resolution, supporting both project-local (`.c0ntextkeeper/`) and global (`~/.c0ntextkeeper/`) storage modes, along with new CLI commands for storage management (`init`, `status`). **Version 0.7.0 adds automatic context loading via MCP resources**, and **v0.7.3 critically fixes hooks that were only capturing 50% of data**. **Version 0.7.4 delivers critical production fixes** including PostToolUse field name normalization for production environments, Stop hook updates for Claude Code v1.0.119+ transcript format, enhanced project name resolution to prevent storage fragmentation, and complete TypeScript type error resolution, restoring 100% data capture functionality. **Version 0.7.5 adds search indexing** with inverted index for O(1) keyword lookups, beautiful CLI styling with chalk for semantic colors, and verified semantic pattern count of 187 total via code audit. **Version 0.7.6 dramatically improves CLI output quality** with 3-10x truncation limit increases across 5 core modules (formatter, context-loader, server, cli, retriever), eliminating frustrating "..." cutoffs and providing complete context visibility in all commands - preview increased from 500 to 5000 chars, problems/solutions from 300 to 1500 chars, and search snippets from 200 to 600 chars. **Version 0.7.7 adds 3 new Claude Code hook events** (Notification, SessionStart, SessionEnd), plus fixes critical bugs: MCP tools returning 0 results (global storage flag), hooks health reporting 0% (path aggregation), validate command not finding hook scripts, and rebuild-index creating empty index. **Version 0.7.8 removes SubagentStop** as Claude Code deprecated the event and doesn't send required fields. The system now has **7 hooks** and works fully automatically, requiring zero manual intervention after initial setup.
 
 ## Discovery Findings
 
@@ -57,11 +57,14 @@ c0ntextKeeper/
 │   │   ├── retriever.ts       # Context retrieval and search
 │   │   ├── scorer.ts          # Relevance scoring (v0.5.1: enhanced admin tools)
 │   │   └── types.ts           # TypeScript type definitions
-│   ├── hooks/                 # Claude Code hook handlers
+│   ├── hooks/                 # Claude Code hook handlers (7 total)
 │   │   ├── precompact.ts      # PreCompact hook (auto/manual capture)
 │   │   ├── userprompt.ts      # UserPromptSubmit hook (v0.5.3: JSON storage)
 │   │   ├── posttool.ts        # PostToolUse hook (v0.5.3: JSON storage)
-│   │   └── stop.ts            # Stop hook for Q&A pairs (v0.5.3: JSON storage)
+│   │   ├── stop.ts            # Stop hook for Q&A pairs (v0.5.3: JSON storage)
+│   │   ├── notification.ts    # Notification hook (v0.7.7)
+│   │   ├── session-start.ts   # SessionStart hook (v0.7.7)
+│   │   └── session-end.ts     # SessionEnd hook (v0.7.7)
 │   ├── server/                # MCP server implementation
 │   │   └── index.ts           # MCP server entry point
 │   ├── storage/               # Storage abstraction layer
@@ -100,7 +103,23 @@ c0ntextKeeper/
 │   └── fixtures/              # Test data
 ├── dist/                      # Compiled JavaScript output
 ├── docs/                      # Additional documentation
-│   └── STORAGE.md             # Storage architecture documentation (v0.7.2)
+│   ├── guides/                # User guides (quickstart, user-guide, mcp-guide, cli-reference)
+│   ├── technical/             # Technical docs (hooks, MCP, storage)
+│   └── development/           # Development docs (this file, release plan)
+├── .claude/                   # Claude Code configuration
+│   └── plugins/
+│       └── c0ntextkeeper-agents/  # Custom audit agents (v0.7.7)
+│           ├── plugin.json    # Plugin manifest (8 agents)
+│           ├── README.md      # Plugin documentation
+│           └── agents/        # 8 specialized agents
+│               ├── mcp-audit.md           # MCP server validation
+│               ├── hook-validator.md      # Hook integration testing
+│               ├── context-quality.md     # Extraction quality audit
+│               ├── release-orchestrator.md # Release automation
+│               ├── archive-integrity.md   # Archive health checks
+│               ├── security-audit.md      # Security filtering validation
+│               ├── documentation-sync.md  # Doc/code consistency
+│               └── performance-monitor.md # Performance tracking
 └── examples/                  # Usage examples
 ```
 
@@ -138,12 +157,12 @@ c0ntextKeeper/
 | MCP tool serving | `/src/server/index.ts` | Three active tools | ✅ Active |
 | MCP resource serving | `/src/server/index.ts` | Auto-loaded context via resources (v0.7.2) | ✅ Active |
 | Auto-load context | `/src/core/context-loader.ts` | Proactive context loading on startup | ✅ Active |
-| CLI interface | `/src/cli.ts` | Comprehensive command set (28 commands) | ✅ Active |
+| CLI interface | `/src/cli.ts` | Comprehensive command set (30 commands: 20 top-level + 7 hooks + 3 context) | ✅ Active |
 | Hook management | `/src/cli/hooks-manager.ts` | Enable/disable/test/configure hooks | ✅ Active |
 | Health diagnostics | `/src/cli/doctor.ts` | Comprehensive health check with auto-fix | ✅ Active |
 | Performance benchmarking | `/src/cli/benchmark.ts` | 6-test performance suite (parsing, extraction, storage, search, indexing) | ✅ Active |
 | Debug mode | `/src/cli/debug.ts` | Enhanced logging with verbose output and log streaming | ✅ Active |
-| Hook testing | `/src/cli.ts` (test-hook) | Verify all hooks functionality (4 hooks tested) | ✅ Active |
+| Hook testing | `/src/cli.ts` (test-hook) | Verify all hooks functionality (7 hooks tested) | ✅ Active |
 | MCP tool testing | `/src/cli.ts` (test-mcp) | Test MCP tools with natural language queries | ✅ Active |
 
 ### API Surface
@@ -188,7 +207,7 @@ The ContextRetriever class (`src/core/retriever.ts`) provides the following meth
    - Knowledge base resource
    - Q&A pairs and learned information
 
-#### CLI Commands (28 Total)
+#### CLI Commands (30 Total)
 ```bash
 # Setup & Configuration
 c0ntextkeeper setup             # Configure hooks (interactive wizard)
@@ -227,7 +246,7 @@ c0ntextkeeper migrate:restore   # Restore from backup
 c0ntextkeeper rebuild-index     # Rebuild search index
 
 # Development & Testing
-c0ntextkeeper test-hook         # Test all 4 hooks (PreCompact, UserPromptSubmit, PostToolUse, Stop)
+c0ntextkeeper test-hook         # Test all 7 hooks (PreCompact, UserPromptSubmit, PostToolUse, Stop, Notification, SessionStart, SessionEnd)
 c0ntextkeeper test-mcp          # Test MCP tools with natural language
 c0ntextkeeper server            # Start MCP server manually
 c0ntextkeeper benchmark         # Run performance benchmarks (6 tests)
@@ -325,7 +344,7 @@ npm run format          # Prettier formatting
 ### Development Setup
 ```bash
 # Inferred setup process
-git clone https://github.com/yourusername/c0ntextKeeper.git
+git clone https://github.com/Capnjbrown/c0ntextKeeper.git
 cd c0ntextKeeper
 npm install              # Install dependencies
 npm run build           # Build TypeScript
@@ -385,14 +404,19 @@ c0ntextkeeper setup     # Configure hooks
 ### Contributor Information
 - **Primary Maintainer**: c0ntextKeeper Contributors
 - **License**: MIT
-- **Last Activity**: 2025-09-10 (v0.7.2 release)
+- **Last Activity**: 2025-12-31 (v0.7.8 open-source release preparation)
 - **Release Pattern**: Semantic versioning with CHANGELOG.md
 
 ### Version History
-- **Current Version**: 0.7.5.1
+- **Current Version**: 0.7.8
 - **Major Milestones**:
+  - v0.7.8: SubagentStop removed (Claude Code deprecated), 7 hooks, 6 storage categories
+  - v0.7.7: 3 new hooks (Notification, SessionStart, SessionEnd), bug fixes
+  - v0.7.6: CLI output quality improvements, 3-10x truncation limit increases
+  - v0.7.5: Search indexing with O(1) lookups, chalk styling
+  - v0.7.4: Critical production fixes, 100% data capture restored
   - v0.7.2: Bug fixes, documentation improvements, test reliability enhancements
-  - v0.7.2: Auto-load context via MCP resources, intelligent loading strategies
+  - v0.7.0: Auto-load context via MCP resources, intelligent loading strategies
   - v0.6.0: Unified storage architecture with project-name organization
   - v0.5.3: JSON format standardization and test data separation
   - v0.5.2: CLI UX improvements and bug fixes
@@ -403,7 +427,70 @@ c0ntextkeeper setup     # Configure hooks
   - v0.2.0: Critical bug fixes
   - v0.1.0: Initial release
 
-### Recent Changes (v0.7.5.1)
+### Recent Changes (v0.7.8)
+
+#### SubagentStop Hook Removed
+- **Claude Code Deprecated Event**: SubagentStop hook removed because Claude Code doesn't send required fields (`subagent_type`, `tools_used`, `transcript`)
+- **7 Hooks Now Supported**: PreCompact, PostToolUse, Stop, UserPromptSubmit, Notification, SessionStart, SessionEnd
+- **6 Storage Categories**: sessions/, knowledge/, patterns/, prompts/, notifications/, sessions-meta/
+- **483/483 Tests Passing**: Comprehensive test suite (was 196 tests before storage refactoring)
+
+#### Per-Session Storage Architecture (Major Refactoring)
+- **New Storage Pattern**: All hooks now create unique timestamped files per event
+  - Format: `YYYY-MM-DD_HHMM_MT_{sessionId}-{hookType}.json`
+  - Example: `2025-12-29_1415_MT_fb212570-patterns.json`
+- **Eliminated Race Conditions**: No more read-modify-write pattern that risked data loss
+- **Complete History**: Every hook invocation preserved individually
+- **Session Traceability**: Last 8 chars of session ID in each filename for correlation
+- **New Utility**: `src/utils/hook-storage.ts` with `writeHookData()`, `generateHookFileName()`, `getHookStorageDir()`
+- **Backward Compatible**: Legacy per-day files preserved alongside new per-session files
+
+> **Historical Note**: Prior to v0.7.8, hook data (knowledge/, prompts/, patterns/, notifications/, sessions-meta/) used a per-day storage pattern (`2025-12-29-knowledge.json`) with read-modify-write arrays. This risked race conditions and file corruption. The sessions/ folder always used the superior per-session pattern. In v0.7.8, all hooks were refactored to match the sessions/ pattern, creating unique files per event for atomic writes and complete history preservation.
+
+### Open Source Release Preparation (2025-12-31)
+
+#### Phase 4.9: MCP Guide & Documentation
+- Created comprehensive `docs/guides/mcp-guide.md` (612 lines)
+- Added "Natural Language Search" section to README.md
+- Documented word expansion, stop words, temporal decay algorithms
+- Tool selection guide: fetch_context vs search_archive vs get_patterns
+
+#### Phase 4.10: README Value Proposition Enhancement
+- Added "What This Enables" section with before/after comparison table
+- Added "Ask Claude Naturally" section promoting semantic search
+- Enhanced CTA buttons: Install, Use Cases, AI Search, Star
+- Added AI-Powered Search row to At a Glance (7 items now)
+- Added consequence statement to The Problem section
+
+#### Phase 4.11: Personal Files Cleanup
+- Removed CLAUDE.md from git tracking (keep locally)
+- Verified all personal config files properly excluded (.mcp.json, .claude/, .env)
+- File existed in git before .gitignore entry was added
+
+#### Phase 4.12: Project Context Accuracy
+- Updated lint warnings: 106 → 96 (recent code improvements)
+- Updated all dates to 2025-12-31
+- Fixed documentation references (broken paths, missing files)
+- Added mcp-guide.md and cli-reference.md to Important Files
+
+### Previous Changes (v0.7.7)
+
+#### Claude Code Hook Support (3 new hooks)
+- **7 Hooks Supported**: 4 original + 3 new (Notification, SessionStart, SessionEnd)
+- **2 New Storage Categories**: notifications/, sessions-meta/
+
+#### Critical Bug Fixes
+- **MCP Tools**: Fixed returning 0 results (global storage flag issue)
+- **Hooks Health**: Fixed reporting 0% (path aggregation bug)
+- **Validate Command**: Fixed not finding hook scripts
+- **Rebuild Index**: Fixed creating empty index
+
+#### Code Quality Improvements
+- **Test Utilities Module**: Created shared test-helpers.ts
+- **Code Deduplication**: Eliminated 16 lines of duplicate isTestSession() implementations
+- **Truncation Limits**: Further enhanced for complete context visibility
+
+### Previous Changes (v0.7.6)
 
 #### CLI Output Quality & Documentation
 - **Truncation Limits**: Dramatically increased across 5 modules for complete context visibility
@@ -412,11 +499,11 @@ c0ntextkeeper setup     # Configure hooks
   - Search snippets: 200 → 600 chars (3x)
   - Implementations: 150 → 800 chars (5.3x)
   - Formatter default: 100 → 1000 chars (10x)
-- **CLI Command Documentation**: Completed documentation of all 28 commands
+- **CLI Command Documentation**: Completed documentation of all 30 commands
   - `doctor` - Comprehensive health diagnostics (6 checks: hooks, storage, archives, permissions, file structure)
   - `benchmark` - Performance testing suite (6 tests: parsing, extraction, storage read/write, search, index rebuild)
   - `debug` - Enhanced logging with verbose output and log streaming
-  - `test-hook` - Verify all 4 hooks functionality
+  - `test-hook` - Verify all 7 hooks functionality
   - `test-mcp` - Test MCP tools with natural language queries
 - **User Experience**: Eliminated frustrating "..." cutoffs in all CLI commands
 
@@ -506,18 +593,20 @@ c0ntextkeeper setup     # Configure hooks
 
 ### Code Quality Indicators
 - **TODO/FIXME Count**: Minimal (well-maintained codebase)
-- **Test Pass Rate**: 100% (196/196 tests passing) across all test suites
-- **Test Suite**: Comprehensive unit, integration, and performance tests
+- **Test Pass Rate**: 100% (483/483 tests passing)
+- **Code Coverage**: 23% overall (below 75% threshold)
+  - Well-tested: security-filter (100%), context-loader (96%), path-resolver (84%)
+  - Partially tested: extractor (71%), scorer (68%), retriever (74%)
+  - Untested: hooks (0%), CLI commands (0%), file-store (4.68%)
 - **Complex Functions**: Extractor has high complexity (50+ patterns - by design)
 - **TypeScript Strict Mode**: Enabled (excellent type safety)
-- **Linting**: 66 warnings (mostly `any` types), 0 errors after fixes
+- **Linting**: 96 warnings (mostly `any` types), 0 errors
 - **Performance**: All operations under 10ms average, excellent benchmarks
 
 ### Known Issues
-- **Test infrastructure limitations** - Some tests fail due to mocking issues, not actual bugs
-- **Tools directory unused** - Integrated directly in server/index.ts
-- **TypeScript `any` types** - 66 instances need proper typing
-- **Stop hook format** - Expects "exchange" but tests send "exchanges" (minor fix needed)
+- **Test Coverage Gap**: 23% overall coverage, hooks and CLI untested
+- **TypeScript `any` types** - 96 instances need proper typing
+- **Coverage thresholds configured but not enforced** - Jest reports violations but tests still pass
 
 ## Recommendations for Context Improvement
 
@@ -568,10 +657,10 @@ npm publish           # Publish to npm
   - `.env` - Environment variables (never commit)
   - `.mcp.json` - MCP server configurations
   - `~/.claude/settings.json` - Claude Code hook settings
-- **Core Documentation**: 
+- **Core Documentation**:
   - `README.md` - User-facing documentation with badges
-  - `/docs/development/claude.md` - Project context for development
   - `/docs/development/project-context.md` - This file - single source of truth
+  - `CLAUDE.md` - Project root instructions for Claude Code
 - **Technical Documentation**:
   - `/docs/technical/mcp-usage.md` - MCP server usage patterns
   - `/docs/technical/mcp-testing.md` - Testing procedures for all servers
@@ -582,6 +671,8 @@ npm publish           # Publish to npm
   - `/docs/technical/file-formats.md` - Comprehensive file format reference (v0.5.3)
 - **User Documentation**:
   - `/docs/guides/user-guide.md` - Data access and storage locations
+  - `/docs/guides/mcp-guide.md` - MCP tools and natural language search (Phase 4.9)
+  - `/docs/guides/cli-reference.md` - Complete CLI command reference (30 commands)
   - `/docs/guides/migration-guide.md` - Version migration procedures
   - `CHANGELOG.md` - Detailed version history
 - **Community Documentation**:
@@ -620,4 +711,4 @@ npm publish           # Publish to npm
 
 ---
 
-*This document was generated through automated project analysis and updated to reflect the current state of the c0ntextKeeper project as of 2025-10-17 (v0.7.5.1). The project is actively maintained and demonstrates professional software engineering practices with comprehensive testing (100% test pass rate with 196/196 tests passing).*
+*This document was generated through automated project analysis and updated to reflect the current state of the c0ntextKeeper project as of 2025-12-31 (v0.7.8). The project is actively maintained with 483/483 tests passing (23% code coverage - core modules tested, hooks/CLI need tests), full support for all 7 Claude Code hooks, and 187 verified semantic patterns.*

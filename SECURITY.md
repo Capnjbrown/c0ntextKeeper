@@ -6,10 +6,10 @@ We release patches for security vulnerabilities. Currently supported versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.5.x   | :white_check_mark: |
-| 0.4.x   | :white_check_mark: |
-| 0.3.x   | :warning: Limited  |
-| < 0.3   | :x:                |
+| 0.7.x   | :white_check_mark: |
+| 0.6.x   | :white_check_mark: |
+| 0.5.x   | :warning: Limited  |
+| < 0.5   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -17,7 +17,7 @@ We take the security of c0ntextKeeper seriously. If you believe you have found a
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them through GitHub's private vulnerability reporting feature or via email (Note: security@c0ntextkeeper.com is a placeholder - please update with your actual security contact).
+Instead, please report them through GitHub's private vulnerability reporting feature or via email to **admin@c0ntextkeeper.com**.
 
 You should receive a response within 48 hours. If for some reason you do not, please follow up via email to ensure we received your original message.
 
@@ -81,7 +81,6 @@ Security updates will be released as patch versions and announced through:
 
 ## Contact
 
-For security concerns, use GitHub's private vulnerability reporting feature.
-(Note: security@c0ntextkeeper.com is a placeholder email)
+For security concerns, use GitHub's private vulnerability reporting feature or email **admin@c0ntextkeeper.com**.
 
 Thank you for helping keep c0ntextKeeper and its users safe!

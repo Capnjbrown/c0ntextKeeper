@@ -18,7 +18,12 @@ jest.mock("../../src/core/config");
 jest.mock("../../src/core/retriever");
 jest.mock("../../src/core/patterns");
 jest.mock("../../src/storage/file-store");
-jest.mock("../../src/utils/path-resolver");
+jest.mock("../../src/core/indexer");
+jest.mock("../../src/utils/path-resolver", () => ({
+  getStoragePath: jest.fn().mockReturnValue("/tmp/test-storage"),
+  GLOBAL_DIR: "/tmp/test-storage",
+  CONTEXTKEEPER_DIR: ".c0ntextkeeper",
+}));
 
 describe("Auto-Load Integration Tests", () => {
   let contextLoader: ContextLoader;

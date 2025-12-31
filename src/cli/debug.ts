@@ -40,14 +40,14 @@ export async function runDebugMode(options: DebugOptions = {}): Promise<void> {
   console.log(
     styles.muted(`  Component Filter: ${options.component || "all"}`),
   );
+  console.log(styles.muted(`  Severity Filter: ${options.severity || "all"}`));
   console.log(
-    styles.muted(`  Severity Filter: ${options.severity || "all"}`),
+    styles.muted(`  Follow Mode: ${options.follow ? "enabled" : "disabled"}`),
   );
-  console.log(styles.muted(`  Follow Mode: ${options.follow ? "enabled" : "disabled"}`));
   console.log();
 
   // Create logger with debug mode
-  const logger = new Logger("Debug", LogLevel.DEBUG, true);
+  const _logger = new Logger("Debug", LogLevel.DEBUG, true);
 
   if (options.follow) {
     // Follow mode - tail the log file
@@ -129,10 +129,10 @@ async function showRecentLogs(
   if (!fs.existsSync(logFile)) {
     console.log(styles.warning("No log file found."));
     console.log();
-    console.log(styles.tip("💡 Logs will be created when c0ntextKeeper operations run"));
     console.log(
-      styles.muted("  Try running: c0ntextkeeper debug --follow"),
+      styles.tip("💡 Logs will be created when c0ntextKeeper operations run"),
     );
+    console.log(styles.muted("  Try running: c0ntextkeeper debug --follow"));
     return;
   }
 
@@ -168,10 +168,22 @@ async function showRecentLogs(
   console.log(styles.muted("─".repeat(60)));
   console.log();
   console.log(styles.info("💡 Debug Commands:"));
-  console.log(styles.code("  c0ntextkeeper debug --follow           # Stream live logs"));
-  console.log(styles.code("  c0ntextkeeper debug --component Hook   # Filter by component"));
-  console.log(styles.code("  c0ntextkeeper debug --severity error   # Show only errors"));
-  console.log(styles.code("  c0ntextkeeper debug --export           # Export logs to file"));
+  console.log(
+    styles.code("  c0ntextkeeper debug --follow           # Stream live logs"),
+  );
+  console.log(
+    styles.code(
+      "  c0ntextkeeper debug --component Hook   # Filter by component",
+    ),
+  );
+  console.log(
+    styles.code("  c0ntextkeeper debug --severity error   # Show only errors"),
+  );
+  console.log(
+    styles.code(
+      "  c0ntextkeeper debug --export           # Export logs to file",
+    ),
+  );
 }
 
 /**
@@ -207,9 +219,7 @@ async function exportLogs(logDir: string, logFile: string): Promise<void> {
   console.log(styles.muted(`  Total Lines: ${lines.length}`));
   console.log(styles.error(`  Errors: ${errors}`));
   console.log(styles.warning(`  Warnings: ${warnings}`));
-  console.log(
-    styles.success(`  Info: ${lines.length - errors - warnings}`),
-  );
+  console.log(styles.success(`  Info: ${lines.length - errors - warnings}`));
 }
 
 /**
@@ -252,11 +262,7 @@ export async function showDebugSessions(): Promise<void> {
   files.forEach((file, index) => {
     console.log(styles.header(`${index + 1}. ${file.name}`));
     console.log(styles.muted(`   Size: ${(file.size / 1024).toFixed(2)} KB`));
-    console.log(
-      styles.muted(
-        `   Modified: ${file.modified.toLocaleString()}`,
-      ),
-    );
+    console.log(styles.muted(`   Modified: ${file.modified.toLocaleString()}`));
     console.log();
   });
 }

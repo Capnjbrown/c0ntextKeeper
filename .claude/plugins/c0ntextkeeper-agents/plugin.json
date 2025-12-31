@@ -1,0 +1,89 @@
+{
+  "name": "c0ntextkeeper-agents",
+  "version": "1.2.0",
+  "description": "Specialized audit and validation skills for c0ntextKeeper MCP server development",
+  "skills": [
+    {
+      "name": "mcp-audit",
+      "path": "skills/mcp-audit.md"
+    },
+    {
+      "name": "hook-validator",
+      "path": "skills/hook-validator.md"
+    },
+    {
+      "name": "context-quality",
+      "path": "skills/context-quality.md"
+    },
+    {
+      "name": "release-orchestrator",
+      "path": "skills/release-orchestrator.md"
+    },
+    {
+      "name": "archive-integrity",
+      "path": "skills/archive-integrity.md"
+    },
+    {
+      "name": "security-audit",
+      "path": "skills/security-audit.md"
+    },
+    {
+      "name": "documentation-sync",
+      "path": "skills/documentation-sync.md"
+    },
+    {
+      "name": "performance-monitor",
+      "path": "skills/performance-monitor.md"
+    },
+    {
+      "name": "doc-crosscheck",
+      "path": "skills/doc-crosscheck.md"
+    },
+    {
+      "name": "audit",
+      "path": "skills/audit.md"
+    }
+  ],
+  "agents": [
+    {
+      "name": "mcp-audit",
+      "path": "agents/mcp-audit.md"
+    },
+    {
+      "name": "hook-validator",
+      "path": "agents/hook-validator.md"
+    },
+    {
+      "name": "context-quality",
+      "path": "agents/context-quality.md"
+    },
+    {
+      "name": "release-orchestrator",
+      "path": "agents/release-orchestrator.md"
+    },
+    {
+      "name": "archive-integrity",
+      "path": "agents/archive-integrity.md"
+    },
+    {
+      "name": "security-audit",
+      "path": "agents/security-audit.md"
+    },
+    {
+      "name": "documentation-sync",
+      "path": "agents/documentation-sync.md"
+    },
+    {
+      "name": "performance-monitor",
+      "path": "agents/performance-monitor.md"
+    },
+    {
+      "name": "doc-crosscheck",
+      "path": "agents/doc-crosscheck.md"
+    },
+    {
+      "name": "audit",
+      "path": "agents/audit.md"
+    }
+  ]
+}

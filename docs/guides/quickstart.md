@@ -18,6 +18,9 @@ After installation, c0ntextKeeper will **automatically**:
 
 ## Installation (30 seconds)
 
+> **Note**: The CLI command is `c0ntextkeeper` (all lowercase with zero).
+> The project name is `c0ntextKeeper` (capital K), but commands are always lowercase.
+
 ```bash
 npm install -g c0ntextkeeper
 ```

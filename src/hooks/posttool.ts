@@ -9,28 +9,68 @@
 import { SecurityFilter } from "../utils/security-filter";
 import { FileStore } from "../storage/file-store";
 import { getStoragePath } from "../utils/path-resolver";
-import { getHookStoragePath } from "../utils/project-utils";
+import { writeHookData } from "../utils/hook-storage";
 import { isTestSession } from "../utils/test-helpers";
 import * as fs from "fs";
 import * as path from "path";
 
-// Debug logging utility - enhanced for production debugging
-const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === 'true';
+// Debug logging utility - enhanced for production debugging with log rotation
+const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === "true";
 const FORCE_LOG = false; // Enable for debugging
+const MAX_LOG_SIZE = 5 * 1024 * 1024; // 5MB max per log file
+const MAX_LOG_FILES = 7; // Keep 7 days of logs
 
 const debugLog = (message: string, data?: any, forceLog = false) => {
   if (!DEBUG && !forceLog && !FORCE_LOG) return;
 
-  const logDir = path.join(process.env.HOME || '', '.c0ntextkeeper', 'debug');
+  const logDir = path.join(process.env.HOME || "", ".c0ntextkeeper", "debug");
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
   }
 
-  const logFile = path.join(logDir, `posttool-${new Date().toISOString().split('T')[0]}.log`);
-  const timestamp = new Date().toISOString();
-  const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n\n`;
+  const logFile = path.join(
+    logDir,
+    `posttool-${new Date().toISOString().split("T")[0]}.log`,
+  );
 
-  fs.appendFileSync(logFile, logEntry, 'utf-8');
+  // Log rotation: check size and rotate if needed
+  try {
+    if (fs.existsSync(logFile)) {
+      const stats = fs.statSync(logFile);
+      if (stats.size > MAX_LOG_SIZE) {
+        // Truncate to keep last 1MB
+        const content = fs.readFileSync(logFile, "utf-8");
+        const truncated = content.slice(-1024 * 1024);
+        fs.writeFileSync(
+          logFile,
+          `[LOG ROTATED - ${new Date().toISOString()}]\n\n${truncated}`,
+        );
+      }
+    }
+
+    // Cleanup old log files
+    const files = fs
+      .readdirSync(logDir)
+      .filter((f) => f.startsWith("posttool-") && f.endsWith(".log"))
+      .sort()
+      .reverse();
+
+    // Remove files beyond retention limit
+    files.slice(MAX_LOG_FILES).forEach((f) => {
+      try {
+        fs.unlinkSync(path.join(logDir, f));
+      } catch {
+        // Ignore cleanup errors
+      }
+    });
+  } catch {
+    // Ignore rotation errors
+  }
+
+  const timestamp = new Date().toISOString();
+  const logEntry = `[${timestamp}] ${message}${data ? "\n" + JSON.stringify(data, null, 2) : ""}\n\n`;
+
+  fs.appendFileSync(logFile, logEntry, "utf-8");
 };
 
 interface PostToolHookInput {
@@ -66,24 +106,24 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
   const storage = new FileStore();
 
   // Normalize fields between test and production formats
-  const tool = input.tool || input.tool_name || 'unknown';
+  const tool = input.tool || input.tool_name || "unknown";
   const toolInput = input.input || input.tool_input;
   const toolResult = input.result || input.tool_response;
   const timestamp = input.timestamp || new Date().toISOString();
 
-  debugLog('processToolUse called', {
+  debugLog("processToolUse called", {
     tool,
     session_id: input.session_id,
     hasInput: !!toolInput,
     hasResult: !!toolResult,
     timestamp,
     isTest: isTestSession(input.session_id),
-    format: input.tool ? 'test' : 'production'
+    format: input.tool ? "test" : "production",
   });
 
   // Filter out test sessions from production storage
   if (isTestSession(input.session_id)) {
-    debugLog('Skipping test session', { session_id: input.session_id });
+    debugLog("Skipping test session", { session_id: input.session_id });
     return; // Don't store test data in production folders
   }
 
@@ -96,7 +136,7 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
       ...input,
       tool,
       input: toolInput,
-      result: toolResult
+      result: toolResult,
     };
 
     // Extract pattern based on tool type
@@ -126,8 +166,8 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
         break;
     }
 
-    // Store patterns for analysis in JSON format
-    const dateString = new Date().toISOString().split("T")[0];
+    // Store patterns in unique per-session JSON file
+    // Uses timestamped filenames like: 2025-12-29_1305_MT_abc12345-patterns.json
     const workingDir = input.project_path || input.cwd || process.cwd();
 
     // Use proper storage resolution (respects env vars and storage hierarchy)
@@ -136,48 +176,19 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
       createIfMissing: true,
     });
 
-    // Use unified project-based storage structure
-    const storagePath = getHookStoragePath(
+    // Write single pattern to unique per-session file (no read-modify-write needed)
+    const storagePath = writeHookData(
       basePath,
       "patterns",
       workingDir,
-      dateString,
-      "patterns.json",
+      input.session_id,
+      toolPattern,
     );
 
-    // Ensure directory exists
-    const dir = path.dirname(storagePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    // Read existing patterns or create new array
-    let patterns: ToolPattern[] = [];
-    if (fs.existsSync(storagePath)) {
-      try {
-        const existingData = fs.readFileSync(storagePath, "utf-8");
-        patterns = JSON.parse(existingData);
-        // Ensure it's an array
-        if (!Array.isArray(patterns)) {
-          patterns = [];
-        }
-      } catch (error) {
-        console.error(`Failed to parse existing patterns file: ${error}`);
-        patterns = [];
-      }
-    }
-
-    // Add new pattern to array
-    patterns.push(toolPattern);
-
-    // Write back as formatted JSON
-    fs.writeFileSync(storagePath, JSON.stringify(patterns, null, 2), "utf-8");
-    
-    debugLog('Pattern stored successfully', {
+    debugLog("Pattern stored successfully", {
       storagePath,
-      patternsCount: patterns.length,
       tool: toolPattern.tool,
-      success: toolPattern.success
+      success: toolPattern.success,
     });
 
     // Track error patterns for learning
@@ -188,11 +199,11 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
     // Remove console.log to avoid interfering with Claude Code
     // Only log errors, not successes
   } catch (error) {
-    debugLog('Error in processToolUse', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+    debugLog("Error in processToolUse", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
     });
-    
+
     // Only output errors to Claude Code
     console.error(
       JSON.stringify({
@@ -208,7 +219,7 @@ async function processToolUse(input: PostToolHookInput): Promise<void> {
 
 function extractToolPattern(input: PostToolHookInput): string {
   // Handle both test and production formats
-  const tool = input.tool || input.tool_name || 'unknown';
+  const tool = input.tool || input.tool_name || "unknown";
   const toolInput = input.input || input.tool_input;
   const result = input.result || input.tool_response;
 
@@ -345,12 +356,16 @@ async function trackErrorPattern(
 // Main execution
 async function main() {
   // ALWAYS log hook start for production debugging
-  debugLog('PostToolUse hook started at ' + new Date().toISOString(), {
-    pid: process.pid,
-    cwd: process.cwd(),
-    env_debug: process.env.C0NTEXTKEEPER_DEBUG,
-    argv: process.argv
-  }, true);
+  debugLog(
+    "PostToolUse hook started at " + new Date().toISOString(),
+    {
+      pid: process.pid,
+      cwd: process.cwd(),
+      env_debug: process.env.C0NTEXTKEEPER_DEBUG,
+      argv: process.argv,
+    },
+    true,
+  );
 
   let input = "";
   let inputStartTime = Date.now();
@@ -358,64 +373,89 @@ async function main() {
   // Read from stdin
   process.stdin.on("data", (chunk) => {
     input += chunk;
-    debugLog('Receiving data chunk', { length: chunk.length }, true);
+    debugLog("Receiving data chunk", { length: chunk.length }, true);
   });
 
   process.stdin.on("end", async () => {
     const inputTime = Date.now() - inputStartTime;
-    debugLog('Input complete', {
-      length: input.length,
-      timeMs: inputTime,
-      preview: input.substring(0, 200)
-    }, true);
+    debugLog(
+      "Input complete",
+      {
+        length: input.length,
+        timeMs: inputTime,
+        preview: input.substring(0, 200),
+      },
+      true,
+    );
 
     if (!input) {
-      debugLog('No input provided, exiting', {}, true);
+      debugLog("No input provided, exiting", {}, true);
       process.exit(0);
     }
 
     // Log raw input for debugging
-    debugLog('Raw input received', { raw: input }, true);
+    debugLog("Raw input received", { raw: input }, true);
 
     try {
       const hookData = JSON.parse(input) as PostToolHookInput;
-      
-      debugLog('Parsed hook data', {
+
+      debugLog("Parsed hook data", {
         hook_event_name: hookData.hook_event_name,
         tool: hookData.tool,
-        session_id: hookData.session_id
+        session_id: hookData.session_id,
       });
 
       // Validate hook event - be VERY flexible with event names
       const validEventNames = [
-        'PostToolUse', 'postToolUse', 'posttooluse', 'post-tool-use',
-        'post_tool_use', 'POST_TOOL_USE', 'postTool', 'toolUse'
+        "PostToolUse",
+        "postToolUse",
+        "posttooluse",
+        "post-tool-use",
+        "post_tool_use",
+        "POST_TOOL_USE",
+        "postTool",
+        "toolUse",
       ];
 
       // Also check if it might be a tool event without explicit event name
-      const hasToolData = (hookData.tool || hookData.tool_name) &&
-                        (hookData.input || hookData.tool_input ||
-                         hookData.result || hookData.tool_response);
+      const hasToolData =
+        (hookData.tool || hookData.tool_name) &&
+        (hookData.input ||
+          hookData.tool_input ||
+          hookData.result ||
+          hookData.tool_response);
 
-      if (!validEventNames.some(name =>
-        hookData.hook_event_name?.toLowerCase() === name.toLowerCase()
-      ) && !hasToolData) {
-        debugLog('Not a PostToolUse event', {
-          received: hookData.hook_event_name,
-          expected: validEventNames,
-          hasToolData
-        }, true);
+      if (
+        !validEventNames.some(
+          (name) =>
+            hookData.hook_event_name?.toLowerCase() === name.toLowerCase(),
+        ) &&
+        !hasToolData
+      ) {
+        debugLog(
+          "Not a PostToolUse event",
+          {
+            received: hookData.hook_event_name,
+            expected: validEventNames,
+            hasToolData,
+          },
+          true,
+        );
         process.exit(0);
       }
 
       await processToolUse(hookData);
       process.exit(0);
     } catch (error) {
-      debugLog('Failed to parse input', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-        input: input.substring(0, 500)
-      }, true);
+      debugLog(
+        "Failed to parse input",
+        {
+          error: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : undefined,
+          input: input.substring(0, 500),
+        },
+        true,
+      );
 
       console.error(
         JSON.stringify({
@@ -452,4 +492,13 @@ if (require.main === module) {
   });
 }
 
-export { processToolUse, PostToolHookInput, ToolPattern };
+// Export for testing
+export {
+  processToolUse,
+  processToolUse as processPostToolUse, // Alias for consistency with other hooks
+  extractToolPattern,
+  trackErrorPattern,
+  debugLog,
+  main,
+};
+export type { PostToolHookInput, ToolPattern };

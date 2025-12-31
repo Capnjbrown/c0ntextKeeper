@@ -4,6 +4,8 @@
 
 c0ntextKeeper implements a sophisticated hybrid storage architecture that supports both project-local and global storage configurations. The system uses intelligent path resolution, human-readable project names, and comprehensive test isolation to maintain clean, organized archives.
 
+> **📝 Note on Directory Creation**: Storage directories are created **on-demand** when their corresponding hooks are enabled and triggered. Only the `sessions/` directory exists by default (since PreCompact is enabled by default). Other directories (`knowledge/`, `patterns/`, `prompts/`, `notifications/`, `sessions-meta/`) are created automatically when you enable their respective hooks and they capture their first data.
+
 ## Storage Resolution Algorithm
 
 ```
@@ -27,21 +29,22 @@ Located at `[project-root]/.c0ntextkeeper/`
 ├── archive/                   # Main session archives (FileStore basePath)
 │   └── projects/              # Per-project storage
 │       └── [project-name]/    # Human-readable name (from directory)
-│           ├── sessions/       # Individual JSON session files
+│           ├── sessions/       # Individual JSON session files (PreCompact)
 │           │   └── YYYY-MM-DD_HHMM_MT_[description].json
+│           ├── knowledge/      # Stop hook Q&A pairs
+│           │   └── YYYY-MM-DD-knowledge.json
+│           ├── patterns/       # PostToolUse hook data
+│           │   └── YYYY-MM-DD-patterns.json
+│           ├── prompts/        # UserPromptSubmit hook data
+│           │   └── YYYY-MM-DD-prompts.json
+│           ├── notifications/  # Notification hook data (v0.7.7)
+│           │   └── YYYY-MM-DD-notifications.json
+│           ├── sessions-meta/  # SessionStart/End hook data (v0.7.7)
+│           │   └── YYYY-MM-DD-sessions.json
 │           ├── test/           # Test data (auto-separated)
 │           ├── search-index.json  # Inverted index for fast search (v0.7.5)
 │           ├── index.json      # Project statistics & tool tracking
 │           └── README.md       # Auto-generated analytics dashboard
-├── prompts/                   # UserPromptSubmit hook data
-│   └── [project-name]/        # Same naming as archive/projects/
-│       └── YYYY-MM-DD-prompts.json
-├── patterns/                  # PostToolUse hook data
-│   └── [project-name]/        # Human-readable project names
-│       └── YYYY-MM-DD-patterns.json  # Includes MCP tool tracking
-├── knowledge/                 # Stop hook Q&A pairs
-│   └── [project-name]/        # Consistent naming across hooks
-│       └── YYYY-MM-DD-knowledge.json
 ├── config.json                # Project-specific configuration
 └── logs/                      # Hook execution logs
     └── hook.log
@@ -57,28 +60,29 @@ Located at `~/.c0ntextkeeper/`
 ├── archive/                   # Main session archives (FileStore basePath)
 │   └── projects/              # Per-project storage
 │       └── [project-name]/    # Actual project names (e.g., "c0ntextKeeper")
-│           ├── sessions/       # Individual JSON session files
+│           ├── sessions/       # Individual JSON session files (PreCompact)
 │           │   └── YYYY-MM-DD_HHMM_MT_[description].json
+│           ├── knowledge/      # Stop hook Q&A pairs
+│           │   └── YYYY-MM-DD-knowledge.json
+│           ├── patterns/       # PostToolUse hook data
+│           │   └── YYYY-MM-DD-patterns.json
+│           ├── prompts/        # UserPromptSubmit hook data
+│           │   └── YYYY-MM-DD-prompts.json
+│           ├── notifications/  # Notification hook data (v0.7.7)
+│           │   └── YYYY-MM-DD-notifications.json
+│           ├── sessions-meta/  # SessionStart/End hook data (v0.7.7)
+│           │   └── YYYY-MM-DD-sessions.json
 │           ├── test/           # Test data (auto-separated)
 │           ├── search-index.json  # Inverted index for O(1) lookups (v0.7.5)
 │           ├── index.json      # Project analytics & statistics
 │           └── README.md       # Auto-generated analytics dashboard
-├── prompts/                   # UserPromptSubmit hook data
-│   └── [project-name]/        # Same naming as archive/projects/
-│       └── YYYY-MM-DD-prompts.json
-├── patterns/                  # PostToolUse hook data
-│   └── [project-name]/        # Human-readable project names
-│       └── YYYY-MM-DD-patterns.json  # Includes MCP tool tracking
-├── knowledge/                 # Stop hook Q&A pairs
-│   └── [project-name]/        # Consistent naming across all hooks
-│       └── YYYY-MM-DD-knowledge.json
 ├── config.json                # Global configuration
 ├── index.json                 # Project registry (test projects filtered)
 └── logs/                      # Hook execution logs
     └── hook.log
 ```
 
-**Note**: The `errors/` and `solutions/` directories shown in older documentation are not currently created by the implemented code. Sessions contain error patterns within their JSON structure.
+**Note**: The `errors/`, `solutions/`, and `subagents/` directories shown in older documentation are not currently created by the implemented code. Sessions contain error patterns within their JSON structure. The SubagentStop hook was removed in v0.7.8 as Claude Code deprecated the SubagentStop event.
 
 **Key Features:**
 - Projects organized by actual name (e.g., `c0ntextKeeper`, not `a1b2c3d4`)
@@ -224,15 +228,17 @@ archive/projects/[name]/sessions/YYYY-MM-DD_HHMM_MT_description.json
 
 ### Daily Aggregations (Hook Data)
 ```
-archive/projects/[name]/prompts/YYYY-MM-DD-prompts.json     # UserPromptSubmit data
-archive/projects/[name]/patterns/YYYY-MM-DD-patterns.json   # PostToolUse data (with MCP tools)
-archive/projects/[name]/knowledge/YYYY-MM-DD-knowledge.json # Stop hook Q&A pairs
-errors/YYYY-MM-DD-errors.json             # Error patterns
+archive/projects/[name]/knowledge/YYYY-MM-DD-knowledge.json      # Stop hook Q&A pairs
+archive/projects/[name]/patterns/YYYY-MM-DD-patterns.json        # PostToolUse data (with MCP tools)
+archive/projects/[name]/prompts/YYYY-MM-DD-prompts.json          # UserPromptSubmit data
+archive/projects/[name]/notifications/YYYY-MM-DD-notifications.json  # Notification hook (v0.7.7)
+archive/projects/[name]/sessions-meta/YYYY-MM-DD-sessions.json   # SessionStart/End (v0.7.7)
 ```
 - Daily JSON arrays (not JSONL) for readability
 - Prevents unbounded file growth
 - Automatic date-based organization
 - MCP tool support in patterns (filesystem, sequential-thinking, etc.)
+- All 7 hooks now supported with dedicated storage categories
 - Test data automatically excluded
 
 ### Test Data Separation
@@ -341,4 +347,4 @@ cat .env | grep CONTEXTKEEPER
 
 ---
 
-*Last Updated: 2025-10-06 | c0ntextKeeper v0.7.5.1*
+*Last Updated: 2025-12-26 | c0ntextKeeper v0.7.8*

@@ -11,6 +11,8 @@ import { ConfigManager, AutoLoadSettings } from "./config.js";
 import { ContextRetriever } from "./retriever.js";
 import { PatternAnalyzer } from "./patterns.js";
 import { ExtractedContext, Pattern } from "./types.js";
+import { FileStore } from "../storage/file-store.js";
+import { SearchIndexer } from "./indexer.js";
 import { getProjectName } from "../utils/project-utils.js";
 // Note: formatFileSize and formatDuration removed - unused in implementation
 
@@ -31,9 +33,9 @@ export class ContextLoader {
   constructor() {
     const configManager = new ConfigManager();
     this.config = configManager.getAutoLoadSettings();
-    this.storagePath = getStoragePath();
-    this.retriever = new ContextRetriever();
-    this.patternAnalyzer = new PatternAnalyzer();
+    this.storagePath = getStoragePath({ global: true });
+    this.retriever = new ContextRetriever(new FileStore({ global: true }), new SearchIndexer(undefined, { global: true }));
+    this.patternAnalyzer = new PatternAnalyzer(new FileStore({ global: true }));
   }
 
   /**
@@ -473,7 +475,9 @@ export class ContextLoader {
         ctx.problems.forEach((p) => {
           sections.push(`- ${this.truncateText(p.question, 1500)}`);
           if (p.solution) {
-            sections.push(`  → ${this.truncateText(p.solution.approach, 2000)}`);
+            sections.push(
+              `  → ${this.truncateText(p.solution.approach, 2000)}`,
+            );
           }
         });
       }

@@ -4,8 +4,16 @@ coverage/
 *.test.ts
 *.spec.ts
 jest.config.js
+
+# Development scripts (not needed by npm users)
 scripts/test-*.js
-scripts/validate-public-ready.sh
+scripts/test-hooks/
+scripts/validate-*.sh
+scripts/cleanup-*.js
+scripts/fix-*.js
+scripts/README.md
+scripts/get-timestamp.js
+scripts/validate-archive.js
 
 # GitHub specific
 .github/
@@ -27,6 +35,12 @@ npm-debug.log*
 .c0ntextkeeper/
 tmp/
 
+# Claude Code private configuration
+.claude/
+.mcp.json
+CLAUDE.md
+CLAUDE.local.md
+
 # IDE and OS
 .vscode/
 .idea/
@@ -36,8 +50,9 @@ tmp/
 Thumbs.db
 
 # Build artifacts not needed
-*.map
 tsconfig.tsbuildinfo
+
+# Note: Source maps (*.map) are intentionally included for debugging convenience
 
 # Examples and demos
 examples/

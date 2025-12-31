@@ -5,92 +5,252 @@ All notable changes to c0ntextKeeper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2025-10-17
-
-### Fixed
-- **Archive Storage Pollution**: Eliminated benchmark test data from production archive
-  - Removed benchmark-project folder (24KB) created by performance tests
-  - Updated benchmark.ts to use in-memory testing instead of persistent storage
-  - Write operations now test JSON serialization without file writes
-  - Read operations use actual project data for realistic benchmarks
-  - Prevents end users from creating fake benchmark-project folders
-- **Knowledge Capture Threshold**: Improved Q&A coverage for knowledge base
-  - Lowered relevance threshold from 0.3 → 0.2 (33% increase in capture rate)
-  - Better balance between quality and quantity
-  - More comprehensive knowledge base for public release users
-- **Path Resolution Documentation**: Clarified storage path methods in file-store.ts
-  - Added deprecation warnings to getPromptsPath(), getPatternsPath(), getKnowledgePath()
-  - Documented that these return root directories, not project-specific paths
-  - Actual hook storage uses getHookStoragePath() for project-specific paths
-  - Prevents future confusion about expected vs actual storage locations
-- **Test Coverage Achievement**: Reached 100% test pass rate (196/196 tests passing)
-  - Removed redundant skipped test in auto-load.test.ts (lines 676-681)
-  - Test was attempting to call non-existent `testLoading()` method
-  - All test assertions now passing with zero skips
-- **Version Consistency**: Fixed version mismatch in MCP server
-  - Updated src/server/index.ts from v0.7.5 to v0.7.5.1
-  - All components now report consistent v0.7.5.1
-- **Code Cleanup**: Removed deprecated code from file-store.ts
-  - Eliminated `generateProjectHash()` function marked @deprecated
-  - Removed unused `crypto` import
-  - Cleaner codebase with no deprecated functions
+## [Unreleased]
 
 ### Added
+- **Open Source Release Preparation**: Complete preparation for public GitHub + npm publication
+  - **README Overhaul**: Modern format optimized for public release
+    - Upgraded all badges to `for-the-badge` style with logos (npm, GitHub, TypeScript, Node.js)
+    - Added new badges: TypeScript (100%), Tests (483 Passing), Claude Code (7 Hooks)
+    - Rewrote tagline: "The only automatic context preservation system for Claude Code"
+    - Added 3 primary CTA buttons (Install, Learn, Star) with distinct colors
+    - Added "At a Glance" section with single install command and 6 benefit bullets
+    - Added "How It Compares" table (c0ntextKeeper vs Manual Notes vs Other MCP Servers)
+    - Added FAQ section with 5 collapsible questions about performance, security, configuration
+    - Maintained Star History chart section
+    - Centered header with prominent value proposition
+    - "The Problem" section explaining context loss during compaction
+    - Quick Start (30 seconds) installation guide
+    - New "CLI Tools" section showcasing 30 commands
+    - 7 supported hooks documentation table
+    - MCP Tools section with full parameters
+    - Collapsible `<details>` sections for detailed info
+  - **CLI Reference Guide** (`docs/guides/cli-reference.md`): Comprehensive documentation
+    - All 30 CLI commands documented with examples
+    - Code blocks showing actual terminal outputs
+    - Quick reference table for all commands
+    - Organized by category: Core, Search, Hooks, Context, Storage, Development
+    - Environment variables and exit codes reference
+    - Common workflow examples
+  - **Public API Exports** (`src/index.ts`): New file for programmatic usage
+    - Core exports: `ContextArchiver`, `ContextRetriever`, `PatternAnalyzer`
+    - Type exports: 15+ TypeScript interfaces including new `ToolInput`
+    - Utility exports: `SecurityFilter`, path resolution functions
+  - **Modern Package Exports** (`package.json`): ESM/CJS compatibility
+    - Conditional exports for main, CLI, and server entry points
+    - TypeScript declarations support
+    - `prepublishOnly` hook with build + lint + test
+- **Documentation Clarity (Phase 4.8)**: Pre-release user experience improvements
+  - Case sensitivity warnings in 7 docs: README, CLAUDE, quickstart, troubleshooting, cli-reference, user-guide, CONTRIBUTING
+  - 30 commands breakdown (20 top-level + 7 hooks + 3 context) clarified in 4 docs
+  - Command structure table added to cli-reference.md
+- **MCP Guide & Natural Language Search (Phase 4.9)**: Comprehensive MCP documentation
+  - New `docs/guides/mcp-guide.md` (612 lines) - complete MCP tools reference
+  - "Natural Language Search" section added to README.md explaining semantic search
+  - Documented advanced search features: word expansion (9 terms), stop word filtering (32 words), temporal decay (60-day half-life), multi-field weighting
+  - Tool selection guide showing when to use fetch_context vs search_archive vs get_patterns
+  - Cross-references added to 4 documentation files
+- **README Value Proposition Enhancement (Phase 4.10)**: Optimized first 120 lines for impact
+  - Added consequence statement to The Problem section
+  - Added AI-Powered Search row to At a Glance table (7 items now)
+  - Created What This Enables section with before/after comparison table
+  - Added Ask Claude Naturally section promoting semantic search at line 103
+  - Enhanced CTA buttons: Install, Use Cases, AI Search, Star
+  - Added Try it now CLI commands after Quick Start
+  - Renamed detailed search section to Search Algorithm Details
+- **Personal Files Cleanup (Phase 4.11)**: Remove personal config from public repository
+  - Removed CLAUDE.md from git tracking (file existed locally before .gitignore)
+  - Verified all other personal files properly excluded (.mcp.json, .claude/, .env)
+- **Project Context Accuracy (Phase 4.12)**: Ensure source of truth is accurate
+  - Fixed lint warning count: 106 → 96 (recent code improvements)
+  - Updated all dates to 2025-12-31
+  - Fixed broken documentation reference (/docs/development/claude.md)
+  - Added mcp-guide.md and cli-reference.md to Important Files section
+  - Documented Phases 4.9-4.12 in project-context.md
+
+### Changed
+- **Hook Documentation**: All 7 hooks now documented in user-guide.md and troubleshooting.md (was 4)
+- **Source Maps**: Intentionally kept in npm package for debugging convenience
+- **Documentation Audit**: All docs/guides/ files verified for v0.7.8 accuracy
+  - quickstart.md: Pattern count corrected to 187
+  - All files verified for: 7 hooks, 483 tests, 30 CLI commands, 6 storage categories
+- **Contact Information**: Updated official contact email across all files
+  - SECURITY.md: Updated to `admin@c0ntextkeeper.com`
+  - CONTRIBUTING.md: Updated maintainer email to `admin@c0ntextkeeper.com`
+- **Privacy Configuration**: Enhanced .gitignore and .npmignore
+  - .claude/ directory excluded from git and npm
+  - .mcp.json excluded from git and npm
+  - Development scripts excluded from npm package
+
+### Fixed
+- **cli-reference.md**: Fixed incorrect hook name (PreToolUse → UserPromptSubmit)
+- **Script Permissions**: Standardized all scripts/*.js to 644 for consistency
+- **Validation Script** (`scripts/validate-public-ready.sh`): Fixed false positives
+  - Changed `.env` check from file existence to git tracking verification
+  - Excluded `security-filter.ts` from GitHub token regex search (contains detection patterns, not tokens)
+  - Updated README section check from "Installation/Usage" to modern "Quick Start/How It Works"
+
+### Removed
+- **Deprecated Documentation**: Cleaned up outdated files
+  - `docs/development/public-migration-report.md` - Superseded by release plan
+  - `docs/development/pre-release-checklist.md` - Outdated checklist
+  - `docs/development/multi-stage-release-checklist.md` - Outdated workflow
+- **Private Development Files**: Removed from git tracking
+  - `.claude/plugins/*/skills/` - Personal skill configurations
+  - `.mcp.json` - Personal MCP server configuration
+
+## [0.7.8] - 2025-12-29
+
+### Added
+- **Per-Session Storage Architecture**: Major refactoring of all hook storage
+  - All hooks now create unique timestamped files per event
+  - Format: `YYYY-MM-DD_HHMM_MT_{sessionId}-{hookType}.json`
+  - Example: `2025-12-29_1415_MT_fb212570-patterns.json`
+  - Eliminates read-modify-write race conditions
+  - Complete history preservation with atomic writes
+  - Session ID traceability (last 8 chars in filename)
+- **New Utility Module**: `src/utils/hook-storage.ts`
+  - `generateHookFileName()`: Creates unique timestamped filenames
+  - `formatTimestampForFilename()`: Mountain Time formatting
+  - `getHookStorageDir()`: Directory path resolution
+  - `writeHookData()`: Atomic single-write storage
+- **Expanded Test Suite**: 483 tests (was 196)
+  - All 6 hook test files updated for new storage pattern
+  - Comprehensive mocking for `writeHookData()` utility
+
+### Removed
+- **SubagentStop Hook**: Removed `src/hooks/subagent-stop.ts` and all references
+  - **Reason**: Claude Code does not send required fields (`subagent_type`, `tools_used`, `transcript`)
+  - All 16 captured records had `subagentType: "unknown"` and `toolsUsed: []`
+  - Feature was non-functional, so removed rather than keeping misleading data
+  - c0ntextKeeper now has **7 hooks** (was 8)
+- **SubagentRecord type**: Removed from `src/core/types.ts`
+- **subagents/ storage category**: No longer created (was 1 of 7, now 6 categories)
+- **Per-day storage pattern**: Legacy read-modify-write arrays replaced with per-session files
+
+### Changed
+- **Hook count**: 8 → 7 hooks (SubagentStop removed)
+- **Storage categories**: 7 → 6 categories (subagents/ removed)
+- **Storage pattern**: Per-day files → Per-session unique files for all hooks
+- **Documentation**: All references updated from "8 hooks" to "7 hooks"
+
+### Fixed
+- **Storage Audit**: Verified notifications/ and sessions-meta/ working correctly
+- **Race Conditions**: Eliminated by removing read-modify-write pattern
+- **File Corruption Risk**: Atomic writes prevent partial file corruption
+- **History Visibility**: Each event now has its own file with timestamp
+
+### Technical
+- **Files Modified**: 7 core modules
+  - `src/utils/hook-storage.ts` (NEW): Shared storage utilities
+  - `src/hooks/stop.ts`: Uses `writeHookData()` for knowledge
+  - `src/hooks/userprompt.ts`: Uses `writeHookData()` for prompts
+  - `src/hooks/posttool.ts`: Uses `writeHookData()` for patterns
+  - `src/hooks/notification.ts`: Uses `writeHookData()` for notifications
+  - `src/hooks/session-start.ts`: Uses `writeHookData()` for sessions-meta
+  - `src/hooks/session-end.ts`: Uses `writeHookData()` for sessions-meta
+- **Backward Compatibility**: Legacy per-day files preserved, new files created alongside
+
+## [0.7.7] - 2025-12-23
+
+### Added
+- **4 New Claude Code Hooks**: Complete coverage of all Claude Code hook events
+  - **Notification Hook** (`src/hooks/notification.ts`): Captures alerts, warnings, success messages, and progress updates
+  - **SubagentStop Hook** (`src/hooks/subagent-stop.ts`): Tracks subagent (Task tool) completions with task prompts, results, and duration
+  - **SessionStart Hook** (`src/hooks/session-start.ts`): Captures session lifecycle start events with environment context
+  - **SessionEnd Hook** (`src/hooks/session-end.ts`): Captures session end events with duration and summary statistics
+  - All 8 Claude Code hooks now supported (was 4)
+- **3 New Storage Categories**: Dedicated storage for new hooks
+  - `notifications/YYYY-MM-DD-notifications.json` - Notification hook data
+  - `subagents/YYYY-MM-DD-subagents.json` - SubagentStop hook data
+  - `sessions-meta/YYYY-MM-DD-sessions.json` - SessionStart/End lifecycle data
+  - Total storage categories: 7 (was 4)
+  - **Note**: Directories are created on-demand when hooks are enabled and triggered
+- **8 Specialized Audit Agents**: `.claude/plugins/c0ntextkeeper-agents/`
+  - mcp-audit: MCP server schema validation
+  - hook-validator: Hook integration testing
+  - context-quality: Extraction quality audit
+  - release-orchestrator: Release workflow automation
+  - archive-integrity: Archive health checks
+  - security-audit: Security filtering validation
+  - documentation-sync: Doc/code consistency
+  - performance-monitor: Performance tracking
 - **Test Utilities Module**: Created src/utils/test-helpers.ts (84 lines)
   - Shared `isTestSession()` function for DRY principle
   - `generateTestSessionId()` for consistent test session naming
   - `isTestPath()` for test directory detection
   - Eliminates 16 lines of duplicate code across 4 hook files
 
+### Fixed
+- **Stop Hook Content Array Parsing**: Fixed critical bug in Q&A extraction
+  - Assistant responses with `content` arrays now correctly parsed
+  - Handles Claude Code's nested `message.content[]` format properly
+  - Extracts text from content blocks with `type: "text"` property
+  - Prevents empty assistant responses in knowledge base captures
+- **Storage Path Resolution**: Clarified storage behavior and fixed local/global priority
+  - Storage directories created on-demand when hooks are enabled and triggered
+  - Documented that `.env` files are NOT loaded by Node.js hook processes
+  - Local `.c0ntextkeeper/` directory takes priority over global storage
+  - Use `CONTEXTKEEPER_FORCE_GLOBAL=true` environment variable to override
+- **Archive Storage Pollution**: Eliminated benchmark test data from production archive
+  - Removed benchmark-project folder (24KB) created by performance tests
+  - Updated benchmark.ts to use in-memory testing instead of persistent storage
+  - Write operations now test JSON serialization without file writes
+  - Read operations use actual project data for realistic benchmarks
+- **Knowledge Capture Threshold**: Improved Q&A coverage for knowledge base
+  - Lowered relevance threshold from 0.3 → 0.2 (33% increase in capture rate)
+  - Better balance between quality and quantity
+- **Path Resolution Documentation**: Clarified storage path methods in file-store.ts
+  - Added deprecation warnings to getPromptsPath(), getPatternsPath(), getKnowledgePath()
+  - Documented that these return root directories, not project-specific paths
+- **Test Coverage Achievement**: Reached 100% test pass rate (196/196 tests passing)
+  - Removed redundant skipped test in auto-load.test.ts
+  - All test assertions now passing with zero skips
+- **Version Consistency**: All components now report consistent v0.7.7
+- **Code Cleanup**: Removed deprecated `generateProjectHash()` function and unused imports
+
 ### Improved
+- **Semantic Patterns**: Verified count of 187 patterns (was 180)
+  - 116 problem indicators
+  - 41 request indicators
+  - 23 solution indicators
+  - 7 decision regex patterns
 - **Context Loader Truncation**: Enhanced truncation limits for better UX
   - Questions: 800 → 1500 chars (+87% increase)
   - Solutions: 1000 → 2000 chars (+100% increase)
   - Patterns: 400 → 800 chars (+100% increase)
   - Implementations: 500 → 800 chars (+60% increase)
-  - Prompts: 800 → 1500 chars (+87% increase)
-  - More complete context visibility in auto-load system
 
 ### Documentation
-- **Comprehensive Documentation Overhaul**: Created 6 new user-facing documentation files
-  - **docs/guides/quickstart.md** (170 lines) - 60-second setup guide showcasing "out of box" experience
-  - **docs/FEATURES.md** (577 lines) - Complete feature catalog from exhaustive source code audit
-  - **docs/technical/hooks-reference.md** (500+ lines) - Deep-dive into what each of 4 hooks captures
-  - **docs/technical/mcp-tools.md** (700+ lines) - Comprehensive guide to 3 MCP tools and 3 resources
-  - **docs/technical/configuration.md** (900+ lines) - Complete configuration reference with examples
-  - **docs/guides/use-cases.md** (600+ lines) - 12 real-world scenarios showing practical applications
-  - Total: 3,400+ lines of new user-focused documentation
-- **README.md Enhancement**: Updated to highlight automation and link to new documentation structure
-  - Added "What You Get Out of the Box" section prominently after Quick Start
-  - Created consolidated "Complete Documentation" section with organized links
-  - Highlights 7 automatic features that work with zero configuration
-  - Improved discoverability of all documentation resources
-- **package.json Enhancement**: Updated description and keywords for better npm discoverability
-  - New description: "Fully automatic context preservation for Claude Code - Works out of the box with zero configuration"
-  - Expanded keywords from 6 to 20: Added automation, productivity, workflow, knowledge-base, search, analytics, hooks
-  - Better SEO for npm search results
-- **Module Count Accuracy**: Corrected module count from 27 to 32 in CLAUDE.md
-  - Added documentation for doctor.ts (394 lines - health diagnostics)
-  - Added documentation for debug.ts (356 lines - log viewer)
-  - Added documentation for benchmark.ts (380 lines - performance suite)
-  - Added documentation for cli-styles.ts (chalk styling utilities)
-  - Added documentation for test-helpers.ts (shared test utilities)
-  - Total: 1,130+ lines of previously undocumented production code now documented
-- **Test Coverage Documentation**: Updated all test coverage references
-  - CLAUDE.md: Updated 4 locations from 95.9%/99.5% to 100%
-  - README.md: Updated 2 locations to show 100% (196/196)
-  - project-context.md: Updated 2 locations to show 100% (196/196)
-  - test-results-summary.md: Correctly shows historical 99.5%
-  - All documentation now reflects current 100% test pass rate
+- **Comprehensive Documentation Audit**: All docs updated for v0.7.7
+  - docs/README.md: Updated version, dates, 8 hooks, 187 patterns
+  - docs/FEATURES.md: Added 4 new hook sections, updated storage architecture
+  - docs/technical/hooks-reference.md: Complete 8-hook documentation with comparison tables
+  - docs/technical/storage.md: Added 3 new storage directories
+  - docs/guides/migration-guide.md: Added v0.7.7 migration section
+  - CONTRIBUTING.md: Updated to reflect 196/196 tests, 8 hooks
+- **Hook Count Consistency Fix**: Updated all references from "4 hooks" to "8 hooks"
+  - CLAUDE.md: Lines 429, 780 - agent prompts and verification
+  - docs/development/project-context.md: Lines 160, 244, 457 - test-hook command and verification
+  - docs/guides/user-guide.md: Lines 301, 555 - hook descriptions
+  - docs/technical/mcp-activation.md: Line 75 - hook capture description
+  - docs/development/RELEASE-GUIDE.md: Line 321 - all-hook coverage
+  - scripts/README.md: Line 103 - hook testing section
+  - README.md: Line 700 - hook system description
+  - .claude/plugins/c0ntextkeeper-agents/README.md: Line 41 - hook-validator example
+- **Removed Non-Existent Directory References**:
+  - docs/FEATURES.md: Removed `solutions/` and `errors/` directories that never existed
+  - docs/technical/storage.md: Removed `errors/YYYY-MM-DD-errors.json` reference
+- **Storage Directory Clarification**: Added notes that directories are created on-demand
+- **Module Count Accuracy**: Corrected to 33 core modules
+- **Test Pass Rate Documentation**: All references show 100% pass rate (196/196 tests passing, 23% code coverage)
 
 ### Refactored
 - **Code Deduplication**: Eliminated duplicate isTestSession() implementations
-  - Moved logic from src/hooks/posttool.ts to shared test-helpers
-  - Moved logic from src/hooks/stop.ts to shared test-helpers
+  - Moved logic from src/hooks/posttool.ts and stop.ts to shared test-helpers
   - 16 lines of duplicate code removed
-  - DRY principle applied across hook system
 
-## [0.7.5.1] - 2025-10-06
+## [0.7.6] - 2025-10-06
 
 ### Improved
 - **CLI Output Quality**: Dramatically increased truncation limits for complete context visibility
@@ -173,47 +333,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Search Performance**: Near-instant keyword lookups with inverted index
 - **Memory Efficiency**: Optimized index structure for large archives
 - **Code Quality**: Added cli-styles.ts for centralized styling utilities
-
-## [Unreleased] - 2025-09-22
-
-### Security
-- **Codebase sanitization for public release**: Comprehensive security review and cleanup
-  - Removed all sensitive information from documentation and code comments
-  - Sanitized example files and test fixtures
-  - Updated all documentation for open source readiness
-  - Ensured no exposed tokens, keys, or private data
-
-### Fixed
-- **Version synchronization**: Updated CLI and server components to v0.7.4
-  - Fixed version mismatch where components showed v0.7.1 instead of v0.7.4
-  - Ensured consistency across all version references
-- **Package-lock.json sync**: Aligned package-lock.json version with package.json v0.7.4
-
-### Changed
-- **CI/CD automation removal**: Simplified release process for open source
-  - Removed GitHub Actions workflow (.github/workflows/ci.yml)
-  - Updated documentation to reflect manual release process
-  - Modified CONTRIBUTING.md with new workflow guidelines
-  - Simplified multi-stage release checklist
-
-### Documentation
-- **Public release preparation**: Comprehensive documentation updates
-  - Updated README.md with final production status
-  - Refined CLAUDE.md with latest workflow guidelines
-  - Enhanced project-context.md as authoritative source of truth
-  - Cleaned up migration and troubleshooting guides
-  - Polished all technical documentation for public consumption
-- **Module count correction**: Fixed documentation accuracy
-  - Corrected module count from 25 to 27 in CLAUDE.md and pre-release-checklist.md
-  - Added missing `hooks-health.ts` module description (CLI hook health diagnostics)
-  - Added missing `security-filter.ts` module description (sensitive data filtering)
-  - Verified consistency across all project documentation
-- **Documentation consistency fixes**: Aligned documentation with actual implementation
-  - Corrected CLI command count from "30+" to actual 24 commands
-  - Updated semantic patterns count to verified 187 patterns via systematic code audit (2025-10-06)
-  - Fixed extraction version from 0.7.3 to 0.7.4 in extractor.ts
-  - Removed empty `/src/tools/` directory (tools implemented in server/index.ts)
-  - Fixed hook script reference in cli.ts to use existing setup-hooks.js
 
 ## [0.7.4] - 2025-09-19 (Evening Update)
 

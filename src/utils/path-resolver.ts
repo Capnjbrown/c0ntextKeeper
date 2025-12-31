@@ -109,9 +109,9 @@ export function getProjectPaths(): string[] {
   // 4. Add from environment variable if set
   if (process.env.CONTEXTKEEPER_PROJECT_PATHS) {
     const envPaths = process.env.CONTEXTKEEPER_PROJECT_PATHS.split(
-      process.platform === "win32" ? ";" : ":"
+      process.platform === "win32" ? ";" : ":",
     );
-    paths.push(...envPaths.map(p => path.resolve(p)));
+    paths.push(...envPaths.map((p) => path.resolve(p)));
   }
 
   // Remove duplicates and return

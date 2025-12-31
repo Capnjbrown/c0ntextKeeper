@@ -2,11 +2,14 @@
 
 Welcome to the c0ntextKeeper documentation! This directory contains all technical specifications, user guides, and development documentation for the project.
 
-## 📊 Latest Updates (v0.7.4)
+## 📊 Latest Updates (v0.7.8)
 
+- **7 Claude Code Hooks** - Full support for all hook events (PreCompact, Stop, PostToolUse, UserPromptSubmit, Notification, SessionStart, SessionEnd)
+- **187 Semantic Patterns** - Comprehensive problem/solution/decision detection
 - **[Performance Benchmarks](technical/performance-benchmarks.md)** - Comprehensive performance analysis showing <10ms operations
-- **[Test Results Summary](technical/test-results-summary.md)** - Complete test suite results (99.5% test pass rate)
-- **[Auto-Load Guide](guides/auto-load-guide.md)** - New automatic context loading feature
+- **[Test Results Summary](technical/test-results-summary.md)** - Complete test suite results (100% test pass rate - 483/483 tests)
+- **[Auto-Load Guide](guides/auto-load-guide.md)** - Automatic context loading feature
+- **[Hooks Reference](technical/hooks-reference.md)** - Complete documentation for all 7 hooks
 
 ## 📁 Documentation Structure
 
@@ -19,22 +22,25 @@ Core technical specifications and integration guides:
 - **[MCP Activation](technical/mcp-activation.md)** - MCP server activation and setup guide
 - **[MCP Testing](technical/mcp-testing.md)** - Comprehensive MCP server testing procedures
 - **[MCP Usage](technical/mcp-usage.md)** - Detailed MCP tool usage patterns
-- **[Storage Architecture](technical/storage.md)** - Hybrid storage system documentation (v0.7.4)
+- **[Hooks Reference](technical/hooks-reference.md)** - Complete 7-hook documentation (v0.7.8)
+- **[Storage Architecture](technical/storage.md)** - Hybrid storage with 6 categories (v0.7.8)
 - **[Performance Benchmarks](technical/performance-benchmarks.md)** - Performance analysis (<10ms operations)
-- **[Test Results Summary](technical/test-results-summary.md)** - Test suite results (95.9% test pass rate)
+- **[Test Results Summary](technical/test-results-summary.md)** - Test suite results (100% pass rate - 483/483)
 
 ### 📖 User Guides (`/guides`)
 End-user documentation and tutorials:
 
 - **[User Guide](guides/user-guide.md)** - Complete guide to using c0ntextKeeper
-- **[Auto-Load Guide](guides/auto-load-guide.md)** - Automatic context loading feature (v0.7.4)
+- **[MCP Guide](guides/mcp-guide.md)** - Natural language search and MCP tools (NEW)
+- **[CLI Reference](guides/cli-reference.md)** - Complete CLI command reference
+- **[Auto-Load Guide](guides/auto-load-guide.md)** - Automatic context loading feature (v0.7.7)
 - **[Migration Guide](guides/migration-guide.md)** - Version migration procedures
 
 ### 🛠️ Development Documentation (`/development`)
 Internal development guidelines and project context:
 
-- **[Project Context](development/project-context.md)** - **AUTHORITATIVE SOURCE** - Complete technical specifications (Updated with v0.7.4 test results)
-- **[Pre-Release Checklist](development/pre-release-checklist.md)** - Complete checklist for v0.7.4 release preparation
+- **[Project Context](development/project-context.md)** - **AUTHORITATIVE SOURCE** - Complete technical specifications (Updated for v0.7.8)
+- **[Pre-Release Checklist](development/pre-release-checklist.md)** - Complete checklist for release preparation
 - **[Public Migration Report](development/public-migration-report.md)** - Open-source migration documentation
 
 **Claude Code CLI Files** (at project root):
@@ -44,8 +50,8 @@ Internal development guidelines and project context:
 ### 🚀 API Documentation (`/api`)
 API specifications and technical references:
 
-- **[ContextLoader API](api/context-loader.md)** - Auto-load context system API (v0.7.4)
-- **[MCP Resources](api/mcp-resources.md)** - MCP resource specifications (v0.7.4)
+- **[ContextLoader API](api/context-loader.md)** - Auto-load context system API (v0.7.7)
+- **[MCP Resources](api/mcp-resources.md)** - MCP resource specifications (v0.7.7)
 
 ## 🗺️ Quick Navigation
 
@@ -92,9 +98,9 @@ All documentation in this directory follows these standards:
 
 ## 🔄 Version Information
 
-- **Documentation Version**: 0.7.5.1
-- **Last Updated**: 2025-10-06
-- **Project Version**: 0.7.5.1
+- **Documentation Version**: 0.7.8
+- **Last Updated**: 2025-12-26
+- **Project Version**: 0.7.8
 
 ## 📝 Notes
 

@@ -1,16 +1,16 @@
 # c0ntextKeeper Scripts
 
-> Last Updated: 2025-09-19 for v0.7.3 (cleaned structure)
+> Last Updated: 2025-12-19 for v0.7.6 (public release)
 
 This directory contains production scripts for c0ntextKeeper setup, migration, and hook testing.
 
-## Directory Structure (v0.7.3 Cleaned)
+## Directory Structure (v0.7.6)
 - **Production Scripts**: 4 essential setup/install scripts
 - **Migration Tools**: 5 maintenance and migration utilities  
-- **Hook Testing**: Comprehensive v0.7.3 hook test suite in test-hooks/
+- **Hook Testing**: Comprehensive v0.7.6 hook test suite in test-hooks/
 - **Validation**: 2 scripts for archive and release validation
 
-**Note**: Obsolete test scripts have been removed in v0.7.3. Use Jest tests in /tests directory for unit testing.
+**Note**: Obsolete test scripts have been removed in v0.7.6. Use Jest tests in /tests directory for unit testing.
 
 ## Production Scripts
 
@@ -100,7 +100,7 @@ Tests:
 ```
 
 ### test-hooks/ Directory (v0.7.3 Critical Testing Suite)
-**Purpose**: Comprehensive testing for all 4 hooks (fixed 50% → 100% capture)
+**Purpose**: Comprehensive testing for all 7 hooks (fixed 50% → 100% capture)
 
 ```bash
 # Test all hooks
@@ -240,4 +240,4 @@ c0ntextkeeper status
 For issues with scripts:
 1. Check script output for error messages
 2. Review logs in `~/.c0ntextkeeper/logs/`
-3. Report issues: https://github.com/yourusername/c0ntextKeeper/issues
+3. Report issues: https://github.com/Capnjbrown/c0ntextKeeper/issues

@@ -16,10 +16,14 @@ export class ContextArchiver {
   private indexer: SearchIndexer;
   private logger: Logger;
 
-  constructor(storage?: FileStore, extractor?: ContextExtractor, indexer?: SearchIndexer) {
-    this.storage = storage || new FileStore();
+  constructor(
+    storage?: FileStore,
+    extractor?: ContextExtractor,
+    indexer?: SearchIndexer,
+  ) {
+    this.storage = storage || new FileStore({ global: true });
     this.extractor = extractor || new ContextExtractor();
-    this.indexer = indexer || new SearchIndexer();
+    this.indexer = indexer || new SearchIndexer(undefined, { global: true });
     this.logger = new Logger("ContextArchiver");
   }
 
@@ -93,10 +97,10 @@ export class ContextArchiver {
       // Update search index
       try {
         await this.indexer.updateIndex(context.sessionId, context);
-        this.logger.info('Search index updated');
+        this.logger.info("Search index updated");
       } catch (indexError) {
         // Log but don't fail the archive operation
-        this.logger.warn('Failed to update search index:', indexError);
+        this.logger.warn("Failed to update search index:", indexError);
       }
 
       // Return success with statistics
@@ -140,7 +144,7 @@ export class ContextArchiver {
       try {
         await this.indexer.updateIndex(context.sessionId, context);
       } catch (indexError) {
-        this.logger.warn('Failed to update search index:', indexError);
+        this.logger.warn("Failed to update search index:", indexError);
       }
 
       return {
@@ -167,7 +171,7 @@ export class ContextArchiver {
     try {
       await this.indexer.updateIndex(context.sessionId, context);
     } catch (indexError) {
-      this.logger.warn('Failed to update search index:', indexError);
+      this.logger.warn("Failed to update search index:", indexError);
     }
 
     return archivePath;

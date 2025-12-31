@@ -4,7 +4,7 @@
 
 ## Overview
 
-c0ntextKeeper v0.7.0 introduced **automatic context loading** - a powerful feature that proactively provides relevant project context when Claude Code sessions begin (enhanced significantly in v0.7.4 with reliability improvements, and v0.7.5.1 with complete context visibility). This ensures Claude has immediate awareness of your project's recent work, patterns, and knowledge without requiring manual tool calls.
+c0ntextKeeper v0.7.0 introduced **automatic context loading** - a powerful feature that proactively provides relevant project context when Claude Code sessions begin (enhanced significantly in v0.7.4 with reliability improvements, and v0.7.6 with complete context visibility). This ensures Claude has immediate awareness of your project's recent work, patterns, and knowledge without requiring manual tool calls.
 
 ## How It Works
 

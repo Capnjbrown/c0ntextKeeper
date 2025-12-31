@@ -4,7 +4,9 @@
 
 c0ntextKeeper uses Claude Code's hook system to automatically capture and preserve valuable context at multiple points in your workflow. The primary PreCompact hook works **completely automatically** - capturing context both when you manually run `/compact` and when Claude Code automatically compacts context due to size limits.
 
-### 🏗️ v0.7.4 Hybrid Storage Architecture
+### 🏗️ v0.7.8 Features
+- **🎣 7 Claude Code Hooks** - Complete hook coverage (PreCompact, Stop, PostToolUse, UserPromptSubmit, Notification, SessionStart, SessionEnd)
+- **📁 6 Storage Categories** - sessions, knowledge, patterns, prompts, notifications, sessions-meta
 - **📁 Project-Local Storage** - Initialize with `c0ntextkeeper init` in your project
 - **🌍 Global Storage** - Use `c0ntextkeeper init --global` for shared storage
 - **🔍 Smart Path Resolution** - Automatically finds the right storage location
@@ -570,7 +572,7 @@ Create `test-mcp-tools.jsonl` to test MCP tool tracking:
 ```bash
 # Test the hook with mock data
 echo '{"hook_event_name":"PreCompact","transcript_path":"./test-transcript.jsonl","session_id":"test-123"}' | \
-  node /Users/jasonbrown/Projects/c0ntextKeeper/dist/hooks/precompact.js
+  node ./dist/hooks/precompact.js
 
 # Check output (JSON format, not JSONL)
 cat ~/.c0ntextkeeper/archive/projects/*/sessions/*.json | jq '.'
@@ -621,7 +623,7 @@ c0ntextkeeper validate
 
 If you continue experiencing issues:
 
-1. Check [GitHub Issues](https://github.com/yourusername/c0ntextKeeper/issues)
+1. Check [GitHub Issues](https://github.com/Capnjbrown/c0ntextKeeper/issues)
 2. Enable debug mode and collect logs
 3. Run `c0ntextkeeper diagnose` to generate diagnostic report
 4. Contact support with diagnostic information

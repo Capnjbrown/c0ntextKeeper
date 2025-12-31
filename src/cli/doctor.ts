@@ -7,7 +7,13 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import { FileStore } from "../storage/file-store.js";
-import { formatHeader, formatSuccess, formatWarning, formatError, styles } from "../utils/cli-styles.js";
+import {
+  formatHeader,
+  formatSuccess,
+  formatWarning,
+  formatError,
+  styles,
+} from "../utils/cli-styles.js";
 
 interface DiagnosticResult {
   category: string;
@@ -22,7 +28,7 @@ export async function runDoctorDiagnostics(): Promise<void> {
 
   const results: DiagnosticResult[] = [];
   let issuesFound = 0;
-  let issuesFixed = 0;
+  let _issuesFixed = 0;
 
   // 1. Check Hook Configuration
   console.log(styles.info("1️⃣ Checking Hook Configuration..."));
@@ -59,10 +65,10 @@ export async function runDoctorDiagnostics(): Promise<void> {
   console.log(formatHeader("📊 Diagnostic Summary"));
   console.log();
 
-  const passCount = results.filter(r => r.status === "pass").length;
-  const warnCount = results.filter(r => r.status === "warning").length;
-  const errorCount = results.filter(r => r.status === "error").length;
-  const fixedCount = results.filter(r => r.autoFixed).length;
+  const passCount = results.filter((r) => r.status === "pass").length;
+  const warnCount = results.filter((r) => r.status === "warning").length;
+  const errorCount = results.filter((r) => r.status === "error").length;
+  const fixedCount = results.filter((r) => r.autoFixed).length;
 
   if (errorCount > 0) {
     issuesFound += errorCount;
@@ -70,7 +76,7 @@ export async function runDoctorDiagnostics(): Promise<void> {
   if (warnCount > 0) {
     issuesFound += warnCount;
   }
-  issuesFixed = fixedCount;
+  _issuesFixed = fixedCount;
 
   console.log(styles.success(`✅ Passed: ${passCount}`));
   if (warnCount > 0) {
@@ -91,11 +97,13 @@ export async function runDoctorDiagnostics(): Promise<void> {
     console.log(formatHeader("\n🔍 Detailed Findings"));
     console.log();
 
-    results.forEach(result => {
+    results.forEach((result) => {
       if (result.status === "warning" || result.status === "error") {
         const icon = result.status === "error" ? "❌" : "⚠️ ";
         const statusText = result.autoFixed ? " (auto-fixed)" : "";
-        console.log(`${icon} ${styles.text(result.category)}: ${result.message}${statusText}`);
+        console.log(
+          `${icon} ${styles.text(result.category)}: ${result.message}${statusText}`,
+        );
       }
     });
   }
@@ -107,17 +115,29 @@ export async function runDoctorDiagnostics(): Promise<void> {
     console.log();
     console.log(styles.tip("💡 c0ntextKeeper is working perfectly."));
   } else if (errorCount === 0) {
-    console.log(formatWarning("⚠️  Minor issues detected but nothing critical"));
+    console.log(
+      formatWarning("⚠️  Minor issues detected but nothing critical"),
+    );
     console.log();
-    console.log(styles.tip("💡 Everything is working, but consider reviewing the warnings above."));
+    console.log(
+      styles.tip(
+        "💡 Everything is working, but consider reviewing the warnings above.",
+      ),
+    );
   } else if (fixedCount === issuesFound) {
     console.log(formatSuccess("✅ All issues have been automatically fixed!"));
     console.log();
-    console.log(styles.tip("💡 Try running the doctor again to confirm all fixes."));
+    console.log(
+      styles.tip("💡 Try running the doctor again to confirm all fixes."),
+    );
   } else {
     console.log(formatError("❌ Critical issues found"));
     console.log();
-    console.log(styles.tip("💡 Some issues require manual intervention. See details above."));
+    console.log(
+      styles.tip(
+        "💡 Some issues require manual intervention. See details above.",
+      ),
+    );
     process.exit(1);
   }
 }
@@ -131,7 +151,8 @@ async function checkHookConfiguration(): Promise<DiagnosticResult[]> {
     results.push({
       category: "Hook Configuration",
       status: "warning",
-      message: "Claude Code settings.json not found. Hooks may not be configured.",
+      message:
+        "Claude Code settings.json not found. Hooks may not be configured.",
     });
     console.log(styles.warning("  ⚠️  Settings file not found"));
     return results;
@@ -152,20 +173,26 @@ async function checkHookConfiguration(): Promise<DiagnosticResult[]> {
       results.push({
         category: "Hook Configuration",
         status: "warning",
-        message: "PreCompact hook not enabled. Run 'c0ntextkeeper setup' to enable.",
+        message:
+          "PreCompact hook not enabled. Run 'c0ntextkeeper setup' to enable.",
       });
       console.log(styles.warning("  ⚠️  PreCompact hook not enabled"));
     }
 
     // Check optional hooks
     const optionalHooks = ["UserPromptSubmit", "PostToolUse", "Stop"];
-    const enabledOptional = optionalHooks.filter(hook => settings.hooks?.[hook]);
+    const enabledOptional = optionalHooks.filter(
+      (hook) => settings.hooks?.[hook],
+    );
 
     if (enabledOptional.length > 0) {
-      console.log(styles.muted(`  ℹ️  Optional hooks enabled: ${enabledOptional.join(", ")}`));
+      console.log(
+        styles.muted(
+          `  ℹ️  Optional hooks enabled: ${enabledOptional.join(", ")}`,
+        ),
+      );
     }
-
-  } catch (error) {
+  } catch {
     results.push({
       category: "Hook Configuration",
       status: "error",
@@ -193,7 +220,7 @@ async function checkStorageSetup(): Promise<DiagnosticResult[]> {
         autoFixed: true,
       });
       console.log(styles.success("  ✅ Created global storage directory"));
-    } catch (error) {
+    } catch {
       results.push({
         category: "Storage Setup",
         status: "error",
@@ -222,7 +249,7 @@ async function checkStorageSetup(): Promise<DiagnosticResult[]> {
         autoFixed: true,
       });
       console.log(styles.success("  ✅ Created archive directory"));
-    } catch (error) {
+    } catch {
       results.push({
         category: "Storage Setup",
         status: "error",
@@ -253,9 +280,12 @@ async function checkArchiveIntegrity(): Promise<DiagnosticResult[]> {
       results.push({
         category: "Archive Integrity",
         status: "warning",
-        message: "No archived sessions found. This is normal for new installations.",
+        message:
+          "No archived sessions found. This is normal for new installations.",
       });
-      console.log(styles.warning("  ⚠️  No archives found (normal for new install)"));
+      console.log(
+        styles.warning("  ⚠️  No archives found (normal for new install)"),
+      );
       return results;
     }
 
@@ -264,24 +294,40 @@ async function checkArchiveIntegrity(): Promise<DiagnosticResult[]> {
       status: "pass",
       message: `Found ${stats.totalSessions} archived sessions across ${stats.totalProjects} projects`,
     });
-    console.log(styles.success(`  ✅ ${stats.totalSessions} sessions in ${stats.totalProjects} projects`));
+    console.log(
+      styles.success(
+        `  ✅ ${stats.totalSessions} sessions in ${stats.totalProjects} projects`,
+      ),
+    );
 
     // Validate a sample of archives
-    const archivePath = path.join(os.homedir(), ".c0ntextkeeper", "archive", "projects");
+    const archivePath = path.join(
+      os.homedir(),
+      ".c0ntextkeeper",
+      "archive",
+      "projects",
+    );
     if (fs.existsSync(archivePath)) {
       const projects = fs.readdirSync(archivePath);
       let corruptedFiles = 0;
 
-      for (const project of projects.slice(0, 5)) { // Check first 5 projects
+      for (const project of projects.slice(0, 5)) {
+        // Check first 5 projects
         const projectPath = path.join(archivePath, project, "sessions");
         if (fs.existsSync(projectPath)) {
-          const sessions = fs.readdirSync(projectPath).filter(f => f.endsWith('.json'));
+          const sessions = fs
+            .readdirSync(projectPath)
+            .filter((f) => f.endsWith(".json"));
 
-          for (const session of sessions.slice(0, 3)) { // Check first 3 sessions per project
+          for (const session of sessions.slice(0, 3)) {
+            // Check first 3 sessions per project
             try {
-              const content = fs.readFileSync(path.join(projectPath, session), "utf-8");
+              const content = fs.readFileSync(
+                path.join(projectPath, session),
+                "utf-8",
+              );
               JSON.parse(content); // Validate JSON
-            } catch (error) {
+            } catch {
               corruptedFiles++;
             }
           }
@@ -294,13 +340,14 @@ async function checkArchiveIntegrity(): Promise<DiagnosticResult[]> {
           status: "warning",
           message: `Found ${corruptedFiles} potentially corrupted archive files`,
         });
-        console.log(styles.warning(`  ⚠️  ${corruptedFiles} corrupted files detected`));
+        console.log(
+          styles.warning(`  ⚠️  ${corruptedFiles} corrupted files detected`),
+        );
       } else {
         console.log(styles.success("  ✅ Archive files validated"));
       }
     }
-
-  } catch (error) {
+  } catch {
     results.push({
       category: "Archive Integrity",
       status: "error",
@@ -329,8 +376,7 @@ async function checkPermissions(): Promise<DiagnosticResult[]> {
       message: "Storage directory has correct permissions",
     });
     console.log(styles.success("  ✅ Read/write permissions OK"));
-
-  } catch (error) {
+  } catch {
     results.push({
       category: "Permissions",
       status: "error",
@@ -358,7 +404,9 @@ async function checkFileStructure(): Promise<DiagnosticResult[]> {
         status: "pass",
         message: `Global index valid with ${projectCount} projects`,
       });
-      console.log(styles.success(`  ✅ Global index valid (${projectCount} projects)`));
+      console.log(
+        styles.success(`  ✅ Global index valid (${projectCount} projects)`),
+      );
 
       // Check for orphaned entries
       const archivePath = path.join(globalPath, "archive", "projects");
@@ -366,13 +414,16 @@ async function checkFileStructure(): Promise<DiagnosticResult[]> {
         const actualProjects = fs.readdirSync(archivePath);
         const indexedProjects = Object.keys(index.projects || {});
 
-        const orphaned = actualProjects.filter(p => !indexedProjects.includes(p));
+        const orphaned = actualProjects.filter(
+          (p) => !indexedProjects.includes(p),
+        );
         if (orphaned.length > 0) {
-          console.log(styles.warning(`  ⚠️  ${orphaned.length} projects not in index`));
+          console.log(
+            styles.warning(`  ⚠️  ${orphaned.length} projects not in index`),
+          );
         }
       }
-
-    } catch (error) {
+    } catch {
       results.push({
         category: "File Structure",
         status: "error",
@@ -386,7 +437,9 @@ async function checkFileStructure(): Promise<DiagnosticResult[]> {
       status: "warning",
       message: "Global index not found (will be created on first use)",
     });
-    console.log(styles.warning("  ⚠️  No global index (normal for new install)"));
+    console.log(
+      styles.warning("  ⚠️  No global index (normal for new install)"),
+    );
   }
 
   return results;

@@ -1,13 +1,31 @@
 # 📚 c0ntextKeeper User Guide
 
-> Last Updated: 2025-10-06 for v0.7.5.1 (Documentation Audit Complete)
+> Last Updated: 2025-12-26 for v0.7.8 (7-Hook Support)
+
+## 🎯 What's New in v0.7.8
+
+### Hook Cleanup
+- **SubagentStop Removed** - Claude Code deprecated the SubagentStop event
+- **7 Hooks Now Supported** - All active Claude Code hook events captured
+- **6 Storage Categories** - Removed subagents/ directory
+
+## 🎯 What's New in v0.7.7
+
+### Claude Code Hook Coverage
+- **7 Hooks Supported** - All Claude Code hook events captured
+- **3 New Hooks Added**:
+  - **Notification**: Captures alerts, warnings, success messages
+  - **SessionStart**: Records session lifecycle start events
+  - **SessionEnd**: Captures session end with duration stats
+- **2 New Storage Categories**: notifications/, sessions-meta/
+- **100% Test Pass Rate** - All 483 tests passing (23% code coverage)
 
 ## 🎯 What's New in v0.7.5
 
 ### Search Indexing & Beautiful CLI
 - **🔍 Fast Search Index** - O(1) keyword lookups with inverted index
 - **🎨 Beautiful CLI Output** - Semantic colors and icons with chalk
-- **📈 99.5% Test Coverage** - Up from 95.9% (196/197 tests)
+- **📈 100% Test Pass Rate** - All 483/483 tests passing (23% code coverage)
 - **🆕 New Command** - `rebuild-index` for recreating search index
 - **🧠 187 Patterns** - Verified semantic pattern count (code audit 2025-10-06)
 
@@ -136,7 +154,7 @@ Current Directory: /home/user/projects/my-app
 Project Name: my-app
 ✓ Storage initialized (local)
   Location: /home/user/projects/my-app/.c0ntextkeeper
-  Version: 0.7.5
+  Version: 0.7.8
   Created: 2025-09-24
   Type: project
 ```
@@ -265,10 +283,14 @@ c0ntextkeeper validate
 
 ### Method 4: Using Claude Code MCP Tools
 
-In Claude Code, you can ask:
-- "Use fetch_context to find my previous authentication work"
-- "Use search_archive to find Redis configuration decisions"
-- "Use get_patterns to show my common commands"
+In Claude Code, you can ask naturally - no need to know tool names:
+- "What did I implement for authentication last week?"
+- "How did I fix that database connection error?"
+- "What commands do I use most often?"
+
+Claude uses c0ntextKeeper's MCP tools (`fetch_context`, `search_archive`, `get_patterns`) automatically.
+
+> **See the full [MCP Guide](./mcp-guide.md)** for comprehensive documentation on semantic search, advanced features, and troubleshooting.
 
 ## How c0ntextKeeper Works Automatically
 
@@ -286,14 +308,17 @@ This happens in addition to manual `/compact` commands - both trigger preservati
 
 ### Available Hooks
 
-c0ntextKeeper provides 4 hooks for different capture strategies:
+c0ntextKeeper provides 7 hooks for different capture strategies:
 
 | Hook | When It Fires | What It Captures | Storage Location | How to Enable |
 |------|--------------|------------------|------------------|---------------|
 | **PreCompact** | Before compaction (auto + manual) | Full session transcript (55s timeout) | `archive/projects/[name]/sessions/` | Enabled by default |
-| **UserPromptSubmit** | When you send a message | Your questions (JSON array) | `archive/projects/[name]/prompts/YYYY-MM-DD-prompts.json` | `c0ntextkeeper hooks enable userprompt` |
-| **PostToolUse** | After tool execution | Tool results + MCP tools (JSON array) | `archive/projects/[name]/patterns/YYYY-MM-DD-patterns.json` | `c0ntextkeeper hooks enable posttool` |
-| **Stop** | After Claude responds | Q&A exchanges (JSON array) | `archive/projects/[name]/knowledge/YYYY-MM-DD-knowledge.json` | `c0ntextkeeper hooks enable stop` |
+| **UserPromptSubmit** | When you send a message | Your questions (JSON array) | `archive/projects/[name]/prompts/` | `c0ntextkeeper hooks enable userprompt` |
+| **PostToolUse** | After tool execution | Tool results + MCP tools (JSON array) | `archive/projects/[name]/patterns/` | `c0ntextkeeper hooks enable posttool` |
+| **Stop** | After Claude responds | Q&A exchanges (JSON array) | `archive/projects/[name]/knowledge/` | `c0ntextkeeper hooks enable stop` |
+| **Notification** | On system notifications | Permission prompts, alerts, idle states | `archive/projects/[name]/notifications/` | `c0ntextkeeper hooks enable notification` |
+| **SessionStart** | When session begins | Session metadata, environment | `archive/projects/[name]/sessions-meta/` | `c0ntextkeeper hooks enable sessionstart` |
+| **SessionEnd** | When session ends | Duration, summary statistics | `archive/projects/[name]/sessions-meta/` | `c0ntextkeeper hooks enable sessionend` |
 
 ### Managing Hooks
 
@@ -308,6 +333,9 @@ c0ntextkeeper hooks list
 c0ntextkeeper hooks enable userprompt
 c0ntextkeeper hooks enable posttool
 c0ntextkeeper hooks enable stop
+c0ntextkeeper hooks enable notification
+c0ntextkeeper hooks enable sessionstart
+c0ntextkeeper hooks enable sessionend
 
 # View hook statistics
 c0ntextkeeper hooks stats
@@ -386,7 +414,10 @@ Each descriptively-named `.json` file in `sessions/` contains:
 
 ## Quick Reference Commands
 
-### Essential CLI Commands (v0.7.4)
+### Essential CLI Commands (v0.7.8)
+
+> **Note**: The CLI command is `c0ntextkeeper` (all lowercase with zero).
+> The project name is `c0ntextKeeper` (capital K), but commands are always lowercase.
 
 ```bash
 # Setup and Status
@@ -410,6 +441,8 @@ c0ntextkeeper hooks list          # Show all hooks and status
 c0ntextkeeper hooks enable Stop   # Enable additional hooks
 c0ntextkeeper hooks test PreCompact  # Test a specific hook
 ```
+
+📖 **For complete documentation of all 30 CLI commands with examples and outputs, see the [CLI Reference Guide](./cli-reference.md).**
 
 ### View Your Data
 
@@ -540,13 +573,18 @@ Very minimal! Archives are JSON text files:
 
 ### What hooks are available?
 
-c0ntextKeeper provides 4 hooks:
+c0ntextKeeper provides 7 hooks (4 core + 3 new in v0.7.7):
 1. **PreCompact** - Captures full context (enabled by default)
 2. **UserPromptSubmit** - Tracks your questions
 3. **PostToolUse** - Captures tool usage patterns
 4. **Stop** - Saves Q&A exchanges
+5. **Notification** - Captures alerts and warnings
+6. **SessionStart** - Records session lifecycle start
+7. **SessionEnd** - Captures session end with duration stats
 
 Run `c0ntextkeeper hooks list` to see their status.
+
+**Note**: SubagentStop hook was removed in v0.7.8 as Claude Code deprecated the SubagentStop event.
 
 ### How do I enable additional hooks?
 
@@ -738,7 +776,7 @@ cat ~/.claude/settings.json | grep -i project
 Run these commands to ensure everything is working:
 
 ```bash
-# 1. Check version (should be 0.7.4)
+# 1. Check version (should be 0.7.8)
 c0ntextkeeper --version
 
 # 2. Validate installation
@@ -762,8 +800,8 @@ ls -la ~/.c0ntextkeeper/archive/projects/
 
 - **Documentation**: See [README.md](../../README.md) and [Hook Integration](../technical/hook-integration.md)
 - **Troubleshooting**: See the comprehensive troubleshooting section above
-- **Issues**: https://github.com/yourusername/c0ntextKeeper/issues
+- **Issues**: https://github.com/Capnjbrown/c0ntextKeeper/issues
 - **Logs**: Check `~/.c0ntextkeeper/logs/hook.log`
-- **Version**: Current version is v0.7.4 with all improvements
+- **Version**: Current version is v0.7.8 with all improvements
 
 Remember: Everything is stored locally on your Mac in hidden directories. Use the commands above to access and manage your preserved context!

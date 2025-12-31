@@ -12,32 +12,72 @@ import { FileStore } from "../storage/file-store";
 import { ContextExtractor } from "../core/extractor";
 import { RelevanceScorer } from "../core/scorer";
 import { getStoragePath } from "../utils/path-resolver";
-import { getHookStoragePath } from "../utils/project-utils";
+import { writeHookData } from "../utils/hook-storage";
 import { isTestSession } from "../utils/test-helpers";
 import * as fs from "fs";
 import * as path from "path";
 
-// Debug logging utility - enhanced for production debugging
-const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === 'true';
+// Debug logging utility - enhanced for production debugging with log rotation
+const DEBUG = process.env.C0NTEXTKEEPER_DEBUG === "true";
 const FORCE_LOG = false; // Enable for debugging
+const MAX_LOG_SIZE = 5 * 1024 * 1024; // 5MB max per log file
+const MAX_LOG_FILES = 7; // Keep 7 days of logs
 
 const debugLog = (message: string, data?: any, forceLog = false) => {
   if (!DEBUG && !forceLog && !FORCE_LOG) return;
 
-  const logDir = path.join(process.env.HOME || '', '.c0ntextkeeper', 'debug');
+  const logDir = path.join(process.env.HOME || "", ".c0ntextkeeper", "debug");
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
   }
 
-  const logFile = path.join(logDir, `stop-${new Date().toISOString().split('T')[0]}.log`);
-  const timestamp = new Date().toISOString();
-  const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n\n`;
+  const logFile = path.join(
+    logDir,
+    `stop-${new Date().toISOString().split("T")[0]}.log`,
+  );
 
-  fs.appendFileSync(logFile, logEntry, 'utf-8');
+  // Log rotation: check size and rotate if needed
+  try {
+    if (fs.existsSync(logFile)) {
+      const stats = fs.statSync(logFile);
+      if (stats.size > MAX_LOG_SIZE) {
+        // Truncate to keep last 1MB
+        const content = fs.readFileSync(logFile, "utf-8");
+        const truncated = content.slice(-1024 * 1024);
+        fs.writeFileSync(
+          logFile,
+          `[LOG ROTATED - ${new Date().toISOString()}]\n\n${truncated}`,
+        );
+      }
+    }
+
+    // Cleanup old log files
+    const files = fs
+      .readdirSync(logDir)
+      .filter((f) => f.startsWith("stop-") && f.endsWith(".log"))
+      .sort()
+      .reverse();
+
+    // Remove files beyond retention limit
+    files.slice(MAX_LOG_FILES).forEach((f) => {
+      try {
+        fs.unlinkSync(path.join(logDir, f));
+      } catch {
+        // Ignore cleanup errors
+      }
+    });
+  } catch {
+    // Ignore rotation errors
+  }
+
+  const timestamp = new Date().toISOString();
+  const logEntry = `[${timestamp}] ${message}${data ? "\n" + JSON.stringify(data, null, 2) : ""}\n\n`;
+
+  fs.appendFileSync(logFile, logEntry, "utf-8");
 };
 
 interface StopHookInput {
-  hook_event_name: "Stop" | "stop" | "SubagentStop";
+  hook_event_name: "Stop" | "stop"; // SubagentStop removed in v0.7.8
   session_id: string;
   exchange: {
     user_prompt: string;
@@ -68,17 +108,17 @@ async function processExchange(input: StopHookInput): Promise<void> {
   // const extractor = new ContextExtractor();
   const scorer = new RelevanceScorer();
 
-  debugLog('processExchange called', {
+  debugLog("processExchange called", {
     session_id: input.session_id,
     hasExchange: !!input.exchange,
     hasTranscriptPath: !!(input as any).transcript_path,
     timestamp: input.timestamp,
-    isTest: isTestSession(input.session_id)
+    isTest: isTestSession(input.session_id),
   });
 
   // Filter out test sessions from production storage
   if (isTestSession(input.session_id)) {
-    debugLog('Skipping test session', { session_id: input.session_id });
+    debugLog("Skipping test session", { session_id: input.session_id });
     return; // Don't store test data in production folders
   }
 
@@ -130,8 +170,8 @@ async function processExchange(input: StopHookInput): Promise<void> {
       hasError,
     };
 
-    // Store in knowledge base as JSON for better readability
-    const dateString = new Date().toISOString().split("T")[0];
+    // Store in knowledge base as unique per-session JSON file
+    // Uses timestamped filenames like: 2025-12-29_1305_MT_abc12345-knowledge.json
     const workingDir = input.project_path || process.cwd();
 
     // Use proper storage resolution (respects env vars and storage hierarchy)
@@ -140,49 +180,20 @@ async function processExchange(input: StopHookInput): Promise<void> {
       createIfMissing: true,
     });
 
-    // Use unified project-based storage structure
-    const storagePath = getHookStoragePath(
+    // Write single Q&A pair to unique per-session file (no read-modify-write needed)
+    const storagePath = writeHookData(
       basePath,
       "knowledge",
       workingDir,
-      dateString,
-      "knowledge.json",
+      input.session_id,
+      qaPair,
     );
 
-    // Ensure directory exists
-    const dir = path.dirname(storagePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    // Read existing Q&A pairs or create new array
-    let qaPairs: QAPair[] = [];
-    if (fs.existsSync(storagePath)) {
-      try {
-        const existingData = fs.readFileSync(storagePath, "utf-8");
-        qaPairs = JSON.parse(existingData);
-        // Ensure it's an array
-        if (!Array.isArray(qaPairs)) {
-          qaPairs = [];
-        }
-      } catch {
-        // Failed to parse existing knowledge file
-        qaPairs = [];
-      }
-    }
-
-    // Add new Q&A pair to array
-    qaPairs.push(qaPair);
-
-    // Write back as formatted JSON
-    fs.writeFileSync(storagePath, JSON.stringify(qaPairs, null, 2), "utf-8");
-    
-    debugLog('Q&A pair stored successfully', {
+    debugLog("Q&A pair stored successfully", {
       storagePath,
-      qaPairsCount: qaPairs.length,
       relevanceScore: qaPair.relevanceScore,
       hasSolution,
-      hasError
+      hasError,
     });
 
     // If this solved a problem, also store in solutions index
@@ -272,12 +283,16 @@ async function indexSolution(
 // Main execution
 async function main() {
   // ALWAYS log hook start for production debugging
-  debugLog('Stop hook started at ' + new Date().toISOString(), {
-    pid: process.pid,
-    cwd: process.cwd(),
-    env_debug: process.env.C0NTEXTKEEPER_DEBUG,
-    argv: process.argv
-  }, true);
+  debugLog(
+    "Stop hook started at " + new Date().toISOString(),
+    {
+      pid: process.pid,
+      cwd: process.cwd(),
+      env_debug: process.env.C0NTEXTKEEPER_DEBUG,
+      argv: process.argv,
+    },
+    true,
+  );
 
   let input = "";
   let inputStartTime = Date.now();
@@ -285,79 +300,105 @@ async function main() {
   // Read from stdin
   process.stdin.on("data", (chunk) => {
     input += chunk;
-    debugLog('Receiving data chunk', { length: chunk.length }, true);
+    debugLog("Receiving data chunk", { length: chunk.length }, true);
   });
 
   process.stdin.on("end", async () => {
     const inputTime = Date.now() - inputStartTime;
-    debugLog('Input complete', {
-      length: input.length,
-      timeMs: inputTime,
-      preview: input.substring(0, 200)
-    }, true);
+    debugLog(
+      "Input complete",
+      {
+        length: input.length,
+        timeMs: inputTime,
+        preview: input.substring(0, 200),
+      },
+      true,
+    );
 
     if (!input) {
-      debugLog('No input provided, exiting', {}, true);
+      debugLog("No input provided, exiting", {}, true);
       process.exit(0);
     }
 
     // Log raw input for debugging
-    debugLog('Raw input received', { raw: input }, true);
+    debugLog("Raw input received", { raw: input }, true);
 
     try {
       const hookData = JSON.parse(input) as any; // Use any for now to see structure
-      
-      debugLog('Parsed hook data', {
+
+      debugLog("Parsed hook data", {
         hook_event_name: hookData.hook_event_name,
         session_id: hookData.session_id,
         hasExchange: !!hookData.exchange,
         hasTranscriptPath: !!hookData.transcript_path,
         hasUserPrompt: !!hookData.user_prompt,
         hasAssistantResponse: !!hookData.assistant_response,
-        keys: Object.keys(hookData)
+        keys: Object.keys(hookData),
       });
 
       // Validate hook event - be VERY flexible with event names
+      // NOTE: SubagentStop removed in v0.7.8 - Claude Code deprecated the event
       const validEvents = [
-        "Stop", "stop", "SubagentStop", "stop_hook", "StopHook",
-        "STOP", "stop-hook", "session_stop", "SessionStop"
+        "Stop",
+        "stop",
+        "stop_hook",
+        "StopHook",
+        "STOP",
+        "stop-hook",
+        "session_stop",
+        "SessionStop",
       ];
 
       // Also check if it has Q&A data without explicit event name
-      const hasQAData = (hookData.exchange || hookData.transcript_path ||
-                        (hookData.user_prompt && hookData.assistant_response));
+      const hasQAData =
+        hookData.exchange ||
+        hookData.transcript_path ||
+        (hookData.user_prompt && hookData.assistant_response);
 
-      if (!validEvents.some(event =>
-        hookData.hook_event_name?.toLowerCase() === event.toLowerCase()
-      ) && !hasQAData) {
-        debugLog('Not a Stop event', {
-          received: hookData.hook_event_name,
-          expected: validEvents,
-          hasQAData
-        }, true);
+      if (
+        !validEvents.some(
+          (event) =>
+            hookData.hook_event_name?.toLowerCase() === event.toLowerCase(),
+        ) &&
+        !hasQAData
+      ) {
+        debugLog(
+          "Not a Stop event",
+          {
+            received: hookData.hook_event_name,
+            expected: validEvents,
+            hasQAData,
+          },
+          true,
+        );
         process.exit(0);
       }
 
       // Check if exchange exists and has expected structure
       if (!hookData.exchange) {
-        debugLog('No exchange data, checking for transcript_path');
-        
+        debugLog("No exchange data, checking for transcript_path");
+
         // Claude Code sends transcript_path instead of exchange data
         if (hookData.transcript_path) {
-          debugLog('Reading transcript from', { path: hookData.transcript_path });
-          
+          debugLog("Reading transcript from", {
+            path: hookData.transcript_path,
+          });
+
           // Read the transcript and extract the last exchange
           try {
-            const transcriptData = fs.readFileSync(hookData.transcript_path, "utf-8");
+            const transcriptData = fs.readFileSync(
+              hookData.transcript_path,
+              "utf-8",
+            );
             const lines = transcriptData.trim().split("\n");
-            
-            debugLog('Transcript lines count', { count: lines.length });
-            
+
+            debugLog("Transcript lines count", { count: lines.length });
+
             let lastUserPrompt = "";
             let lastAssistantResponse = "";
             const toolsUsed: string[] = [];
             const filesModified: string[] = [];
-            
+
             // Parse JSONL to find last user prompt and assistant response
             for (const line of lines) {
               if (!line.trim()) continue;
@@ -370,9 +411,27 @@ async function main() {
                   lastUserPrompt = Array.isArray(entry.content)
                     ? entry.content.map((c: any) => c.text || "").join(" ")
                     : entry.content || "";
-                } else if (entry.type === "user" && entry.message?.role === "user") {
+                } else if (
+                  entry.type === "user" &&
+                  entry.message?.role === "user"
+                ) {
                   // New format (Claude Code v1.0.119+): type="user" with nested message
-                  lastUserPrompt = entry.message.content || "";
+                  // Content can be string OR array (with text/tool_result entries)
+                  const userContent = entry.message.content;
+                  if (typeof userContent === "string") {
+                    lastUserPrompt = userContent;
+                  } else if (Array.isArray(userContent)) {
+                    // Extract text from content array, skip tool_result entries
+                    const textParts = userContent
+                      .filter((c: any) => c.type === "text" && c.text)
+                      .map((c: any) => c.text);
+                    if (textParts.length > 0) {
+                      lastUserPrompt = textParts.join(" ");
+                    }
+                    // Don't overwrite with empty if we only have tool_result
+                  } else {
+                    lastUserPrompt = userContent || "";
+                  }
                 }
 
                 // Extract assistant response - handle both old and new formats
@@ -382,17 +441,23 @@ async function main() {
                     lastAssistantResponse = Array.isArray(entry.content)
                       ? entry.content.map((c: any) => c.text || "").join(" ")
                       : entry.content || "";
-                  } else if (entry.message?.role === "assistant" && entry.message?.content) {
+                  } else if (
+                    entry.message?.role === "assistant" &&
+                    entry.message?.content
+                  ) {
                     // New format: type="assistant" with nested message.content array
                     const content = entry.message.content;
                     if (Array.isArray(content)) {
-                      // Extract text from content array, skip "thinking" entries
-                      lastAssistantResponse = content
-                        .filter((c: any) => c.type === "text")
-                        .map((c: any) => c.text || "")
-                        .join(" ");
-                    } else {
-                      lastAssistantResponse = content || "";
+                      // Extract text from content array, skip "thinking" and "tool_use" entries
+                      const textParts = content
+                        .filter((c: any) => c.type === "text" && c.text)
+                        .map((c: any) => c.text);
+                      // Only update if we found actual text (don't overwrite with empty)
+                      if (textParts.length > 0) {
+                        lastAssistantResponse = textParts.join(" ");
+                      }
+                    } else if (typeof content === "string" && content) {
+                      lastAssistantResponse = content;
                     }
                   }
                 }
@@ -401,23 +466,25 @@ async function main() {
                 if (entry.type === "tool_use" || entry.name === "tool_use") {
                   toolsUsed.push(entry.tool || entry.name || "unknown");
                   if (entry.input?.file_path || entry.input?.path) {
-                    filesModified.push(entry.input.file_path || entry.input.path);
+                    filesModified.push(
+                      entry.input.file_path || entry.input.path,
+                    );
                   }
                 }
               } catch {
                 // Skip invalid JSON lines
               }
             }
-            
+
             // Create exchange from extracted data
             if (lastUserPrompt && lastAssistantResponse) {
-              debugLog('Extracted Q&A from transcript', {
+              debugLog("Extracted Q&A from transcript", {
                 promptLength: lastUserPrompt.length,
                 responseLength: lastAssistantResponse.length,
                 toolsCount: toolsUsed.length,
-                filesCount: filesModified.length
+                filesCount: filesModified.length,
               });
-              
+
               hookData.exchange = {
                 user_prompt: lastUserPrompt,
                 assistant_response: lastAssistantResponse,
@@ -425,20 +492,20 @@ async function main() {
                 files_modified: [...new Set(filesModified)],
               };
             } else {
-              debugLog('No complete Q&A exchange found in transcript');
+              debugLog("No complete Q&A exchange found in transcript");
               // No complete Q&A exchange found in transcript
               process.exit(0);
             }
           } catch (error) {
-            debugLog('Failed to read transcript', {
-              error: error instanceof Error ? error.message : 'Unknown error'
+            debugLog("Failed to read transcript", {
+              error: error instanceof Error ? error.message : "Unknown error",
             });
             // Failed to read transcript
             process.exit(0);
           }
         } else if (hookData.user_prompt && hookData.assistant_response) {
-          debugLog('Using flat structure for exchange data');
-          
+          debugLog("Using flat structure for exchange data");
+
           // Support flat structure for backward compatibility
           hookData.exchange = {
             user_prompt: hookData.user_prompt,
@@ -447,7 +514,7 @@ async function main() {
             files_modified: hookData.files_modified,
           };
         } else {
-          debugLog('Missing exchange data in hook input');
+          debugLog("Missing exchange data in hook input");
           // Missing exchange data in hook input
           process.exit(0);
         }
@@ -456,11 +523,15 @@ async function main() {
       await processExchange(hookData as StopHookInput);
       process.exit(0);
     } catch (error) {
-      debugLog('Failed to parse input', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-        input: input.substring(0, 500)
-      }, true);
+      debugLog(
+        "Failed to parse input",
+        {
+          error: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : undefined,
+          input: input.substring(0, 500),
+        },
+        true,
+      );
 
       console.error(
         JSON.stringify({

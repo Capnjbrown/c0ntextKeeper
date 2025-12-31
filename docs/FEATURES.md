@@ -62,6 +62,8 @@ These features work automatically after running `c0ntextkeeper setup`. No additi
 
 ## 🎣 Hook System
 
+> **📝 Note**: Storage directories are created **on-demand** when hooks are enabled and triggered. Only `sessions/` exists by default (PreCompact is enabled). Other directories (`knowledge/`, `patterns/`, `prompts/`, `notifications/`, `sessions-meta/`) appear when you enable their respective hooks.
+
 ### PreCompact Hook (Default: ✅ Enabled)
 
 **Trigger**: Before Claude Code compaction (manual `/compact` or automatic)
@@ -144,6 +146,78 @@ c0ntextkeeper hooks enable posttooluse
 **Enable**:
 ```bash
 c0ntextkeeper hooks enable userpromptsubmit
+```
+
+---
+
+### Notification Hook (Default: ⭕ Disabled)
+
+**Trigger**: When Claude Code sends notifications (toast messages, alerts, progress updates)
+
+**Captures**:
+- Notification type and severity (info, warning, error, success)
+- Notification message content
+- Timestamp
+- Associated session context
+- Project path
+
+**Storage**: `~/.c0ntextkeeper/archive/projects/[name]/notifications/YYYY-MM-DD-notifications.json`
+
+**Value**: ⭐⭐ (Useful for tracking warnings and alerts during development)
+
+**Enable**:
+```bash
+c0ntextkeeper hooks enable notification
+```
+
+---
+
+### SubagentStop Hook (REMOVED in v0.7.8)
+
+> **Note**: SubagentStop was removed because Claude Code does not send the required fields (`subagent_type`, `tools_used`, `transcript`). All captured data showed `"unknown"` types and empty tools arrays, making the feature non-functional.
+
+---
+
+### SessionStart Hook (Default: ⭕ Disabled)
+
+**Trigger**: When a new Claude Code session begins
+
+**Captures**:
+- Session start timestamp
+- Project path and name
+- Working directory
+- Initial environment context
+- Session identifier
+
+**Storage**: `~/.c0ntextkeeper/archive/projects/[name]/sessions-meta/YYYY-MM-DD-sessions.json`
+
+**Value**: ⭐⭐ (Useful for session lifecycle tracking and analytics)
+
+**Enable**:
+```bash
+c0ntextkeeper hooks enable sessionstart
+```
+
+---
+
+### SessionEnd Hook (Default: ⭕ Disabled)
+
+**Trigger**: When a Claude Code session ends (user exits or session timeout)
+
+**Captures**:
+- Session end timestamp
+- Session duration
+- Summary of tools used
+- Files modified count
+- Session identifier (for pairing with SessionStart)
+
+**Storage**: `~/.c0ntextkeeper/archive/projects/[name]/sessions-meta/YYYY-MM-DD-sessions.json`
+
+**Value**: ⭐⭐ (Useful for session lifecycle tracking and analytics)
+
+**Enable**:
+```bash
+c0ntextkeeper hooks enable sessionend
 ```
 
 ---
@@ -368,21 +442,24 @@ c0ntextkeeper server          # Start MCP server (for testing)
 │           │   └── YYYY-MM-DD-patterns.json
 │           ├── prompts/        # UserPromptSubmit hook data
 │           │   └── YYYY-MM-DD-prompts.json
+│           ├── notifications/  # Notification hook data (v0.7.7)
+│           │   └── YYYY-MM-DD-notifications.json
+│           ├── sessions-meta/  # SessionStart/End hook data (v0.7.7)
+│           │   └── YYYY-MM-DD-sessions.json
 │           ├── test/           # Test data (auto-filtered)
 │           ├── index.json      # Project session index
 │           ├── README.md       # Analytics dashboard
 │           └── search-index.json # Search inverted index
-├── solutions/
-│   └── index.json              # Global solutions index
-├── errors/
-│   └── YYYY-MM-DD-errors.json  # Error pattern tracking
 ├── config.json                 # Configuration settings
 ├── index.json                  # Global project index
 └── debug/                      # Debug logs (when enabled)
     ├── precompact-YYYY-MM-DD.log
     ├── stop-YYYY-MM-DD.log
     ├── posttool-YYYY-MM-DD.log
-    └── userprompt-YYYY-MM-DD.log
+    ├── userprompt-YYYY-MM-DD.log
+    ├── notification-YYYY-MM-DD.log
+    ├── sessionstart-YYYY-MM-DD.log
+    └── sessionend-YYYY-MM-DD.log
 ```
 
 ---

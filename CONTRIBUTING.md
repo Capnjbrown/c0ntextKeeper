@@ -1,5 +1,7 @@
 # Contributing to c0ntextKeeper
 
+> Last Updated: 2025-12-29 | v0.7.8
+
 First off, thank you for considering contributing to c0ntextKeeper! It's people like you that make c0ntextKeeper such a great tool for the Claude Code community.
 
 ## Code of Conduct
@@ -55,6 +57,8 @@ Unsure where to begin? Look for issues labeled:
 git clone https://github.com/<your-username>/c0ntextKeeper.git
 cd c0ntextKeeper
 
+# Note: CLI command is c0ntextkeeper (lowercase), not c0ntextKeeper
+
 # Install dependencies
 npm install
 
@@ -87,13 +91,15 @@ c0ntextKeeper/
 
 ## Testing
 
-We use Jest for testing. Please ensure:
+We use Jest for testing (483 tests, 100% pass rate). Please ensure:
 
 - **Write unit tests** for new functions/classes
 - **Write integration tests** for new features
-- **Maintain >80% code coverage**
+- **Maintain test quality** - All 483 tests passing (100% pass rate, 23% code coverage)
+- **Help expand coverage** - Untested modules: hooks (0%), CLI (0%), file-store (4.8%)
 - **Use descriptive test names**
-- **Test with Claude Code format** - Use content arrays, not strings (v0.5.0+)
+- **Test with Claude Code format** - Use content arrays, not strings
+- **Test all 7 hooks** - PreCompact, Stop, PostToolUse, UserPromptSubmit, Notification, SessionStart, SessionEnd
 
 Example test (v0.5.0+ Claude Code format):
 ```typescript
@@ -198,6 +204,6 @@ Contributors will be:
 Feel free to:
 - Open a GitHub Discussion
 - Ask in our Discord
-- Email maintainers (Note: maintainers@c0ntextkeeper.com is a placeholder)
+- Email maintainers at **admin@c0ntextkeeper.com**
 
 Thank you for contributing to c0ntextKeeper! 🎉

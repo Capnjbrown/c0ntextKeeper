@@ -6,7 +6,7 @@
 
 ## Overview
 
-c0ntextKeeper uses **4 Claude Code hooks** to capture different aspects of your development session:
+c0ntextKeeper uses **7 Claude Code hooks** to capture different aspects of your development session:
 
 | Hook | Default | Trigger | Value | Coverage |
 |------|---------|---------|-------|----------|
@@ -14,6 +14,9 @@ c0ntextKeeper uses **4 Claude Code hooks** to capture different aspects of your 
 | Stop | ⭕ Disabled | After response | ⭐⭐⭐ | Q&A pairs |
 | PostToolUse | ⭕ Disabled | Every tool | ⭐⭐⭐⭐ | Tool patterns |
 | UserPromptSubmit | ⭕ Disabled | Every prompt | ⭐⭐ | User behavior |
+| Notification | ⭕ Disabled | On notification | ⭐⭐ | Alerts/warnings |
+| SessionStart | ⭕ Disabled | Session begins | ⭐⭐ | Session lifecycle |
+| SessionEnd | ⭕ Disabled | Session ends | ⭐⭐ | Session lifecycle |
 
 **Recommendation**: Start with PreCompact alone. Add others as needed for specific use cases.
 
@@ -150,7 +153,7 @@ Example:
     "tests/auth.test.ts"
   ],
   "relevanceScore": 0.85,
-  "extractionVersion": "0.7.5.1",
+  "extractionVersion": "0.7.8",
   "securityFiltered": true,
   "redactedCount": 2
 }
@@ -548,6 +551,226 @@ c0ntextkeeper hooks enable userpromptsubmit
 
 ---
 
+## Notification Hook
+
+### What It Does
+
+Captures **notifications** sent by Claude Code, including alerts, warnings, success messages, and progress updates. Useful for tracking development warnings and system alerts.
+
+### When It Triggers
+
+When Claude Code sends a notification event (toast messages, alerts, progress updates).
+
+### What It Captures
+
+Example notification capture:
+```json
+{
+  "sessionId": "session-abc123",
+  "timestamp": "2025-12-23T14:30:00Z",
+  "projectPath": "/Users/dev/my-project",
+  "type": "warning",
+  "severity": "medium",
+  "message": "File not found: config.json - using defaults",
+  "context": {
+    "tool": "Read",
+    "file": "config.json"
+  }
+}
+```
+
+### Storage Location
+
+```
+~/.c0ntextkeeper/archive/projects/[project-name]/notifications/
+├── 2025-12-23-notifications.json   # Array of notifications
+├── 2025-12-24-notifications.json
+└── 2025-12-25-notifications.json
+```
+
+### Performance
+
+- **Processing time**: <5 seconds
+- **Average**: <100ms per notification
+- **Non-blocking**: Never delays notification delivery
+
+### Configuration
+
+```json
+{
+  "hooks": {
+    "notification": {
+      "enabled": false,
+      "severityFilter": ["warning", "error"]  // Optional: filter by severity
+    }
+  }
+}
+```
+
+### Enable
+
+```bash
+c0ntextkeeper hooks enable notification
+```
+
+### Use Cases
+
+- **Warning Tracking**: Monitor development warnings
+- **Alert History**: Track system alerts over time
+- **Issue Detection**: Identify recurring problems
+- **Debug Context**: Understand what happened before errors
+
+---
+
+## SubagentStop Hook (REMOVED in v0.7.8)
+
+> **Note**: The SubagentStop hook was removed in v0.7.8 because Claude Code does not send the required fields (`subagent_type`, `tools_used`, `transcript`). This made the feature non-functional. See CHANGELOG.md for details.
+
+---
+
+## SessionStart Hook
+
+### What It Does
+
+Captures **session start events** to track when Claude Code sessions begin. Provides context about the development environment at session start.
+
+### When It Triggers
+
+When a new Claude Code session begins.
+
+### What It Captures
+
+Example session start capture:
+```json
+{
+  "sessionId": "session-abc123",
+  "timestamp": "2025-12-23T09:00:00Z",
+  "projectPath": "/Users/dev/my-project",
+  "projectName": "my-project",
+  "workingDirectory": "/Users/dev/my-project",
+  "environment": {
+    "nodeVersion": "20.10.0",
+    "platform": "darwin"
+  }
+}
+```
+
+### Storage Location
+
+```
+~/.c0ntextkeeper/archive/projects/[project-name]/sessions-meta/
+├── 2025-12-23-sessions.json   # Array of session lifecycle events
+├── 2025-12-24-sessions.json
+└── 2025-12-25-sessions.json
+```
+
+### Performance
+
+- **Processing time**: <5 seconds
+- **Average**: <100ms per session start
+- **Non-blocking**: Never delays session initialization
+
+### Configuration
+
+```json
+{
+  "hooks": {
+    "sessionStart": {
+      "enabled": false,
+      "captureEnvironment": true  // Include environment details
+    }
+  }
+}
+```
+
+### Enable
+
+```bash
+c0ntextkeeper hooks enable sessionstart
+```
+
+### Use Cases
+
+- **Session Tracking**: Know when sessions start
+- **Duration Analysis**: Pair with SessionEnd for duration metrics
+- **Environment Context**: Track development environment changes
+- **Usage Analytics**: Understand development patterns
+
+---
+
+## SessionEnd Hook
+
+### What It Does
+
+Captures **session end events** to track when Claude Code sessions terminate. Provides session duration and summary statistics.
+
+### When It Triggers
+
+When a Claude Code session ends (user exits, timeout, or explicit end).
+
+### What It Captures
+
+Example session end capture:
+```json
+{
+  "sessionId": "session-abc123",
+  "timestamp": "2025-12-23T17:30:00Z",
+  "projectPath": "/Users/dev/my-project",
+  "projectName": "my-project",
+  "duration": 30600000,
+  "durationFormatted": "8h 30m",
+  "summary": {
+    "toolsUsed": ["Write", "Edit", "Bash", "Read"],
+    "filesModified": 12,
+    "questionsAsked": 15,
+    "responsesGenerated": 15
+  }
+}
+```
+
+### Storage Location
+
+```
+~/.c0ntextkeeper/archive/projects/[project-name]/sessions-meta/
+├── 2025-12-23-sessions.json   # Array of session lifecycle events
+├── 2025-12-24-sessions.json
+└── 2025-12-25-sessions.json
+```
+
+### Performance
+
+- **Processing time**: <5 seconds
+- **Average**: <200ms per session end
+- **Non-blocking**: Never delays session termination
+
+### Configuration
+
+```json
+{
+  "hooks": {
+    "sessionEnd": {
+      "enabled": false,
+      "captureSummary": true  // Include session summary statistics
+    }
+  }
+}
+```
+
+### Enable
+
+```bash
+c0ntextkeeper hooks enable sessionend
+```
+
+### Use Cases
+
+- **Duration Tracking**: Measure session lengths
+- **Productivity Analysis**: Understand work patterns
+- **Tool Usage**: See which tools used most per session
+- **Session Pairing**: Pair with SessionStart for complete lifecycle
+
+---
+
 ## Hook Management
 
 ### List All Hooks
@@ -723,6 +946,8 @@ After enabling new hooks or migrating data.
 
 ## Hook Comparison
 
+### Original Hooks (v0.7.4)
+
 | Feature | PreCompact | Stop | PostToolUse | UserPromptSubmit |
 |---------|------------|------|-------------|------------------|
 | **Default** | ✅ Enabled | ⭕ Disabled | ⭕ Disabled | ⭕ Disabled |
@@ -733,6 +958,20 @@ After enabling new hooks or migrating data.
 | **Overhead** | Low (1-2/day) | Medium (~20-50/day) | High (100-500/day) | Medium (~20-50/day) |
 | **Use Case** | Context preservation | Knowledge base | Tool analytics | Behavior analysis |
 
+### New Hooks (v0.7.7)
+
+| Feature | Notification | SessionStart | SessionEnd |
+|---------|--------------|--------------|------------|
+| **Default** | ⭕ Disabled | ⭕ Disabled | ⭕ Disabled |
+| **Frequency** | Per notification | Per session | Per session |
+| **Coverage** | Alerts/warnings | Session start | Session end |
+| **Storage** | notifications/ | sessions-meta/ | sessions-meta/ |
+| **Value** | ⭐⭐ | ⭐⭐ | ⭐⭐ |
+| **Overhead** | Low (~5-10/day) | Low (1/session) | Low (1/session) |
+| **Use Case** | Alert tracking | Lifecycle tracking | Lifecycle tracking |
+
 ---
+
+*Last Updated: 2025-12-26 | c0ntextKeeper v0.7.8*
 
 **Next**: Learn about [MCP Tools](./MCP-TOOLS.md) to query your archived context!

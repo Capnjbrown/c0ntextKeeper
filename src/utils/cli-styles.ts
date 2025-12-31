@@ -3,7 +3,7 @@
  * Centralized styling for consistent, beautiful CLI output
  */
 
-import chalk from 'chalk';
+import chalk from "chalk";
 
 /**
  * Semantic color styles for different types of output
@@ -36,20 +36,20 @@ export const styles = {
 
   // Icons (with fallback for Windows)
   icons: {
-    success: process.platform === 'win32' ? '[OK]' : '✅',
-    error: process.platform === 'win32' ? '[X]' : '❌',
-    warning: process.platform === 'win32' ? '[!]' : '⚠️',
-    info: process.platform === 'win32' ? '[i]' : 'ℹ️',
-    bullet: process.platform === 'win32' ? '*' : '•',
-    arrow: process.platform === 'win32' ? '->' : '→',
-    check: process.platform === 'win32' ? '[v]' : '✓',
-    folder: process.platform === 'win32' ? '[D]' : '📁',
-    file: process.platform === 'win32' ? '[F]' : '📄',
-    chart: process.platform === 'win32' ? '[#]' : '📊',
-    clipboard: process.platform === 'win32' ? '[C]' : '📋',
-    search: process.platform === 'win32' ? '[S]' : '🔍',
-    sparkles: process.platform === 'win32' ? '*' : '✨'
-  }
+    success: process.platform === "win32" ? "[OK]" : "✅",
+    error: process.platform === "win32" ? "[X]" : "❌",
+    warning: process.platform === "win32" ? "[!]" : "⚠️",
+    info: process.platform === "win32" ? "[i]" : "ℹ️",
+    bullet: process.platform === "win32" ? "*" : "•",
+    arrow: process.platform === "win32" ? "->" : "→",
+    check: process.platform === "win32" ? "[v]" : "✓",
+    folder: process.platform === "win32" ? "[D]" : "📁",
+    file: process.platform === "win32" ? "[F]" : "📄",
+    chart: process.platform === "win32" ? "[#]" : "📊",
+    clipboard: process.platform === "win32" ? "[C]" : "📋",
+    search: process.platform === "win32" ? "[S]" : "🔍",
+    sparkles: process.platform === "win32" ? "*" : "✨",
+  },
 };
 
 /**
@@ -80,7 +80,7 @@ export const formatInfo = (message: string): string =>
  * Format a header with divider lines
  */
 export const formatHeader = (title: string, width = 50): string => {
-  const line = '─'.repeat(width);
+  const line = "─".repeat(width);
   return `\n${styles.dim(line)}\n${styles.header(title)}\n${styles.dim(line)}`;
 };
 
@@ -95,40 +95,49 @@ export const formatSubheader = (title: string): string => {
  * Format a key-value pair
  */
 export const formatKeyValue = (key: string, value: string | number): string =>
-  `${styles.dim(key + ':')} ${styles.info(value.toString())}`;
+  `${styles.dim(key + ":")} ${styles.info(value.toString())}`;
 
 /**
  * Format a table of key-value pairs with proper alignment
  */
-export const formatTable = (rows: Array<[string, string | number]>, indent = 2): string => {
+export const formatTable = (
+  rows: Array<[string, string | number]>,
+  indent = 2,
+): string => {
   const maxKeyLength = Math.max(...rows.map(([k]) => k.length));
-  const indentStr = ' '.repeat(indent);
+  const indentStr = " ".repeat(indent);
   return rows
-    .map(([key, value]) =>
-      `${indentStr}${styles.dim(key.padEnd(maxKeyLength))} ${styles.info(value.toString())}`)
-    .join('\n');
+    .map(
+      ([key, value]) =>
+        `${indentStr}${styles.dim(key.padEnd(maxKeyLength))} ${styles.info(value.toString())}`,
+    )
+    .join("\n");
 };
 
 /**
  * Format a list with bullets
  */
 export const formatList = (items: string[], indent = 2): string => {
-  const indentStr = ' '.repeat(indent);
+  const indentStr = " ".repeat(indent);
   return items
-    .map(item => `${indentStr}${styles.dim(styles.icons.bullet)} ${item}`)
-    .join('\n');
+    .map((item) => `${indentStr}${styles.dim(styles.icons.bullet)} ${item}`)
+    .join("\n");
 };
 
 /**
  * Format a progress indicator
  */
-export const formatProgress = (current: number, total: number, label?: string): string => {
+export const formatProgress = (
+  current: number,
+  total: number,
+  label?: string,
+): string => {
   const percentage = Math.round((current / total) * 100);
   const filled = Math.round((current / total) * 20);
   const empty = 20 - filled;
-  const bar = `[${'='.repeat(filled)}${' '.repeat(empty)}]`;
-  const labelStr = label ? ` ${label}` : '';
-  return `${styles.dim(bar)} ${styles.number(percentage + '%')}${labelStr}`;
+  const bar = `[${"=".repeat(filled)}${" ".repeat(empty)}]`;
+  const labelStr = label ? ` ${label}` : "";
+  return `${styles.dim(bar)} ${styles.number(percentage + "%")}${labelStr}`;
 };
 
 /**
@@ -143,7 +152,7 @@ export const formatPath = (path: string, isDir = false): string => {
  * Format a timestamp in readable format
  */
 export const formatTimestamp = (date: Date | string): string => {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = typeof date === "string" ? new Date(date) : date;
   return styles.timestamp(d.toLocaleString());
 };
 
@@ -151,10 +160,13 @@ export const formatTimestamp = (date: Date | string): string => {
  * Format statistics with proper styling
  */
 export const formatStats = (stats: Record<string, number | string>): string => {
-  const rows = Object.entries(stats).map(([key, value]) => [
-    key.replace(/([A-Z])/g, ' $1').trim(), // Convert camelCase to readable
-    value
-  ] as [string, string | number]);
+  const rows = Object.entries(stats).map(
+    ([key, value]) =>
+      [
+        key.replace(/([A-Z])/g, " $1").trim(), // Convert camelCase to readable
+        value,
+      ] as [string, string | number],
+  );
   return formatTable(rows);
 };
 
@@ -162,13 +174,13 @@ export const formatStats = (stats: Record<string, number | string>): string => {
  * Create a colored box around text
  */
 export const formatBox = (content: string, color = chalk.cyan): string => {
-  const lines = content.split('\n');
-  const maxLength = Math.max(...lines.map(l => l.length));
-  const top = `┌${'─'.repeat(maxLength + 2)}┐`;
-  const bottom = `└${'─'.repeat(maxLength + 2)}┘`;
-  const middle = lines.map(line =>
-    `│ ${line.padEnd(maxLength)} │`
-  ).join('\n');
+  const lines = content.split("\n");
+  const maxLength = Math.max(...lines.map((l) => l.length));
+  const top = `┌${"─".repeat(maxLength + 2)}┐`;
+  const bottom = `└${"─".repeat(maxLength + 2)}┘`;
+  const middle = lines
+    .map((line) => `│ ${line.padEnd(maxLength)} │`)
+    .join("\n");
 
   return color(`${top}\n${middle}\n${bottom}`);
 };
@@ -176,7 +188,10 @@ export const formatBox = (content: string, color = chalk.cyan): string => {
 /**
  * Format command usage examples
  */
-export const formatCommand = (command: string, description?: string): string => {
+export const formatCommand = (
+  command: string,
+  description?: string,
+): string => {
   const cmd = styles.command(`$ ${command}`);
   if (description) {
     return `${cmd}\n  ${styles.dim(description)}`;
@@ -187,6 +202,7 @@ export const formatCommand = (command: string, description?: string): string => 
 /**
  * Spinner characters for loading animations (if needed)
  */
-export const spinnerFrames = process.platform === 'win32'
-  ? ['-', '\\', '|', '/']
-  : ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+export const spinnerFrames =
+  process.platform === "win32"
+    ? ["-", "\\", "|", "/"]
+    : ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];

@@ -23,8 +23,12 @@ test-transcript-*.jsonl
 .env.test
 .env.production
 
-# Claude Code CLI
+# Claude Code CLI (private development configuration)
+CLAUDE.md
 CLAUDE.local.md
+.claude/settings.local.json
+.claude/plugins/*/skills/
+.mcp.json
 
 # IDE
 .vscode/
@@ -55,6 +59,7 @@ pids
 tmp/
 temp/
 *.tmp
+*.backup
 
 # Archive data (for local testing)
 ~/.c0ntextkeeper/
@@ -63,3 +68,4 @@ temp/
 # OS files
 .DS_Store
 Thumbs.db
+.c0ntextkeeper.backup/

@@ -12,17 +12,32 @@ function findProjectRoot(startPath: string): string | null {
 
   // Common subdirectory names that should never be project names
   const invalidProjectNames = new Set([
-    'scripts', 'src', 'dist', 'lib', 'bin', 'test', 'tests',
-    'docs', 'build', 'out', 'tmp', 'temp', 'node_modules',
-    '.git', '.vscode', '.idea', 'coverage', '__tests__'
+    "scripts",
+    "src",
+    "dist",
+    "lib",
+    "bin",
+    "test",
+    "tests",
+    "docs",
+    "build",
+    "out",
+    "tmp",
+    "temp",
+    "node_modules",
+    ".git",
+    ".vscode",
+    ".idea",
+    "coverage",
+    "__tests__",
   ]);
 
   while (currentPath !== root) {
     // Check for project indicators
     if (
-      fs.existsSync(path.join(currentPath, 'package.json')) ||
-      fs.existsSync(path.join(currentPath, '.git')) ||
-      fs.existsSync(path.join(currentPath, '.c0ntextkeeper'))
+      fs.existsSync(path.join(currentPath, "package.json")) ||
+      fs.existsSync(path.join(currentPath, ".git")) ||
+      fs.existsSync(path.join(currentPath, ".c0ntextkeeper"))
     ) {
       // Make sure the basename isn't an invalid project name
       const basename = path.basename(currentPath);
@@ -64,7 +79,7 @@ export function getProjectName(workingDir: string): string {
     // If no project root found, use the original directory basename
     // but only if it's not a common subdirectory name
     const fallbackName = path.basename(workingDir);
-    const invalidNames = ['scripts', 'src', 'dist', 'lib', 'test', 'tests'];
+    const invalidNames = ["scripts", "src", "dist", "lib", "test", "tests"];
 
     if (
       fallbackName &&
@@ -93,7 +108,7 @@ export function getProjectName(workingDir: string): string {
  */
 export function getHookStoragePath(
   basePath: string,
-  hookType: "sessions" | "knowledge" | "patterns" | "prompts",
+  hookType: "sessions" | "knowledge" | "patterns" | "prompts" | "notifications" | "subagents" | "sessions-meta",
   workingDir: string,
   dateString: string,
   fileName: string,
@@ -126,6 +141,9 @@ export function ensureProjectArchiveStructure(
   knowledgePath: string;
   patternsPath: string;
   promptsPath: string;
+  notificationsPath: string;
+  subagentsPath: string;
+  sessionsMetaPath: string;
 } {
   const projectName = getProjectName(workingDir);
   const projectPath = path.join(
@@ -143,5 +161,8 @@ export function ensureProjectArchiveStructure(
     knowledgePath: path.join(projectPath, "knowledge"),
     patternsPath: path.join(projectPath, "patterns"),
     promptsPath: path.join(projectPath, "prompts"),
+    notificationsPath: path.join(projectPath, "notifications"),
+    subagentsPath: path.join(projectPath, "subagents"),
+    sessionsMetaPath: path.join(projectPath, "sessions-meta"),
   };
 }

@@ -1,18 +1,102 @@
 # c0ntextKeeper Migration Guide
 
-> Last Updated: 2025-10-06 for v0.7.5.1 (Documentation Audit Complete)
+> Last Updated: 2025-12-26 for v0.7.8
+
+## v0.7.7 to v0.7.8 Migration
+
+### Overview
+Version 0.7.8 removes the SubagentStop hook as Claude Code deprecated the SubagentStop event. This is a minor cleanup release with no breaking changes.
+
+### Key Changes
+- **7 Hooks Total**: Removed SubagentStop hook (deprecated by Claude Code)
+- **6 Storage Categories**: Removed subagents/ directory
+
+---
+
+## v0.7.6 to v0.7.7 Migration
+
+### Overview
+Version 0.7.7 added 3 new Claude Code hooks for expanded hook coverage and introduced 2 new storage categories. This was a significant feature release with no breaking changes.
+
+### Key Features
+- **7 Hooks Total**: Added Notification, SessionStart, SessionEnd hooks
+- **6 Storage Categories**: Added notifications/, sessions-meta/ directories
+- **187 Semantic Patterns**: Verified pattern count (116 problem + 41 request + 23 solution + 7 decision)
+- **100% Test Pass Rate**: All 483 tests passing (23% code coverage)
+- **8 Specialized Agents**: Pre-built audit agents for development workflow
+
+### New Hooks Available (v0.7.7)
+
+| Hook | Purpose | Storage |
+|------|---------|---------|
+| Notification | Capture alerts and warnings | notifications/ |
+| SessionStart | Session lifecycle start | sessions-meta/ |
+| SessionEnd | Session lifecycle end | sessions-meta/ |
+
+### Migration Steps
+
+#### Step 1: Update Package
+```bash
+npm update -g c0ntextkeeper@latest
+```
+
+#### Step 2: Rebuild (if from source)
+```bash
+npm run build
+```
+
+#### Step 3: Enable New Hooks (Optional)
+```bash
+# Enable any of the new hooks
+c0ntextkeeper hooks enable notification
+c0ntextkeeper hooks enable sessionstart
+c0ntextkeeper hooks enable sessionend
+
+# Or enable all at once
+c0ntextkeeper hooks enable all
+```
+
+#### Step 4: Verify
+```bash
+# Check version
+c0ntextkeeper --version
+# Should show: 0.7.7
+
+# Verify all 7 hooks are available
+c0ntextkeeper hooks list
+
+# Run health check
+c0ntextkeeper hooks health
+```
+
+### New Storage Directories
+v0.7.7 automatically creates these new directories as needed:
+```
+~/.c0ntextkeeper/archive/projects/[name]/
+├── notifications/    # Notification hook data
+└── sessions-meta/    # SessionStart/End lifecycle data
+```
+
+### No Breaking Changes
+Version 0.7.7 maintains full backward compatibility:
+- All existing archives remain valid
+- Existing hooks continue to work unchanged
+- Storage architecture unchanged for existing categories
+- All CLI commands work as before
+
+---
 
 ## v0.7.4 to v0.7.5+ Migration
 
 ### Overview
-Version 0.7.5 introduces search indexing with inverted index for O(1) lookups, beautiful CLI styling with chalk, and comprehensive test suite improvements. Version 0.7.5.1 dramatically improves CLI output quality with 3-10x truncation limit increases.
+Version 0.7.5 introduces search indexing with inverted index for O(1) lookups, beautiful CLI styling with chalk, and comprehensive test suite improvements. Version 0.7.6 dramatically improves CLI output quality with 3-10x truncation limit increases.
 
 ### Key Improvements
 - **Search Indexing**: O(1) keyword lookups with inverted index
 - **CLI Styling**: Beautiful output with chalk semantic colors
 - **Test Coverage**: Improved from 95.9% to 99.5% (196/197 tests)
-- **Pattern Count**: Verified 187 semantic patterns via code audit
-- **Truncation Limits**: 3-10x increases for complete context visibility (v0.7.5.1)
+- **Pattern Count**: Verified 180 semantic patterns via code audit
+- **Truncation Limits**: 3-10x increases for complete context visibility (v0.7.6)
 
 ### Migration Steps
 
@@ -442,7 +526,7 @@ message?: {
 ### Support
 
 If you encounter issues during migration:
-1. Check the [GitHub Issues](https://github.com/yourusername/c0ntextKeeper/issues)
+1. Check the [GitHub Issues](https://github.com/Capnjbrown/c0ntextKeeper/issues)
 2. Review test scripts in `/scripts` for examples
 3. Run diagnostic scripts:
    - `scripts/test-extraction.js` - Test basic extraction
@@ -461,7 +545,7 @@ After successful migration:
 
 ## Future Versions
 
-### v0.7.4 (Planned)
+### v0.8.0 (Planned)
 - Vector database integration for semantic search
 - Enhanced pattern recognition
 - Multi-project context sharing
@@ -470,7 +554,9 @@ After successful migration:
 - Production-ready release
 - Cloud sync capabilities
 - Team collaboration features
+- VS Code extension
+- Web dashboard
 
 ---
 
-*Last Updated: 2025-09-02*
+*Last Updated: 2025-12-26 | c0ntextKeeper v0.7.8*

@@ -61,6 +61,25 @@ const HOOK_DEFINITIONS: Record<
     matcher: "*",
     enabled: false,
   },
+  Notification: {
+    script: "notification.js",
+    description: "Tracks notification patterns (permissions, idle, etc.)",
+    matcher: "*",
+    enabled: false,
+  },
+  // NOTE: SubagentStop removed in v0.7.8 - Claude Code doesn't send required fields
+  SessionStart: {
+    script: "session-start.js",
+    description: "Tracks session starts and metadata",
+    matcher: "*",
+    enabled: false,
+  },
+  SessionEnd: {
+    script: "session-end.js",
+    description: "Tracks session ends and calculates duration",
+    matcher: "*",
+    enabled: false,
+  },
 };
 
 export class HooksManager {
@@ -347,6 +366,14 @@ export class HooksManager {
       "post-tool": "PostToolUse",
       posttooluse: "PostToolUse",
       stop: "Stop",
+      notification: "Notification",
+      // NOTE: SubagentStop mappings removed in v0.7.8
+      sessionstart: "SessionStart",
+      "session-start": "SessionStart",
+      session_start: "SessionStart",
+      sessionend: "SessionEnd",
+      "session-end": "SessionEnd",
+      session_end: "SessionEnd",
     };
 
     return mapping[lower] || name;
@@ -400,6 +427,38 @@ export class HooksManager {
             tools_used: ["Edit"],
             files_modified: ["app.ts"],
           },
+          timestamp,
+        };
+
+      case "Notification":
+        return {
+          hook_event_name: "Notification",
+          session_id: sessionId,
+          notification_type: "permission_prompt",
+          message: "Claude wants to execute a bash command",
+          details: {
+            tool: "Bash",
+            command: "npm test",
+          },
+          timestamp,
+        };
+
+      // NOTE: SubagentStop case removed in v0.7.8
+
+      case "SessionStart":
+        return {
+          hook_event_name: "SessionStart",
+          session_id: sessionId,
+          session_type: "startup",
+          cwd: process.cwd(),
+          timestamp,
+        };
+
+      case "SessionEnd":
+        return {
+          hook_event_name: "SessionEnd",
+          session_id: sessionId,
+          reason: "user_exit",
           timestamp,
         };
 

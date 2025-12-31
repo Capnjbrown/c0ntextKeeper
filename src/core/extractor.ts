@@ -93,7 +93,7 @@ export class ContextExtractor {
         toolCounts: {},
         filesModified: [],
         relevanceScore: 0,
-        extractionVersion: "0.7.4", // Critical production fixes
+        extractionVersion: "0.7.8", // v0.7.8 - 7 hooks (SubagentStop removed)
       },
     };
 

@@ -27,13 +27,17 @@ import {
   FetchContextInput as _FetchContextInput,
   SearchArchiveInput as _SearchArchiveInput,
   GetPatternsInput as _GetPatternsInput,
+  ExtractedContext,
+  SearchResult,
+  Match,
+  Pattern,
 } from "../core/types.js";
 
 // Initialize server
 const server = new Server(
   {
     name: "c0ntextkeeper",
-    version: "0.7.5.1",
+    version: "0.7.8",
   },
   {
     capabilities: {
@@ -394,7 +398,7 @@ function formatSessionId(sessionId: string): string {
 }
 
 // Format functions for better output
-function formatContextResults(contexts: any[]): string {
+function formatContextResults(contexts: ExtractedContext[]): string {
   if (!contexts || contexts.length === 0) {
     return `No relevant context found for your query.
 
@@ -413,7 +417,7 @@ function formatContextResults(contexts: any[]): string {
   let output = `Found ${contexts.length} relevant context${contexts.length > 1 ? "s" : ""}:\n\n`;
 
   contexts.forEach((ctx, index) => {
-    const relevanceScore = ctx.metadata?.relevanceScore || ctx.relevance || 0;
+    const relevanceScore = ctx.metadata?.relevanceScore || 0;
     const sessionId = formatSessionId(ctx.sessionId);
 
     output += `## Context ${index + 1}\n`;
@@ -475,18 +479,13 @@ function formatContextResults(contexts: any[]): string {
       output += "\n";
     }
 
-    // Show metadata tags if available
-    if (ctx.metadata?.tags && ctx.metadata.tags.length > 0) {
-      output += `🏷️ Tags: ${ctx.metadata.tags.join(", ")}\n\n`;
-    }
-
     output += `---\n\n`;
   });
 
   return output;
 }
 
-function formatSearchResults(results: any[]): string {
+function formatSearchResults(results: SearchResult[]): string {
   if (!results || results.length === 0) {
     return "No results found for your search query.";
   }
@@ -500,7 +499,7 @@ function formatSearchResults(results: any[]): string {
 
     if (result.matches && result.matches.length > 0) {
       output += `### Matches:\n`;
-      result.matches.forEach((match: any) => {
+      result.matches.forEach((match: Match) => {
         output += `- **${match.field}**: ${match.snippet}\n`;
       });
       output += "\n";
@@ -510,7 +509,7 @@ function formatSearchResults(results: any[]): string {
   return output;
 }
 
-function formatPatternResults(patterns: any[]): string {
+function formatPatternResults(patterns: Pattern[]): string {
   if (!patterns || patterns.length === 0) {
     return "No recurring patterns found.";
   }

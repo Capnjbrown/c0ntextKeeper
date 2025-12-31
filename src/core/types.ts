@@ -2,6 +2,24 @@
  * Core type definitions for c0ntextKeeper
  */
 
+// Tool input interface for Claude Code tools
+// Covers common properties across Read, Write, Edit, Bash, Glob, etc.
+export interface ToolInput {
+  file_path?: string;
+  path?: string;
+  uri?: string;
+  notebook_path?: string;
+  content?: string;
+  new_string?: string;
+  new_content?: string;
+  old_string?: string;
+  command?: string;
+  cwd?: string;
+  pattern?: string;
+  query?: string;
+  [key: string]: unknown; // Allow other properties
+}
+
 // Transcript-related types
 export interface TranscriptEntry {
   type:
@@ -18,11 +36,11 @@ export interface TranscriptEntry {
     role: string;
     content:
       | string
-      | Array<{ type: string; text?: string; [key: string]: any }>;
+      | Array<{ type: string; text?: string; [key: string]: unknown }>;
   };
   toolUse?: {
     name: string;
-    input: any;
+    input: ToolInput;
   };
   toolResult?: {
     output?: string;
@@ -238,6 +256,83 @@ export interface HookOutput {
     implementations: number;
     decisions: number;
     patterns: number;
+  };
+}
+
+// New Hook Types (Claude Code v1.0.55+)
+
+/**
+ * Notification Hook Input
+ * Triggered when Claude Code shows notifications to the user
+ */
+export interface NotificationHookInput {
+  hook_event_name: "Notification";
+  session_id: string;
+  notification_type: "permission_prompt" | "idle_prompt" | "auth_success" | "elicitation_dialog" | string;
+  message?: string;
+  details?: Record<string, unknown>;
+  timestamp?: string;
+  project_path?: string;
+}
+
+/**
+ * Record stored for each notification
+ */
+export interface NotificationRecord {
+  sessionId: string;
+  notificationType: string;
+  message?: string;
+  timestamp: string;
+  projectPath?: string;
+  details?: Record<string, unknown>;
+}
+
+// NOTE: SubagentStopHookInput and SubagentRecord removed in v0.7.8
+// Claude Code doesn't send the required fields (subagent_type, tools_used, transcript)
+// Making the feature non-functional - removed rather than keeping broken feature
+
+/**
+ * SessionStart Hook Input
+ * Triggered when a Claude Code session starts
+ */
+export interface SessionStartHookInput {
+  hook_event_name: "SessionStart";
+  session_id: string;
+  session_type: "startup" | "resume" | "clear" | "compact" | string;
+  timestamp?: string;
+  project_path?: string;
+  cwd?: string;
+  env?: Record<string, string>;
+}
+
+/**
+ * Record stored for session metadata
+ */
+export interface SessionMetaRecord {
+  sessionId: string;
+  sessionType: string;
+  startTime: string;
+  endTime?: string;
+  durationMs?: number;
+  projectPath?: string;
+  cwd?: string;
+  status: "active" | "completed" | "ended";
+}
+
+/**
+ * SessionEnd Hook Input
+ * Triggered when a Claude Code session ends
+ */
+export interface SessionEndHookInput {
+  hook_event_name: "SessionEnd";
+  session_id: string;
+  reason?: "user_exit" | "timeout" | "error" | "compact" | string;
+  timestamp?: string;
+  project_path?: string;
+  stats?: {
+    messages_exchanged?: number;
+    tools_used?: number;
+    duration_ms?: number;
   };
 }
 

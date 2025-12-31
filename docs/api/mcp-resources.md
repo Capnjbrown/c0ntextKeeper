@@ -2,7 +2,9 @@
 
 ## Overview
 
-c0ntextKeeper v0.7.4+ exposes context as MCP (Model Context Protocol) resources, allowing Claude Code to automatically read project context on startup. This provides immediate awareness of recent work, patterns, and knowledge without requiring manual tool calls.
+c0ntextKeeper v0.7.8 exposes context as MCP (Model Context Protocol) resources, allowing Claude Code to automatically read project context on startup. This provides immediate awareness of recent work, patterns, and knowledge without requiring manual tool calls.
+
+> **v0.7.8 Update**: Now supports all 7 Claude Code hooks with 6 storage categories for comprehensive context preservation. SubagentStop hook was removed as Claude Code deprecated the event.
 
 ## Resource URIs
 
