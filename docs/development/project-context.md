@@ -109,9 +109,9 @@ c0ntextKeeper/
 ├── .claude/                   # Claude Code configuration
 │   └── plugins/
 │       └── c0ntextkeeper-agents/  # Custom audit agents (v0.7.7)
-│           ├── plugin.json    # Plugin manifest (8 agents)
+│           ├── plugin.json    # Plugin manifest (10 agents)
 │           ├── README.md      # Plugin documentation
-│           └── agents/        # 8 specialized agents
+│           └── agents/        # 10 specialized agents
 │               ├── mcp-audit.md           # MCP server validation
 │               ├── hook-validator.md      # Hook integration testing
 │               ├── context-quality.md     # Extraction quality audit
@@ -119,7 +119,9 @@ c0ntextKeeper/
 │               ├── archive-integrity.md   # Archive health checks
 │               ├── security-audit.md      # Security filtering validation
 │               ├── documentation-sync.md  # Doc/code consistency
-│               └── performance-monitor.md # Performance tracking
+│               ├── performance-monitor.md # Performance tracking
+│               ├── doc-crosscheck.md      # Cross-documentation consistency
+│               └── audit.md               # General-purpose parameterized auditor
 └── examples/                  # Usage examples
 ```
 
