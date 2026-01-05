@@ -100,19 +100,25 @@ export class HooksHealthChecker {
     let foundData = false;
 
     // Check current project first (path computed for potential future use)
-    const _currentProjectDataPath = path.join(projectsPath, this.projectName, dataDir);
+    const _currentProjectDataPath = path.join(
+      projectsPath,
+      this.projectName,
+      dataDir,
+    );
 
     // Also scan all projects for aggregated stats
     if (fs.existsSync(projectsPath)) {
-      const projects = fs.readdirSync(projectsPath).filter(p =>
-        fs.statSync(path.join(projectsPath, p)).isDirectory()
-      );
+      const projects = fs
+        .readdirSync(projectsPath)
+        .filter((p) => fs.statSync(path.join(projectsPath, p)).isDirectory());
 
       for (const project of projects) {
         const dataPath = path.join(projectsPath, project, dataDir);
         if (fs.existsSync(dataPath)) {
           foundData = true;
-          const files = fs.readdirSync(dataPath).filter(f => f.endsWith(".json"));
+          const files = fs
+            .readdirSync(dataPath)
+            .filter((f) => f.endsWith(".json"));
 
           for (const file of files) {
             try {
@@ -120,7 +126,10 @@ export class HooksHealthChecker {
               const stats = fs.statSync(filePath);
 
               // Track latest capture
-              if (!latestDataCapture || stats.mtime.toISOString() > latestDataCapture) {
+              if (
+                !latestDataCapture ||
+                stats.mtime.toISOString() > latestDataCapture
+              ) {
                 latestDataCapture = stats.mtime.toISOString();
               }
 

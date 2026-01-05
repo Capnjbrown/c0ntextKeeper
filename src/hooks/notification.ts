@@ -32,7 +32,9 @@ const debugLog = (message: string, data?: any) => {
   fs.appendFileSync(logFile, logEntry, "utf-8");
 };
 
-async function processNotification(input: NotificationHookInput): Promise<void> {
+async function processNotification(
+  input: NotificationHookInput,
+): Promise<void> {
   debugLog("processNotification called", {
     session_id: input.session_id,
     notification_type: input.notification_type,
@@ -77,7 +79,10 @@ async function processNotification(input: NotificationHookInput): Promise<void> 
 
     // Categorize the notification type for analytics
     const category = categorizeNotification(record.notificationType);
-    debugLog("Notification categorized", { type: record.notificationType, category });
+    debugLog("Notification categorized", {
+      type: record.notificationType,
+      category,
+    });
   } catch (error) {
     debugLog("Error in processNotification", {
       error: error instanceof Error ? error.message : "Unknown error",
@@ -148,10 +153,7 @@ async function main() {
       });
 
       // Validate hook event
-      const validEventNames = [
-        "Notification",
-        "notification",
-      ];
+      const validEventNames = ["Notification", "notification"];
       if (
         !validEventNames.some(
           (name) =>
@@ -203,4 +205,9 @@ if (require.main === module) {
   });
 }
 
-export { processNotification, categorizeNotification, NotificationHookInput, NotificationRecord };
+export {
+  processNotification,
+  categorizeNotification,
+  NotificationHookInput,
+  NotificationRecord,
+};

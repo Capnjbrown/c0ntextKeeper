@@ -32,7 +32,9 @@ const debugLog = (message: string, data?: any) => {
   fs.appendFileSync(logFile, logEntry, "utf-8");
 };
 
-async function processSessionStart(input: SessionStartHookInput): Promise<void> {
+async function processSessionStart(
+  input: SessionStartHookInput,
+): Promise<void> {
   debugLog("processSessionStart called", {
     session_id: input.session_id,
     session_type: input.session_type,
@@ -62,13 +64,20 @@ async function processSessionStart(input: SessionStartHookInput): Promise<void> 
     });
 
     // Check if this session already has a start record (resume case)
-    const sessionsDir = getHookStorageDir(basePath, "sessions-meta", workingDir);
+    const sessionsDir = getHookStorageDir(
+      basePath,
+      "sessions-meta",
+      workingDir,
+    );
     const shortSessionId = record.sessionId.slice(-8);
     let isResume = false;
 
     if (fs.existsSync(sessionsDir)) {
-      const existingFiles = fs.readdirSync(sessionsDir)
-        .filter((f) => f.includes(shortSessionId) && f.includes("session-start"));
+      const existingFiles = fs
+        .readdirSync(sessionsDir)
+        .filter(
+          (f) => f.includes(shortSessionId) && f.includes("session-start"),
+        );
       isResume = existingFiles.length > 0;
     }
 
@@ -152,7 +161,8 @@ async function main() {
       if (
         !validEventNames.some(
           (name) =>
-            hookData.hook_event_name?.toLowerCase() === name.toLowerCase().replace(/[-_]/g, ""),
+            hookData.hook_event_name?.toLowerCase() ===
+            name.toLowerCase().replace(/[-_]/g, ""),
         )
       ) {
         debugLog("Not a SessionStart event", {

@@ -48,7 +48,10 @@ function formatTimestampForFilename(date: Date): string {
  * @param hookType - Type of hook data (knowledge, prompts, patterns, etc.)
  * @returns Unique filename with timestamp and session ID
  */
-export function generateHookFileName(sessionId: string, hookType: string): string {
+export function generateHookFileName(
+  sessionId: string,
+  hookType: string,
+): string {
   const timestamp = formatTimestampForFilename(new Date());
   // Use last 8 chars of session ID for brevity while maintaining uniqueness
   const shortSessionId = sessionId.slice(-8);
@@ -66,7 +69,13 @@ export function generateHookFileName(sessionId: string, hookType: string): strin
  *
  * Note: subagents/ was removed in v0.7.8 when Claude Code deprecated SubagentStop
  */
-export type HookStorageType = "sessions" | "knowledge" | "patterns" | "prompts" | "notifications" | "sessions-meta";
+export type HookStorageType =
+  | "sessions"
+  | "knowledge"
+  | "patterns"
+  | "prompts"
+  | "notifications"
+  | "sessions-meta";
 
 /**
  * Get the directory path for hook storage (without filename)

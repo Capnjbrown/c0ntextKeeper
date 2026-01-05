@@ -34,7 +34,10 @@ export class ContextLoader {
     const configManager = new ConfigManager();
     this.config = configManager.getAutoLoadSettings();
     this.storagePath = getStoragePath({ global: true });
-    this.retriever = new ContextRetriever(new FileStore({ global: true }), new SearchIndexer(undefined, { global: true }));
+    this.retriever = new ContextRetriever(
+      new FileStore({ global: true }),
+      new SearchIndexer(undefined, { global: true }),
+    );
     this.patternAnalyzer = new PatternAnalyzer(new FileStore({ global: true }));
   }
 

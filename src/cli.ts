@@ -661,12 +661,12 @@ program
 
       // Check hook script exists (check multiple possible locations)
       const possibleHookPaths = [
-        path.join(__dirname, "hooks", "precompact.js"),           // Production (dist/)
-        path.join(__dirname, "hooks", "precompact.ts"),           // Development (src/)
-        path.resolve(__dirname, "..", "dist", "hooks", "precompact.js"),  // Global install
-        path.resolve(__dirname, "..", "hooks", "precompact.js"),  // Alternative structure
+        path.join(__dirname, "hooks", "precompact.js"), // Production (dist/)
+        path.join(__dirname, "hooks", "precompact.ts"), // Development (src/)
+        path.resolve(__dirname, "..", "dist", "hooks", "precompact.js"), // Global install
+        path.resolve(__dirname, "..", "hooks", "precompact.js"), // Alternative structure
       ];
-      const hookScript = possibleHookPaths.find(p => fs.existsSync(p));
+      const hookScript = possibleHookPaths.find((p) => fs.existsSync(p));
       if (hookScript) {
         console.log(`✅ Hook script exists at: ${hookScript}`);
       } else {

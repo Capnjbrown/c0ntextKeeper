@@ -268,7 +268,12 @@ export interface HookOutput {
 export interface NotificationHookInput {
   hook_event_name: "Notification";
   session_id: string;
-  notification_type: "permission_prompt" | "idle_prompt" | "auth_success" | "elicitation_dialog" | string;
+  notification_type:
+    | "permission_prompt"
+    | "idle_prompt"
+    | "auth_success"
+    | "elicitation_dialog"
+    | string;
   message?: string;
   details?: Record<string, unknown>;
   timestamp?: string;

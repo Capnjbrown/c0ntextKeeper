@@ -8,6 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **CI/CD Infrastructure (Phase 6)**: Complete GitHub Actions and automation setup
+  - **GitHub Actions CI Workflow** (`.github/workflows/ci.yml`):
+    - Runs on push to `main`/`develop` and all pull requests
+    - 4 parallel jobs: lint, typecheck, test (matrix: Node 18, 20, 22), build
+    - Codecov integration for coverage reporting (Node 20)
+    - npm cache optimization for faster builds
+  - **GitHub Actions Publish Workflow** (`.github/workflows/publish.yml`):
+    - OIDC Trusted Publishing (no stored NPM_TOKEN)
+    - Triggers on GitHub Release creation
+    - Automatic build, test, and publish to npm
+    - Secure temporary credentials via npm provenance
+  - **Dependabot Configuration** (`.github/dependabot.yml`):
+    - Weekly npm dependency updates (Mondays 9am MT)
+    - Weekly GitHub Actions updates
+    - Dev dependency grouping to reduce PR noise
+    - Conventional commit prefixes (`chore(deps):`, `chore(ci):`)
+  - **CODEOWNERS File** (`.github/CODEOWNERS`):
+    - All files require @Capnjbrown review
+    - Critical paths explicitly protected: `/src/`, `/package.json`, `/.github/`, `/docs/`
+  - **Comprehensive CI/CD Documentation** (`docs/development/CI-CD-GUIDE.md`):
+    - Complete PR workflow explanation
+    - CI pipeline job descriptions
+    - Status check interpretation guide
+    - Dependabot PR handling
+    - Branch protection rules
+    - OIDC trusted publishing explanation
+    - Troubleshooting CI failures
 - **Open Source Release Preparation**: Complete preparation for public GitHub + npm publication
   - **README Overhaul**: Modern format optimized for public release
     - Upgraded all badges to `for-the-badge` style with logos (npm, GitHub, TypeScript, Node.js)

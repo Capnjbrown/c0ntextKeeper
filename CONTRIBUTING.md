@@ -41,14 +41,16 @@ Unsure where to begin? Look for issues labeled:
 
 ### Pull Requests
 
-1. **Fork the repo** and create your branch from `main`
-   *(Note: We're currently using `main` only; `develop` branch will be added for future multi-stage releases)*
+1. **Fork the repo** and create your branch from `main` or `develop`
 2. **Write tests** for any new code
 3. **Update documentation** as needed
 4. **Ensure tests pass** with `npm test`
 5. **Run linting** with `npm run lint`
 6. **Run type checking** with `npm run typecheck`
 7. **Follow commit conventions** (see below)
+
+**Important**: All PRs must pass CI checks and receive maintainer approval before merging.
+See **[CI/CD Guide](docs/development/CI-CD-GUIDE.md)** for complete workflow details.
 
 ## Development Setup
 

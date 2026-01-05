@@ -108,7 +108,14 @@ export function getProjectName(workingDir: string): string {
  */
 export function getHookStoragePath(
   basePath: string,
-  hookType: "sessions" | "knowledge" | "patterns" | "prompts" | "notifications" | "subagents" | "sessions-meta",
+  hookType:
+    | "sessions"
+    | "knowledge"
+    | "patterns"
+    | "prompts"
+    | "notifications"
+    | "subagents"
+    | "sessions-meta",
   workingDir: string,
   dateString: string,
   fileName: string,
