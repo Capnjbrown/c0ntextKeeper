@@ -48,7 +48,7 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
-      - run: npm test -- --coverage --coverageReporters=lcov
+      - run: npm test -- --forceExit --coverage --coverageReporters=lcov
 
       - name: Upload coverage to Codecov
         if: matrix.node-version == 20
