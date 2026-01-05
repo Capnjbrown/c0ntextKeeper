@@ -40,8 +40,9 @@ End-user documentation and tutorials:
 Internal development guidelines and project context:
 
 - **[Project Context](development/project-context.md)** - **AUTHORITATIVE SOURCE** - Complete technical specifications (Updated for v0.7.8)
-- **[Pre-Release Checklist](development/pre-release-checklist.md)** - Complete checklist for release preparation
-- **[Public Migration Report](development/public-migration-report.md)** - Open-source migration documentation
+- **[CI/CD Guide](development/CI-CD-GUIDE.md)** - **NEW** - Complete CI/CD pipeline, PR workflow, and GitHub Actions documentation
+- **[Release Guide](development/RELEASE-GUIDE.md)** - Release procedures and verification
+- **[Open Source Release Plan](development/OPEN-SOURCE-RELEASE-PLAN.md)** - Public release documentation
 
 **Claude Code CLI Files** (at project root):
 - `CLAUDE.md` - Team-shared Claude Code instructions (auto-detected by Claude Code CLI)
@@ -68,7 +69,8 @@ API specifications and technical references:
 ### For Contributors
 1. Review the root [README.md](../README.md) for project overview
 2. Check [CONTRIBUTING.md](../CONTRIBUTING.md) for contribution guidelines
-3. Read **[Project Context](development/project-context.md)** for architecture details
+3. Read **[CI/CD Guide](development/CI-CD-GUIDE.md)** for PR workflow and CI pipeline
+4. Read **[Project Context](development/project-context.md)** for architecture details
 
 ## 📋 Documentation Standards
 
@@ -99,7 +101,7 @@ All documentation in this directory follows these standards:
 ## 🔄 Version Information
 
 - **Documentation Version**: 0.7.8
-- **Last Updated**: 2025-12-26
+- **Last Updated**: 2026-01-05
 - **Project Version**: 0.7.8
 
 ## 📝 Notes

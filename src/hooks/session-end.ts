@@ -32,7 +32,9 @@ export const debugLog = (message: string, data?: unknown): void => {
   fs.appendFileSync(logFile, logEntry, "utf-8");
 };
 
-export async function processSessionEnd(input: SessionEndHookInput): Promise<void> {
+export async function processSessionEnd(
+  input: SessionEndHookInput,
+): Promise<void> {
   debugLog("processSessionEnd called", {
     session_id: input.session_id,
     reason: input.reason,
@@ -52,21 +54,31 @@ export async function processSessionEnd(input: SessionEndHookInput): Promise<voi
     });
 
     // Try to find matching session-start file to calculate duration
-    const sessionsDir = getHookStorageDir(basePath, "sessions-meta", workingDir);
+    const sessionsDir = getHookStorageDir(
+      basePath,
+      "sessions-meta",
+      workingDir,
+    );
     const shortSessionId = input.session_id.slice(-8);
     let durationMs: number | undefined;
     let startTime: string | undefined;
 
     if (fs.existsSync(sessionsDir)) {
       // Find session-start files with matching session ID
-      const startFiles = fs.readdirSync(sessionsDir)
-        .filter((f) => f.includes(shortSessionId) && f.endsWith("-sessions-meta.json"))
+      const startFiles = fs
+        .readdirSync(sessionsDir)
+        .filter(
+          (f) =>
+            f.includes(shortSessionId) && f.endsWith("-sessions-meta.json"),
+        )
         .sort(); // Sort to get earliest first
 
       if (startFiles.length > 0) {
         try {
           const startFilePath = path.join(sessionsDir, startFiles[0]);
-          const startData = JSON.parse(fs.readFileSync(startFilePath, "utf-8")) as { startTime?: string };
+          const startData = JSON.parse(
+            fs.readFileSync(startFilePath, "utf-8"),
+          ) as { startTime?: string };
           if (startData.startTime) {
             startTime = startData.startTime;
             const startMs = new Date(startData.startTime).getTime();
@@ -84,7 +96,10 @@ export async function processSessionEnd(input: SessionEndHookInput): Promise<voi
     }
 
     // Build session end record with duration info
-    const record: SessionMetaRecord & { eventType: string; durationMs?: number } = {
+    const record: SessionMetaRecord & {
+      eventType: string;
+      durationMs?: number;
+    } = {
       sessionId: input.session_id,
       sessionType: "unknown",
       startTime: startTime || timestamp, // Use start time if found, else end time
@@ -163,7 +178,8 @@ export async function main(): Promise<void> {
       if (
         !validEventNames.some(
           (name) =>
-            hookData.hook_event_name?.toLowerCase() === name.toLowerCase().replace(/[-_]/g, ""),
+            hookData.hook_event_name?.toLowerCase() ===
+            name.toLowerCase().replace(/[-_]/g, ""),
         )
       ) {
         debugLog("Not a SessionEnd event", {

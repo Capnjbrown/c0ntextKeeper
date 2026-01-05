@@ -1,16 +1,16 @@
 # c0ntextKeeper Scripts
 
-> Last Updated: 2025-12-19 for v0.7.6 (public release)
+> Last Updated: 2026-01-05 for v0.7.8 (open source release)
 
 This directory contains production scripts for c0ntextKeeper setup, migration, and hook testing.
 
-## Directory Structure (v0.7.6)
+## Directory Structure (v0.7.8)
 - **Production Scripts**: 4 essential setup/install scripts
-- **Migration Tools**: 5 maintenance and migration utilities  
-- **Hook Testing**: Comprehensive v0.7.6 hook test suite in test-hooks/
+- **Migration Tools**: 5 maintenance and migration utilities
+- **Hook Testing**: Comprehensive hook test suite in test-hooks/
 - **Validation**: 2 scripts for archive and release validation
 
-**Note**: Obsolete test scripts have been removed in v0.7.6. Use Jest tests in /tests directory for unit testing.
+**Note**: Obsolete test scripts have been removed. Use Jest tests in /tests directory for unit testing.
 
 ## Production Scripts
 

@@ -1,0 +1,12 @@
+# c0ntextKeeper Code Owners
+# These users will be requested for review on PRs
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global - all files require owner review
+* @Capnjbrown
+
+# Critical paths - require owner review
+/src/ @Capnjbrown
+/package.json @Capnjbrown
+/.github/ @Capnjbrown
+/docs/ @Capnjbrown

@@ -107,8 +107,11 @@ async function processUserPrompt(input: UserPromptHookInput): Promise<void> {
     let promptNumber = 1;
 
     if (fs.existsSync(promptsDir)) {
-      const existingFiles = fs.readdirSync(promptsDir)
-        .filter((f) => f.includes(shortSessionId) && f.endsWith("-prompts.json"));
+      const existingFiles = fs
+        .readdirSync(promptsDir)
+        .filter(
+          (f) => f.includes(shortSessionId) && f.endsWith("-prompts.json"),
+        );
       promptNumber = existingFiles.length + 1;
     }
 
@@ -275,4 +278,9 @@ if (require.main === module) {
   });
 }
 
-export { processUserPrompt, extractTopics, UserPromptHookInput, UserPromptContext };
+export {
+  processUserPrompt,
+  extractTopics,
+  UserPromptHookInput,
+  UserPromptContext,
+};

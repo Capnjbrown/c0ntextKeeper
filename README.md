@@ -19,6 +19,7 @@
   <img src="https://img.shields.io/badge/TypeScript-100%25-blue?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
   <img src="https://img.shields.io/badge/Tests-483%20Passing-success?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Claude%20Code-7%20Hooks-8B5CF6?style=for-the-badge" alt="Claude Code Hooks">
+  <a href="https://github.com/Capnjbrown/c0ntextKeeper/actions"><img src="https://github.com/Capnjbrown/c0ntextKeeper/workflows/CI/badge.svg" alt="CI Status"></a>
 </p>
 
 <p align="center">
@@ -524,6 +525,7 @@ Currently, c0ntextKeeper is designed specifically for Claude Code's hook system.
 | MCP Tools (Technical) | [docs/technical/mcp-tools.md](docs/technical/mcp-tools.md) |
 | Configuration | [docs/technical/configuration.md](docs/technical/configuration.md) |
 | Troubleshooting | [docs/guides/troubleshooting.md](docs/guides/troubleshooting.md) |
+| **CI/CD & Contributing** | [docs/development/CI-CD-GUIDE.md](docs/development/CI-CD-GUIDE.md) |
 
 ## Development
 
