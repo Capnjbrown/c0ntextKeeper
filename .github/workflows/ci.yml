@@ -1,10 +1,14 @@
 name: CI
 
 on:
+  # release/** is included so long-lived release branches are verified on every
+  # push, not only when their PR to main opens. A local run exercises a single
+  # Node version against an already-populated node_modules; CI is what catches
+  # matrix breakage and clean `npm ci` resolution.
   push:
-    branches: [main, develop]
+    branches: [main, 'release/**']
   pull_request:
-    branches: [main, develop]
+    branches: [main]
 
 permissions:
   contents: read
