@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400" role="img" aria-label="Star history for Capnjbrown/c0ntextKeeper: 62 stars as of 2026-07-29">
+  <defs>
+    <linearGradient id="star-fill-8b5cf6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(139, 92, 246, 0.22)" />
+      <stop offset="100%" stop-color="rgba(139, 92, 246, 0.02)" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="#ffffff" />
+  <g font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif">
+    <line x1="60" y1="356.0" x2="772" y2="356.0" stroke="#d0d7de" stroke-width="1" />
+    <text x="48" y="360.0" fill="#57606a" font-size="12" text-anchor="end">0</text>
+    <line x1="60" y1="273.0" x2="772" y2="273.0" stroke="#d0d7de" stroke-width="1" />
+    <text x="48" y="277.0" fill="#57606a" font-size="12" text-anchor="end">20</text>
+    <line x1="60" y1="190.0" x2="772" y2="190.0" stroke="#d0d7de" stroke-width="1" />
+    <text x="48" y="194.0" fill="#57606a" font-size="12" text-anchor="end">40</text>
+    <line x1="60" y1="107.0" x2="772" y2="107.0" stroke="#d0d7de" stroke-width="1" />
+    <text x="48" y="111.0" fill="#57606a" font-size="12" text-anchor="end">60</text>
+    <line x1="60" y1="24.0" x2="772" y2="24.0" stroke="#d0d7de" stroke-width="1" />
+    <text x="48" y="28.0" fill="#57606a" font-size="12" text-anchor="end">80</text>
+    <path d="M60.0,293.8 L63.4,227.3 L66.8,219.1 L70.2,202.4 L73.6,194.2 L77.0,190.0 L87.3,185.9 L97.5,181.7 L104.3,177.6 L111.1,173.4 L131.5,169.3 L145.2,165.1 L148.6,152.6 L158.8,144.4 L169.0,140.2 L196.3,136.1 L233.7,131.9 L346.2,127.8 L427.9,123.6 L482.4,115.3 L564.2,111.1 L772.0,98.7 L772.0,356 L60.0,356 Z" fill="url(#star-fill-8b5cf6)" />
+    <path d="M60.0,293.8 L63.4,227.3 L66.8,219.1 L70.2,202.4 L73.6,194.2 L77.0,190.0 L87.3,185.9 L97.5,181.7 L104.3,177.6 L111.1,173.4 L131.5,169.3 L145.2,165.1 L148.6,152.6 L158.8,144.4 L169.0,140.2 L196.3,136.1 L233.7,131.9 L346.2,127.8 L427.9,123.6 L482.4,115.3 L564.2,111.1 L772.0,98.7" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />
+    <circle cx="772.0" cy="98.7" r="4" fill="#8b5cf6" />
+    <line x1="60" y1="356" x2="772" y2="356" stroke="#57606a" stroke-width="1" />
+    <text x="60.0" y="380" fill="#57606a" font-size="12" text-anchor="start">Jan 2026</text>
+    <text x="238.0" y="380" fill="#57606a" font-size="12" text-anchor="middle">Feb 2026</text>
+    <text x="416.0" y="380" fill="#57606a" font-size="12" text-anchor="middle">Apr 2026</text>
+    <text x="594.0" y="380" fill="#57606a" font-size="12" text-anchor="middle">Jun 2026</text>
+    <text x="772.0" y="380" fill="#57606a" font-size="12" text-anchor="end">Jul 2026</text>
+    <text x="60" y="16" fill="#57606a" font-size="13" font-weight="600">Capnjbrown/c0ntextKeeper - 62 stars</text>
+  </g>
+</svg>

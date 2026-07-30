@@ -1,0 +1,51 @@
+name: Star History
+
+on:
+  # Fires the moment someone stars the repo, so the chart updates immediately.
+  # Unstarring does not fire this event, which is what the daily cron catches.
+  watch:
+    types: [started]
+  schedule:
+    # Daily at 06:00 UTC. Runs with no change in the count are a no-op: the
+    # generator records nothing, so the tree stays clean and nothing commits.
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+# The built-in GITHUB_TOKEN is the only credential this workflow uses. It is
+# minted per run, scoped to this repository, and expires when the job ends.
+# Reading the star count needs no auth at all - the write is only to commit
+# the regenerated chart back to this repo.
+permissions:
+  contents: write
+
+concurrency:
+  group: star-history
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # No npm ci: the generator uses only Node builtins, so there is nothing
+      # to install and no dependency surface in this workflow.
+      - name: Record star count and regenerate charts
+        run: node scripts/star-history.js update
+
+      - name: Commit if the chart changed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/star-history.json assets/star-history-light.svg assets/star-history-dark.svg
+          if git diff --staged --quiet; then
+            echo 'No change in star history.'
+          else
+            git commit -m 'chore: update star history chart'
+            git push
+          fi
