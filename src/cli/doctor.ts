@@ -346,6 +346,48 @@ async function checkArchiveIntegrity(): Promise<DiagnosticResult[]> {
       } else {
         console.log(styles.success("  ✅ Archive files validated"));
       }
+
+      // Sessions listed in a project index but absent from disk. Versions
+      // before 0.8.0 pruned sessions on every write, so archives created then
+      // may be missing files the index still references. Those are gone and
+      // cannot be recovered -- this check makes the loss visible rather than
+      // letting the index quietly overstate what is retained.
+      let indexedButMissing = 0;
+      for (const project of projects) {
+        const indexPath = path.join(archivePath, project, "index.json");
+        if (!fs.existsSync(indexPath)) continue;
+
+        try {
+          const index = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
+          for (const session of index.sessions || []) {
+            const name = path.basename(session.file || session.filename || "");
+            if (!name) continue;
+            if (
+              !fs.existsSync(path.join(archivePath, project, "sessions", name))
+            ) {
+              indexedButMissing++;
+            }
+          }
+        } catch {
+          // Unreadable index is already covered by the corruption check above
+        }
+      }
+
+      if (indexedButMissing > 0) {
+        results.push({
+          category: "Archive Integrity",
+          status: "warning",
+          message:
+            `${indexedButMissing} sessions are listed in a project index but missing from disk. ` +
+            `Pre-0.8.0 builds pruned archives automatically; this data cannot be recovered. ` +
+            `Retention is now disabled by default.`,
+        });
+        console.log(
+          styles.warning(
+            `  ⚠️  ${indexedButMissing} indexed sessions missing from disk (pre-0.8.0 auto-pruning)`,
+          ),
+        );
+      }
     }
   } catch {
     results.push({

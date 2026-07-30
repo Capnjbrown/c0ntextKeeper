@@ -789,49 +789,73 @@ describe('FileStore', () => {
   });
 
   describe('Session Cleanup', () => {
-    it('should clean old sessions based on retention days', async () => {
-      // Setup FileStore with short retention
+    const oldFileDate = () => {
+      const d = new Date();
+      d.setDate(d.getDate() - 30); // 30 days old
+      return d;
+    };
+
+    /**
+     * REGRESSION GUARD. store() used to call cleanOldSessions() on every write.
+     * Because pruning was write-triggered and project-scoped, the most actively
+     * used projects lost the most history -- 52% of all archived sessions were
+     * destroyed before this was caught. store() must never delete anything.
+     */
+    it('should NEVER delete sessions during store(), even with retention configured', async () => {
       const shortRetentionStore = new FileStore({ retentionDays: 7 });
 
-      // Mock old file dates
-      const oldDate = new Date();
-      oldDate.setDate(oldDate.getDate() - 30); // 30 days old
-
-      // When fileExists returns true for index, readFile must return valid index JSON
-      const emptyIndex = { ...mockProjectIndex, sessions: [] };
-
-      // Mock fileExists: false for indexes (create new), true for sessions dir
       fileExists.mockImplementation((pathArg: string) => {
         if (pathArg.includes('index.json')) return Promise.resolve(false);
         return Promise.resolve(true);
       });
 
       mockedFs.readdir.mockResolvedValue(['old-session.json'] as any);
-      mockedFs.stat.mockResolvedValue({
-        size: 1024,
-        mtime: oldDate
-      } as any);
+      mockedFs.stat.mockResolvedValue({ size: 1024, mtime: oldFileDate() } as any);
 
-      // Store should trigger cleanup
       await shortRetentionStore.store(mockContext);
 
+      expect(mockedFs.unlink).not.toHaveBeenCalled();
+    });
+
+    it('should prune old sessions only when pruneOldSessions is called explicitly', async () => {
+      const shortRetentionStore = new FileStore({ retentionDays: 7 });
+
+      fileExists.mockResolvedValue(true as any);
+      mockedFs.readdir.mockResolvedValue(['old-session.json'] as any);
+      mockedFs.stat.mockResolvedValue({ size: 1024, mtime: oldFileDate() } as any);
+
+      const pruned = await shortRetentionStore.pruneOldSessions('/tmp/project');
+
+      expect(pruned).toEqual(['old-session.json']);
       expect(mockedFs.unlink).toHaveBeenCalled();
     });
 
-    it('should not clean sessions when retention is 0', async () => {
-      const noRetentionStore = new FileStore({ retentionDays: 0 });
+    it('should report but not delete when dryRun is set', async () => {
+      const shortRetentionStore = new FileStore({ retentionDays: 7 });
 
-      // Mock fileExists: false for indexes, true for directories
-      fileExists.mockImplementation((pathArg: string) => {
-        if (pathArg.includes('index.json')) return Promise.resolve(false);
-        return Promise.resolve(true);
+      fileExists.mockResolvedValue(true as any);
+      mockedFs.readdir.mockResolvedValue(['old-session.json'] as any);
+      mockedFs.stat.mockResolvedValue({ size: 1024, mtime: oldFileDate() } as any);
+
+      const pruned = await shortRetentionStore.pruneOldSessions('/tmp/project', {
+        dryRun: true,
       });
 
-      await noRetentionStore.store(mockContext);
+      expect(pruned).toEqual(['old-session.json']);
+      expect(mockedFs.unlink).not.toHaveBeenCalled();
+    });
 
-      // unlink should not be called for cleanup when retention is 0
-      const unlinkCalls = mockedFs.unlink.mock.calls;
-      expect(unlinkCalls.length).toBe(0);
+    it('should default to retention disabled (0) so nothing is ever pruned', async () => {
+      const defaultStore = new FileStore();
+
+      fileExists.mockResolvedValue(true as any);
+      mockedFs.readdir.mockResolvedValue(['old-session.json'] as any);
+      mockedFs.stat.mockResolvedValue({ size: 1024, mtime: oldFileDate() } as any);
+
+      const pruned = await defaultStore.pruneOldSessions('/tmp/project');
+
+      expect(pruned).toEqual([]);
+      expect(mockedFs.unlink).not.toHaveBeenCalled();
     });
 
     it('should keep recent sessions', async () => {

@@ -86,7 +86,10 @@ const DEFAULT_CONFIG: C0ntextKeeperConfig = {
     },
   },
   storage: {
-    retentionDays: 90,
+    // 0 = never prune. Archives are the product; opt in explicitly if you
+    // want a retention window, and note that pruning only happens when
+    // FileStore.pruneOldSessions() is called -- never automatically.
+    retentionDays: 0,
     maxSizeMB: 100,
     compressionEnabled: false,
   },

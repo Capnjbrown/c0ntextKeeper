@@ -51,7 +51,10 @@ export class FileStore {
       basePath: path.join(resolvedPath, "archive"),
       maxArchiveSize: 100, // MB
       compressionEnabled: false,
-      retentionDays: 90,
+      // Retention is OFF by default. Archives are the product; deleting them
+      // silently is never the safe default. Set a positive value to opt in,
+      // then call pruneOldSessions() explicitly -- store() never prunes.
+      retentionDays: 0,
       ...config,
     };
     this.basePath = this.config.basePath;
@@ -173,8 +176,11 @@ export class FileStore {
       await this.updateGlobalIndex(context, projectName);
     }
 
-    // Clean old sessions if needed
-    await this.cleanOldSessions(projectDir);
+    // NOTE: retention pruning is deliberately NOT run here. It used to be, and
+    // because pruning is write-triggered and project-scoped, the most actively
+    // used projects lost the most history -- 52% of all archived sessions were
+    // destroyed before this was caught. Pruning is now explicit: see
+    // pruneOldSessions().
 
     return sessionPath;
   }
@@ -752,24 +758,43 @@ Each session JSON file contains:
     );
   }
 
-  private async cleanOldSessions(projectDir: string): Promise<void> {
-    if (this.config.retentionDays <= 0) return;
+  /**
+   * Delete archived sessions older than the configured retention window.
+   *
+   * This is an EXPLICIT operation and is never called from store(). Retention
+   * defaults to 0 (disabled); a caller must opt in by configuring a positive
+   * retentionDays and invoking this directly.
+   *
+   * @param projectDir Project directory whose sessions/ folder is pruned
+   * @param options.dryRun Report what would be deleted without deleting
+   * @returns The session filenames deleted (or that would be, when dryRun)
+   */
+  async pruneOldSessions(
+    projectDir: string,
+    options: { dryRun?: boolean } = {},
+  ): Promise<string[]> {
+    if (this.config.retentionDays <= 0) return [];
 
     const sessionsDir = path.join(projectDir, "sessions");
-    if (!(await fileExists(sessionsDir))) return;
+    if (!(await fileExists(sessionsDir))) return [];
 
     const files = await fs.readdir(sessionsDir);
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - this.config.retentionDays);
 
+    const pruned: string[] = [];
     for (const file of files) {
       const filePath = path.join(sessionsDir, file);
       const stats = await fs.stat(filePath);
 
       if (stats.mtime < cutoffDate) {
-        await fs.unlink(filePath);
-        console.log(`Cleaned old session: ${file}`);
+        if (!options.dryRun) {
+          await fs.unlink(filePath);
+        }
+        pruned.push(file);
       }
     }
+
+    return pruned;
   }
 }
