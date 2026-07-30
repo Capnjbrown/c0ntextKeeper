@@ -10,7 +10,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/c0ntextkeeper"><img src="https://img.shields.io/npm/v/c0ntextkeeper?style=for-the-badge&logo=npm&logoColor=white" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/c0ntextkeeper"><img src="https://img.shields.io/npm/dm/c0ntextkeeper?style=for-the-badge&logo=npm&logoColor=white" alt="npm downloads"></a>
-  <a href="https://github.com/Capnjbrown/c0ntextKeeper/stargazers"><img src="https://img.shields.io/github/stars/Capnjbrown/c0ntextKeeper?style=for-the-badge&logo=github" alt="GitHub stars"></a>
+  <a href="https://github.com/Capnjbrown/c0ntextKeeper"><img src="https://img.shields.io/github/stars/Capnjbrown/c0ntextKeeper?style=for-the-badge&logo=github" alt="GitHub stars"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License: MIT"></a>
 </p>
 
@@ -26,7 +26,7 @@
   <a href="#quick-start"><img src="https://img.shields.io/badge/📦%20Install-Get%20Started-2ea44f?style=for-the-badge" alt="Get Started"></a>
   <a href="#what-this-enables"><img src="https://img.shields.io/badge/🎯%20Use%20Cases-See%20Examples-0969da?style=for-the-badge" alt="Use Cases"></a>
   <a href="#ask-claude-naturally"><img src="https://img.shields.io/badge/🧠%20AI%20Search-Try%20It-8B5CF6?style=for-the-badge" alt="AI Search"></a>
-  <a href="https://github.com/Capnjbrown/c0ntextKeeper/stargazers"><img src="https://img.shields.io/badge/⭐%20Star-Support-ffd33d?style=for-the-badge" alt="Star"></a>
+  <a href="https://github.com/Capnjbrown/c0ntextKeeper"><img src="https://img.shields.io/badge/⭐%20Star-Support-ffd33d?style=for-the-badge" alt="Star"></a>
 </p>
 
 <p align="center">
@@ -553,11 +553,11 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 
 ## Star History
 
-<a href="https://star-history.com/#Capnjbrown/c0ntextKeeper&Date">
+<a href="https://github.com/Capnjbrown/c0ntextKeeper">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Capnjbrown/c0ntextKeeper&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Capnjbrown/c0ntextKeeper&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Capnjbrown/c0ntextKeeper&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Capnjbrown/c0ntextKeeper/main/assets/star-history-dark.svg" />
+   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Capnjbrown/c0ntextKeeper/main/assets/star-history-light.svg" />
+   <img alt="Star History Chart" src="https://raw.githubusercontent.com/Capnjbrown/c0ntextKeeper/main/assets/star-history-light.svg" />
  </picture>
 </a>
 
