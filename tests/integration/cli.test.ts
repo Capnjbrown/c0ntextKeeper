@@ -42,7 +42,7 @@ describe("CLI Integration Tests", () => {
     // Create temp directory for testing
     testDir = path.join(
       os.tmpdir(),
-      `c0ntextkeeper-cli-test-${Date.now()}-${Math.random().toString(36).slice(2)}`
+      `c0ntextkeeper-cli-test-${Date.now()}-${Math.random().toString(36).slice(2)}`,
     );
     fs.mkdirSync(testDir, { recursive: true });
   });
@@ -106,7 +106,7 @@ describe("CLI Integration Tests", () => {
 
       // Should list hook names
       expect(result.stdout + result.stderr).toMatch(
-        /PreCompact|UserPromptSubmit|PostToolUse|Stop|hook/i
+        /PreCompact|UserPromptSubmit|PostToolUse|Stop|hook/i,
       );
       // The command should complete (may exit 0 or 1 depending on hook state)
     });

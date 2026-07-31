@@ -5,7 +5,14 @@
  * and builds a knowledge base of problem-solution pairs.
  */
 
-import { jest, describe, it, expect, beforeEach, afterEach } from "@jest/globals";
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
 
 // Create mock functions
 const mockExistsSync = jest.fn();
@@ -20,9 +27,15 @@ const mockUnlinkSync = jest.fn();
 const mockGetStoragePath = jest.fn();
 const mockGetHookStoragePath = jest.fn();
 const mockIsTestSession = jest.fn();
-const mockFilterText = jest.fn<(text: string) => string>().mockImplementation((text: string) => text);
-const mockGetRootPath = jest.fn<() => string>().mockReturnValue("/tmp/test-storage");
-const mockScoreContent = jest.fn<(input: unknown) => number>().mockReturnValue(0.75);
+const mockFilterText = jest
+  .fn<(text: string) => string>()
+  .mockImplementation((text: string) => text);
+const mockGetRootPath = jest
+  .fn<() => string>()
+  .mockReturnValue("/tmp/test-storage");
+const mockScoreContent = jest
+  .fn<(input: unknown) => number>()
+  .mockReturnValue(0.75);
 
 // Mock fs module
 jest.mock("fs", () => ({
@@ -44,9 +57,16 @@ jest.mock("../../../src/utils/path-resolver", () => ({
 // Mock hook-storage (new per-session storage)
 const mockWriteHookData = jest.fn();
 jest.mock("../../../src/utils/hook-storage", () => ({
-  writeHookData: (basePath: string, hookType: string, workingDir: string, sessionId: string, data: unknown) =>
-    mockWriteHookData(basePath, hookType, workingDir, sessionId, data),
-  getHookStorageDir: jest.fn(() => "/tmp/test-storage/archive/projects/test-project/knowledge"),
+  writeHookData: (
+    basePath: string,
+    hookType: string,
+    workingDir: string,
+    sessionId: string,
+    data: unknown,
+  ) => mockWriteHookData(basePath, hookType, workingDir, sessionId, data),
+  getHookStorageDir: jest.fn(
+    () => "/tmp/test-storage/archive/projects/test-project/knowledge",
+  ),
 }));
 
 // Mock project-utils
@@ -87,7 +107,11 @@ jest.mock("../../../src/core/extractor", () => ({
 }));
 
 // Import types and function after mocks
-import { processExchange, StopHookInput, QAPair } from "../../../src/hooks/stop";
+import {
+  processExchange,
+  StopHookInput,
+  QAPair,
+} from "../../../src/hooks/stop";
 
 describe("Stop Hook", () => {
   // Store original process.exit
@@ -111,12 +135,14 @@ describe("Stop Hook", () => {
 
     mockGetStoragePath.mockReturnValue("/tmp/test-storage");
     mockGetHookStoragePath.mockReturnValue(
-      "/tmp/test-storage/knowledge/test-project/2024-01-01/knowledge.json"
+      "/tmp/test-storage/knowledge/test-project/2024-01-01/knowledge.json",
     );
     // Mock writeHookData to return a path and capture the data
-    mockWriteHookData.mockImplementation((_basePath, _hookType, _workingDir, _sessionId, _data) => {
-      return "/tmp/test-storage/archive/projects/test-project/knowledge/2024-01-01_1200_MT_12345-knowledge.json";
-    });
+    mockWriteHookData.mockImplementation(
+      (_basePath, _hookType, _workingDir, _sessionId, _data) => {
+        return "/tmp/test-storage/archive/projects/test-project/knowledge/2024-01-01_1200_MT_12345-knowledge.json";
+      },
+    );
     mockIsTestSession.mockReturnValue(false);
     mockFilterText.mockImplementation((text: string) => text);
     mockScoreContent.mockReturnValue(0.75);
@@ -148,7 +174,7 @@ describe("Stop Hook", () => {
         // Verify security filter was called
         expect(mockFilterText).toHaveBeenCalledWith(input.exchange.user_prompt);
         expect(mockFilterText).toHaveBeenCalledWith(
-          input.exchange.assistant_response
+          input.exchange.assistant_response,
         );
 
         // Verify scorer was called
@@ -164,7 +190,8 @@ describe("Stop Hook", () => {
           session_id: "session-12345",
           exchange: {
             user_prompt: "Fix the database connection",
-            assistant_response: "I fixed the connection by updating the config.",
+            assistant_response:
+              "I fixed the connection by updating the config.",
             tools_used: ["Edit", "Read", "Bash"],
             files_modified: ["config.ts", "database.ts"],
           },
@@ -175,9 +202,14 @@ describe("Stop Hook", () => {
 
         // Verify writeHookData was called with correct data (per-session storage)
         expect(mockWriteHookData).toHaveBeenCalled();
-        const [_basePath, _hookType, _workingDir, _sessionId, writtenData] = mockWriteHookData.mock.calls[0];
+        const [_basePath, _hookType, _workingDir, _sessionId, writtenData] =
+          mockWriteHookData.mock.calls[0];
 
-        expect((writtenData as QAPair).toolsUsed).toEqual(["Edit", "Read", "Bash"]);
+        expect((writtenData as QAPair).toolsUsed).toEqual([
+          "Edit",
+          "Read",
+          "Bash",
+        ]);
         expect((writtenData as QAPair).filesModified).toEqual([
           "config.ts",
           "database.ts",
@@ -199,7 +231,8 @@ describe("Stop Hook", () => {
         await processExchange(input);
 
         expect(mockWriteHookData).toHaveBeenCalled();
-        const [_basePath, _hookType, _workingDir, _sessionId, writtenData] = mockWriteHookData.mock.calls[0];
+        const [_basePath, _hookType, _workingDir, _sessionId, writtenData] =
+          mockWriteHookData.mock.calls[0];
 
         expect((writtenData as QAPair).hasSolution).toBe(true);
       });
@@ -219,7 +252,8 @@ describe("Stop Hook", () => {
         await processExchange(input);
 
         expect(mockWriteHookData).toHaveBeenCalled();
-        const [_basePath, _hookType, _workingDir, _sessionId, writtenData] = mockWriteHookData.mock.calls[0];
+        const [_basePath, _hookType, _workingDir, _sessionId, writtenData] =
+          mockWriteHookData.mock.calls[0];
 
         expect((writtenData as QAPair).hasError).toBe(true);
       });
@@ -544,7 +578,8 @@ describe("Stop Hook", () => {
 
         // Verify writeHookData was called with correct parameters
         expect(mockWriteHookData).toHaveBeenCalled();
-        const [basePath, hookType, workingDir, sessionId, data] = mockWriteHookData.mock.calls[0];
+        const [basePath, hookType, workingDir, sessionId, data] =
+          mockWriteHookData.mock.calls[0];
 
         expect(basePath).toBe("/tmp/test-storage");
         expect(hookType).toBe("knowledge");
@@ -577,7 +612,7 @@ describe("Stop Hook", () => {
     describe("security filtering", () => {
       it("should filter sensitive data from question", async () => {
         mockFilterText.mockImplementation((text: string) =>
-          text.replace(/sk-[a-zA-Z0-9]+/g, "[REDACTED]")
+          text.replace(/sk-[a-zA-Z0-9]+/g, "[REDACTED]"),
         );
 
         const input: StopHookInput = {
@@ -593,13 +628,13 @@ describe("Stop Hook", () => {
         await processExchange(input);
 
         expect(mockFilterText).toHaveBeenCalledWith(
-          "My API key is sk-1234567890abcdef"
+          "My API key is sk-1234567890abcdef",
         );
       });
 
       it("should filter sensitive data from answer", async () => {
         mockFilterText.mockImplementation((text: string) =>
-          text.replace(/password:\s*\S+/gi, "password: [REDACTED]")
+          text.replace(/password:\s*\S+/gi, "password: [REDACTED]"),
         );
 
         const input: StopHookInput = {
@@ -615,7 +650,7 @@ describe("Stop Hook", () => {
         await processExchange(input);
 
         expect(mockFilterText).toHaveBeenCalledWith(
-          "The password: secret123 was implemented."
+          "The password: secret123 was implemented.",
         );
       });
     });

@@ -6,7 +6,14 @@
  * to calculate duration.
  */
 
-import { jest, describe, it, expect, beforeEach, afterEach } from "@jest/globals";
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
 
 // Create mock functions for fs
 const mockExistsSync = jest.fn();
@@ -36,8 +43,13 @@ jest.mock("../../../src/utils/path-resolver", () => ({
 const mockWriteHookData = jest.fn();
 const mockGetHookStorageDir = jest.fn();
 jest.mock("../../../src/utils/hook-storage", () => ({
-  writeHookData: (basePath: string, hookType: string, workingDir: string, sessionId: string, data: unknown) =>
-    mockWriteHookData(basePath, hookType, workingDir, sessionId, data),
+  writeHookData: (
+    basePath: string,
+    hookType: string,
+    workingDir: string,
+    sessionId: string,
+    data: unknown,
+  ) => mockWriteHookData(basePath, hookType, workingDir, sessionId, data),
   getHookStorageDir: (basePath: string, hookType: string, workingDir: string) =>
     mockGetHookStorageDir(basePath, hookType, workingDir),
 }));
@@ -52,7 +64,8 @@ import {
 
 describe("SessionEnd Hook", () => {
   const mockStoragePath = "/mock/storage/.c0ntextkeeper";
-  const mockSessionsDir = "/mock/storage/.c0ntextkeeper/archive/projects/test-project/sessions-meta";
+  const mockSessionsDir =
+    "/mock/storage/.c0ntextkeeper/archive/projects/test-project/sessions-meta";
 
   // Store original process.exit
   const originalExit = process.exit;
@@ -72,7 +85,7 @@ describe("SessionEnd Hook", () => {
     // Default hook-storage mocks
     mockWriteHookData.mockReset();
     mockWriteHookData.mockReturnValue(
-      "/mock/storage/path/sessions-meta/2024-09-15_1430_MT_ion-123-session-end.json"
+      "/mock/storage/path/sessions-meta/2024-09-15_1430_MT_ion-123-session-end.json",
     );
     mockGetHookStorageDir.mockReset();
     mockGetHookStorageDir.mockReturnValue(mockSessionsDir);
@@ -136,13 +149,16 @@ describe("SessionEnd Hook", () => {
 
       // Verify writeHookData was called with correct parameters
       expect(mockWriteHookData).toHaveBeenCalledTimes(1);
-      const [basePath, hookType, workingDir, sessionId, data] = mockWriteHookData.mock.calls[0];
+      const [basePath, hookType, workingDir, sessionId, data] =
+        mockWriteHookData.mock.calls[0];
 
       expect(basePath).toBe(mockStoragePath);
       expect(hookType).toBe("sessions-meta");
       expect(workingDir).toBe("/test/project");
       expect(sessionId).toBe("test-session-123");
-      expect((data as SessionMetaRecord & { eventType: string }).eventType).toBe("session-end");
+      expect(
+        (data as SessionMetaRecord & { eventType: string }).eventType,
+      ).toBe("session-end");
       expect((data as SessionMetaRecord).status).toBe("completed");
     });
 
@@ -158,7 +174,8 @@ describe("SessionEnd Hook", () => {
       await processSessionEnd(inputWithoutTimestamp);
       const afterCall = new Date().toISOString();
 
-      const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord;
+      const storedData = mockWriteHookData.mock
+        .calls[0][4] as SessionMetaRecord;
 
       // Timestamp should be between before and after
       expect(storedData.endTime! >= beforeCall).toBe(true);
@@ -179,7 +196,7 @@ describe("SessionEnd Hook", () => {
         expect.objectContaining({
           projectPath: process.cwd(),
           createIfMissing: true,
-        })
+        }),
       );
     });
 
@@ -195,14 +212,17 @@ describe("SessionEnd Hook", () => {
           return pathStr.includes("sessions-meta");
         });
         // Filename must include "sion-123" (last 8 chars of "test-session-123")
-        mockReaddirSync.mockReturnValue(["2024-09-15_1400_MT_sion-123-sessions-meta.json"]);
+        mockReaddirSync.mockReturnValue([
+          "2024-09-15_1400_MT_sion-123-sessions-meta.json",
+        ]);
         mockReadFileSync.mockReturnValue(
-          JSON.stringify({ startTime: "2024-09-15T14:00:00Z" })
+          JSON.stringify({ startTime: "2024-09-15T14:00:00Z" }),
         );
 
         await processSessionEnd(validInput);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
           durationMs?: number;
         };
@@ -221,7 +241,8 @@ describe("SessionEnd Hook", () => {
 
         await processSessionEnd(validInput);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           durationMs?: number;
         };
 
@@ -235,12 +256,15 @@ describe("SessionEnd Hook", () => {
           return pathStr.includes("sessions-meta");
         });
         // Filename must include "sion-123" (last 8 chars of "test-session-123")
-        mockReaddirSync.mockReturnValue(["2024-09-15_1400_MT_sion-123-sessions-meta.json"]);
+        mockReaddirSync.mockReturnValue([
+          "2024-09-15_1400_MT_sion-123-sessions-meta.json",
+        ]);
         mockReadFileSync.mockReturnValue(JSON.stringify({})); // No startTime
 
         await processSessionEnd(validInput);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           durationMs?: number;
         };
 
@@ -260,12 +284,13 @@ describe("SessionEnd Hook", () => {
           "2024-09-15_1410_MT_sion-123-sessions-meta.json",
         ]);
         mockReadFileSync.mockReturnValue(
-          JSON.stringify({ startTime: "2024-09-15T14:00:00Z" })
+          JSON.stringify({ startTime: "2024-09-15T14:00:00Z" }),
         );
 
         await processSessionEnd(validInput);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           durationMs?: number;
         };
 
@@ -280,14 +305,17 @@ describe("SessionEnd Hook", () => {
           return pathStr.includes("sessions-meta");
         });
         // Filename must include "sion-123" (last 8 chars of "test-session-123")
-        mockReaddirSync.mockReturnValue(["2024-09-15_1400_MT_sion-123-sessions-meta.json"]);
+        mockReaddirSync.mockReturnValue([
+          "2024-09-15_1400_MT_sion-123-sessions-meta.json",
+        ]);
         mockReadFileSync.mockReturnValue(
-          JSON.stringify({ startTime: "2024-09-15T14:00:00Z" })
+          JSON.stringify({ startTime: "2024-09-15T14:00:00Z" }),
         );
 
         await processSessionEnd(validInput);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
           durationMs?: number;
         };
@@ -309,7 +337,8 @@ describe("SessionEnd Hook", () => {
 
         await processSessionEnd(validInput);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord;
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord;
 
         // When no start file is found, startTime defaults to endTime
         expect(storedData.startTime).toBe(validInput.timestamp);
@@ -324,7 +353,9 @@ describe("SessionEnd Hook", () => {
           return pathStr.includes("sessions-meta");
         });
         // Filename must include "sion-123" (last 8 chars of "test-session-123")
-        mockReaddirSync.mockReturnValue(["2024-09-15_1400_MT_sion-123-sessions-meta.json"]);
+        mockReaddirSync.mockReturnValue([
+          "2024-09-15_1400_MT_sion-123-sessions-meta.json",
+        ]);
         mockReadFileSync.mockReturnValue("invalid json {{{");
 
         // Should not throw
@@ -332,7 +363,8 @@ describe("SessionEnd Hook", () => {
 
         // Should still create end record without duration
         expect(mockWriteHookData).toHaveBeenCalled();
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           durationMs?: number;
         };
         expect(storedData.durationMs).toBeUndefined();
@@ -344,7 +376,9 @@ describe("SessionEnd Hook", () => {
           return pathStr.includes("sessions-meta");
         });
         // Filename must include "sion-123" (last 8 chars of "test-session-123")
-        mockReaddirSync.mockReturnValue(["2024-09-15_1400_MT_sion-123-sessions-meta.json"]);
+        mockReaddirSync.mockReturnValue([
+          "2024-09-15_1400_MT_sion-123-sessions-meta.json",
+        ]);
         mockReadFileSync.mockImplementation(() => {
           throw new Error("Permission denied");
         });
@@ -354,7 +388,8 @@ describe("SessionEnd Hook", () => {
 
         // Should still create end record without duration
         expect(mockWriteHookData).toHaveBeenCalled();
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           durationMs?: number;
         };
         expect(storedData.durationMs).toBeUndefined();
@@ -374,7 +409,9 @@ describe("SessionEnd Hook", () => {
 
         expect(process.exit).toHaveBeenCalledWith(0);
         expect(mockConsoleError).toHaveBeenCalled();
-        const errorOutput = JSON.parse(mockConsoleError.mock.calls[0][0] as string);
+        const errorOutput = JSON.parse(
+          mockConsoleError.mock.calls[0][0] as string,
+        );
         expect(errorOutput.status).toBe("error");
         expect(errorOutput.message).toBe("Disk full");
 
@@ -394,7 +431,9 @@ describe("SessionEnd Hook", () => {
         await processSessionEnd(validInput);
 
         expect(mockConsoleError).toHaveBeenCalled();
-        const errorOutput = JSON.parse(mockConsoleError.mock.calls[0][0] as string);
+        const errorOutput = JSON.parse(
+          mockConsoleError.mock.calls[0][0] as string,
+        );
         expect(errorOutput.message).toBe("Unknown error");
 
         mockConsoleError.mockRestore();
@@ -415,9 +454,11 @@ describe("SessionEnd Hook", () => {
           return pathStr.includes("sessions-meta");
         });
         // File should match last 8 chars: "sion-123"
-        mockReaddirSync.mockReturnValue(["2024-09-15_1400_MT_sion-123-sessions-meta.json"]);
+        mockReaddirSync.mockReturnValue([
+          "2024-09-15_1400_MT_sion-123-sessions-meta.json",
+        ]);
         mockReadFileSync.mockReturnValue(
-          JSON.stringify({ startTime: "2024-09-15T14:00:00Z" })
+          JSON.stringify({ startTime: "2024-09-15T14:00:00Z" }),
         );
 
         await processSessionEnd(inputWithLongId);
@@ -439,7 +480,8 @@ describe("SessionEnd Hook", () => {
 
         await processSessionEnd(validInput);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           durationMs?: number;
         };
         // Duration should be undefined since no matching start file
@@ -477,7 +519,7 @@ describe("SessionEnd Hook", () => {
         expect(mockGetHookStorageDir).toHaveBeenCalledWith(
           mockStoragePath,
           "sessions-meta",
-          "/test/project"
+          "/test/project",
         );
       });
     });
@@ -492,7 +534,9 @@ describe("SessionEnd Hook", () => {
         const storedData = mockWriteHookData.mock.calls[0][4];
         expect(Array.isArray(storedData)).toBe(false);
         expect(typeof storedData).toBe("object");
-        expect((storedData as SessionMetaRecord).sessionId).toBe("test-session-123");
+        expect((storedData as SessionMetaRecord).sessionId).toBe(
+          "test-session-123",
+        );
       });
 
       it("should call writeHookData with session ID for unique filename", async () => {

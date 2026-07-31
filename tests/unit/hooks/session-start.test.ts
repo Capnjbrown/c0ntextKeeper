@@ -31,7 +31,7 @@ jest.mock("../../../src/utils/hook-storage", () => ({
     hookType: string,
     workingDir: string,
     sessionId: string,
-    data: unknown
+    data: unknown,
   ) => mockWriteHookData(basePath, hookType, workingDir, sessionId, data),
   getHookStorageDir: (basePath: string, hookType: string, workingDir: string) =>
     mockGetHookStorageDir(basePath, hookType, workingDir),
@@ -69,7 +69,7 @@ describe("SessionStart Hook", () => {
     // Reset hook-storage mocks
     mockWriteHookData.mockReset();
     mockWriteHookData.mockReturnValue(
-      "/mock/storage/path/sessions-meta/2024-01-15_1030_MT_ion-123-session-start.json"
+      "/mock/storage/path/sessions-meta/2024-01-15_1030_MT_ion-123-session-start.json",
     );
     mockGetHookStorageDir.mockReset();
     mockGetHookStorageDir.mockReturnValue("/mock/storage/path/sessions-meta");
@@ -103,7 +103,8 @@ describe("SessionStart Hook", () => {
         expect(mockWriteHookData).toHaveBeenCalledTimes(1);
 
         // Check the stored data (5th argument to writeHookData)
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
         };
         expect(storedData).toMatchObject({
@@ -125,7 +126,8 @@ describe("SessionStart Hook", () => {
 
         await processSessionStart(input);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
         };
         expect(storedData.startTime).toBe(mockDate.toISOString());
@@ -141,7 +143,8 @@ describe("SessionStart Hook", () => {
 
         await processSessionStart(input);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
         };
         expect(storedData.projectPath).toBe("/fallback/cwd");
@@ -166,7 +169,7 @@ describe("SessionStart Hook", () => {
           expect.objectContaining({
             sessionId: "test-session-abc",
             eventType: "session-start",
-          })
+          }),
         );
       });
     });
@@ -192,7 +195,8 @@ describe("SessionStart Hook", () => {
 
         // Should still write the session data
         expect(mockWriteHookData).toHaveBeenCalledTimes(1);
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
         };
         expect(storedData).toMatchObject({
@@ -219,7 +223,7 @@ describe("SessionStart Hook", () => {
         expect(mockGetHookStorageDir).toHaveBeenCalledWith(
           "/mock/storage/path",
           "sessions-meta",
-          "/test/project"
+          "/test/project",
         );
       });
 
@@ -239,7 +243,8 @@ describe("SessionStart Hook", () => {
         await processSessionStart(input);
 
         expect(mockWriteHookData).toHaveBeenCalledTimes(1);
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
         };
         expect(storedData.sessionType).toBe("resume");
@@ -259,7 +264,8 @@ describe("SessionStart Hook", () => {
 
         await processSessionStart(input);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
         };
         expect(storedData.sessionType).toBe("clear");
@@ -281,7 +287,8 @@ describe("SessionStart Hook", () => {
 
         await processSessionStart(input);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
         };
         expect(storedData.sessionType).toBe("compact");
@@ -311,7 +318,8 @@ describe("SessionStart Hook", () => {
 
         await processSessionStart(input);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
         };
         expect(storedData.sessionType).toBe("startup");
@@ -387,7 +395,8 @@ describe("SessionStart Hook", () => {
 
         await processSessionStart(input);
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as SessionMetaRecord & {
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as SessionMetaRecord & {
           eventType: string;
         };
 
@@ -429,7 +438,7 @@ describe("SessionStart Hook", () => {
 
         // Fourth argument should be the session ID
         expect(mockWriteHookData.mock.calls[0][3]).toBe(
-          "unique-filename-session-abc123"
+          "unique-filename-session-abc123",
         );
       });
     });

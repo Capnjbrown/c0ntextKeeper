@@ -2,11 +2,11 @@
  * Test setup and configuration
  */
 
-import { jest } from '@jest/globals';
+import { jest } from "@jest/globals";
 
 // Set test environment
-process.env.NODE_ENV = 'test';
-process.env.LOG_LEVEL = 'ERROR'; // Reduce noise during tests
+process.env.NODE_ENV = "test";
+process.env.LOG_LEVEL = "ERROR"; // Reduce noise during tests
 
 // Mock console methods to reduce test output
 global.console = {

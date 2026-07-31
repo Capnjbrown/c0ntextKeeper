@@ -25,22 +25,34 @@ jest.mock("../../../src/utils/path-resolver", () => ({
 
 // Mock project-utils
 jest.mock("../../../src/utils/project-utils", () => ({
-  getHookStoragePath: jest.fn().mockReturnValue("/mock/storage/path/notifications/test-project/2025-01-01/notifications.json"),
+  getHookStoragePath: jest
+    .fn()
+    .mockReturnValue(
+      "/mock/storage/path/notifications/test-project/2025-01-01/notifications.json",
+    ),
   getProjectName: jest.fn().mockReturnValue("test-project"),
 }));
 
 // Mock hook-storage (new per-session storage)
 const mockWriteHookData = jest.fn();
 jest.mock("../../../src/utils/hook-storage", () => ({
-  writeHookData: (basePath: string, hookType: string, workingDir: string, sessionId: string, data: unknown) =>
-    mockWriteHookData(basePath, hookType, workingDir, sessionId, data),
+  writeHookData: (
+    basePath: string,
+    hookType: string,
+    workingDir: string,
+    sessionId: string,
+    data: unknown,
+  ) => mockWriteHookData(basePath, hookType, workingDir, sessionId, data),
 }));
 
 import {
   processNotification,
   categorizeNotification,
 } from "../../../src/hooks/notification";
-import type { NotificationHookInput, NotificationRecord } from "../../../src/core/types";
+import type {
+  NotificationHookInput,
+  NotificationRecord,
+} from "../../../src/core/types";
 
 const mockFs = fs as jest.Mocked<typeof fs>;
 
@@ -59,7 +71,9 @@ describe("Notification Hook", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockWriteHookData.mockReset();
-    mockWriteHookData.mockReturnValue("/mock/storage/path/notifications/2025-01-01_1200_MT_ion-123-notifications.json");
+    mockWriteHookData.mockReturnValue(
+      "/mock/storage/path/notifications/2025-01-01_1200_MT_ion-123-notifications.json",
+    );
 
     // Default mock implementations for fs (still needed for debug logging)
     mockFs.existsSync.mockReturnValue(false);
@@ -155,11 +169,15 @@ describe("Notification Hook", () => {
 
     describe("interaction category", () => {
       it('should categorize "elicitation_dialog" as interaction', () => {
-        expect(categorizeNotification("elicitation_dialog")).toBe("interaction");
+        expect(categorizeNotification("elicitation_dialog")).toBe(
+          "interaction",
+        );
       });
 
       it('should categorize "elicitation_prompt" as interaction', () => {
-        expect(categorizeNotification("elicitation_prompt")).toBe("interaction");
+        expect(categorizeNotification("elicitation_prompt")).toBe(
+          "interaction",
+        );
       });
 
       it('should categorize "dialog_open" as interaction', () => {
@@ -181,7 +199,9 @@ describe("Notification Hook", () => {
       });
 
       it('should categorize random text as "general"', () => {
-        expect(categorizeNotification("some_random_notification")).toBe("general");
+        expect(categorizeNotification("some_random_notification")).toBe(
+          "general",
+        );
       });
 
       it('should categorize "update" as "general"', () => {
@@ -191,7 +211,9 @@ describe("Notification Hook", () => {
   });
 
   describe("processNotification", () => {
-    const createMockInput = (overrides?: Partial<NotificationHookInput>): NotificationHookInput => ({
+    const createMockInput = (
+      overrides?: Partial<NotificationHookInput>,
+    ): NotificationHookInput => ({
       hook_event_name: "Notification",
       session_id: "test-session-123",
       notification_type: "permission_prompt",
@@ -212,11 +234,12 @@ describe("Notification Hook", () => {
         "notifications",
         "/test/project",
         "test-session-123",
-        expect.any(Object)
+        expect.any(Object),
       );
 
       // Verify the stored data structure (single object, not array)
-      const storedData = mockWriteHookData.mock.calls[0][4] as NotificationRecord;
+      const storedData = mockWriteHookData.mock
+        .calls[0][4] as NotificationRecord;
       expect(storedData).toMatchObject({
         sessionId: "test-session-123",
         notificationType: "permission_prompt",
@@ -246,7 +269,8 @@ describe("Notification Hook", () => {
 
       await processNotification(input);
 
-      const storedData = mockWriteHookData.mock.calls[0][4] as NotificationRecord;
+      const storedData = mockWriteHookData.mock
+        .calls[0][4] as NotificationRecord;
       expect(storedData.timestamp).toBeDefined();
       // Should be a valid ISO string
       expect(() => new Date(storedData.timestamp)).not.toThrow();
@@ -258,7 +282,8 @@ describe("Notification Hook", () => {
 
       await processNotification(input);
 
-      const storedData = mockWriteHookData.mock.calls[0][4] as NotificationRecord;
+      const storedData = mockWriteHookData.mock
+        .calls[0][4] as NotificationRecord;
       expect(storedData.projectPath).toBe(originalCwd);
 
       // Verify workingDir passed to writeHookData is cwd
@@ -275,7 +300,8 @@ describe("Notification Hook", () => {
 
       await processNotification(input);
 
-      const storedData = mockWriteHookData.mock.calls[0][4] as NotificationRecord;
+      const storedData = mockWriteHookData.mock
+        .calls[0][4] as NotificationRecord;
       expect(storedData.sessionId).toBe("minimal-session");
       expect(storedData.notificationType).toBe("info");
       expect(storedData.message).toBeUndefined();
@@ -298,7 +324,8 @@ describe("Notification Hook", () => {
 
         await processNotification(createMockInput({ notification_type: type }));
 
-        const storedData = mockWriteHookData.mock.calls[0][4] as NotificationRecord;
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as NotificationRecord;
         expect(storedData.notificationType).toBe(type);
       }
     });
@@ -315,7 +342,8 @@ describe("Notification Hook", () => {
 
       await processNotification(createMockInput({ details: complexDetails }));
 
-      const storedData = mockWriteHookData.mock.calls[0][4] as NotificationRecord;
+      const storedData = mockWriteHookData.mock
+        .calls[0][4] as NotificationRecord;
       expect(storedData.details).toEqual(complexDetails);
     });
 
@@ -386,7 +414,9 @@ describe("Notification Hook", () => {
 
       // Verify each has correct data
       for (let i = 0; i < 5; i++) {
-        const storedData = mockWriteHookData.mock.calls[i][4] as NotificationRecord;
+        const storedData = mockWriteHookData.mock.calls[
+          i
+        ][4] as NotificationRecord;
         expect(storedData.message).toBe(`Notification ${i}`);
         expect(storedData.sessionId).toBe(`session-${i}`);
       }
@@ -410,7 +440,8 @@ describe("Notification Hook", () => {
         expect(passedWorkingDir).toBe(projectPath);
 
         // Verify projectPath in stored data
-        const storedData = mockWriteHookData.mock.calls[0][4] as NotificationRecord;
+        const storedData = mockWriteHookData.mock
+          .calls[0][4] as NotificationRecord;
         expect(storedData.projectPath).toBe(projectPath);
       }
     });
@@ -441,8 +472,10 @@ describe("Notification Hook", () => {
       expect(mockWriteHookData.mock.calls[1][3]).toBe(sessionId);
 
       // But different data
-      const firstData = mockWriteHookData.mock.calls[0][4] as NotificationRecord;
-      const secondData = mockWriteHookData.mock.calls[1][4] as NotificationRecord;
+      const firstData = mockWriteHookData.mock
+        .calls[0][4] as NotificationRecord;
+      const secondData = mockWriteHookData.mock
+        .calls[1][4] as NotificationRecord;
       expect(firstData.message).toBe("First notification");
       expect(secondData.message).toBe("Second notification");
     });
