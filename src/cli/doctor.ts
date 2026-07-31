@@ -353,24 +353,51 @@ async function checkArchiveIntegrity(): Promise<DiagnosticResult[]> {
       // cannot be recovered -- this check makes the loss visible rather than
       // letting the index quietly overstate what is retained.
       let indexedButMissing = 0;
+      let unreadableIndexes = 0;
       for (const project of projects) {
         const indexPath = path.join(archivePath, project, "index.json");
         if (!fs.existsSync(indexPath)) continue;
 
         try {
           const index = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
+
+          // One directory read per project, then O(1) membership checks. The
+          // per-entry existsSync this replaced cost one syscall per indexed
+          // session -- up to 100 per project, across every project.
+          const sessionsDir = path.join(archivePath, project, "sessions");
+          const present = fs.existsSync(sessionsDir)
+            ? new Set(fs.readdirSync(sessionsDir))
+            : new Set<string>();
+
           for (const session of index.sessions || []) {
-            const name = path.basename(session.file || session.filename || "");
+            const name = path.basename(session.file || "");
             if (!name) continue;
-            if (
-              !fs.existsSync(path.join(archivePath, project, "sessions", name))
-            ) {
+            if (!present.has(name)) {
               indexedButMissing++;
             }
           }
         } catch {
-          // Unreadable index is already covered by the corruption check above
+          // A project index that cannot be read or parsed. The corruption check
+          // above does NOT cover this -- it samples only the first 5 projects'
+          // first 3 session files and never opens index.json -- so this is
+          // reported separately rather than silently skipped.
+          unreadableIndexes++;
         }
+      }
+
+      if (unreadableIndexes > 0) {
+        results.push({
+          category: "Archive Integrity",
+          status: "warning",
+          message:
+            `${unreadableIndexes} project indexes could not be read or parsed. ` +
+            `Sessions in those projects are not counted below and may be under-reported.`,
+        });
+        console.log(
+          styles.warning(
+            `  ⚠️  ${unreadableIndexes} unreadable project index files`,
+          ),
+        );
       }
 
       if (indexedButMissing > 0) {
@@ -378,9 +405,11 @@ async function checkArchiveIntegrity(): Promise<DiagnosticResult[]> {
           category: "Archive Integrity",
           status: "warning",
           message:
-            `${indexedButMissing} sessions are listed in a project index but missing from disk. ` +
-            `Pre-0.8.0 builds pruned archives automatically; this data cannot be recovered. ` +
-            `Retention is now disabled by default.`,
+            `At least ${indexedButMissing} sessions are listed in a project index but missing ` +
+            `from disk. Pre-0.8.0 builds pruned archives automatically; this data cannot be ` +
+            `recovered. Retention is now disabled by default. Note this is a lower bound: each ` +
+            `project index keeps only its most recent 100 entries, so older losses have already ` +
+            `rolled off and are no longer countable.`,
         });
         console.log(
           styles.warning(

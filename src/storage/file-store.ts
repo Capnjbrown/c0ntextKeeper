@@ -785,13 +785,28 @@ Each session JSON file contains:
     const pruned: string[] = [];
     for (const file of files) {
       const filePath = path.join(sessionsDir, file);
-      const stats = await fs.stat(filePath);
 
-      if (stats.mtime < cutoffDate) {
-        if (!options.dryRun) {
-          await fs.unlink(filePath);
+      // Isolate per-file failures, matching getProjectContexts and searchAll.
+      // Letting one error abort the loop would strand the caller with no record
+      // of what was already deleted, which is unacceptable for an operation
+      // that removes user data.
+      try {
+        const stats = await fs.stat(filePath);
+
+        if (stats.mtime < cutoffDate) {
+          if (!options.dryRun) {
+            await fs.unlink(filePath);
+          }
+          pruned.push(file);
         }
-        pruned.push(file);
+      } catch (error) {
+        // ENOENT means the file vanished between readdir and stat -- already
+        // the outcome pruning wanted, so it is not worth reporting. Anything
+        // else (permissions, I/O) means a file the caller asked to remove was
+        // not removed, which must stay visible.
+        if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+          console.warn(`Could not prune ${file}: ${(error as Error).message}`);
+        }
       }
     }
 

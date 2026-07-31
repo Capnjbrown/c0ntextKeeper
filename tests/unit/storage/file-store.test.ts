@@ -858,28 +858,63 @@ describe('FileStore', () => {
       expect(mockedFs.unlink).not.toHaveBeenCalled();
     });
 
-    it('should keep recent sessions', async () => {
-      const recentDate = new Date();
+    /**
+     * Exercises the retention PREDICATE, not merely that deletion happens.
+     * Every other prune test supplies a single old file, so a mutation that
+     * pruned unconditionally would pass them all. Verified by mutation: removing
+     * the mtime guard fails this test and only this test.
+     *
+     * Replaces a prior 'should keep recent sessions' test that called store(),
+     * which no longer prunes at all, making that assertion vacuous.
+     */
+    it('should prune only files older than the retention window', async () => {
+      const shortRetentionStore = new FileStore({ retentionDays: 7 });
 
-      // Mock fileExists: false for indexes (create new), true for directories
-      fileExists.mockImplementation((pathArg: string) => {
-        if (pathArg.includes('index.json')) return Promise.resolve(false);
-        return Promise.resolve(true);
+      fileExists.mockResolvedValue(true as any);
+      mockedFs.readdir.mockResolvedValue([
+        'old-session.json',
+        'recent-session.json'
+      ] as any);
+      mockedFs.stat.mockImplementation((p: any) =>
+        Promise.resolve({
+          size: 1024,
+          mtime: String(p).includes('old-session') ? oldFileDate() : new Date()
+        } as any)
+      );
+
+      const pruned = await shortRetentionStore.pruneOldSessions('/tmp/project');
+
+      expect(pruned).toEqual(['old-session.json']);
+      expect(mockedFs.unlink).toHaveBeenCalledTimes(1);
+      expect(String(mockedFs.unlink.mock.calls[0][0])).toContain('old-session');
+    });
+
+    /**
+     * A file can vanish between readdir and stat. That is already the outcome
+     * pruning wanted, so it must not abort the batch or discard the record of
+     * what was deleted before the failure.
+     */
+    it('should skip a vanished file without aborting the rest of the prune', async () => {
+      const shortRetentionStore = new FileStore({ retentionDays: 7 });
+
+      fileExists.mockResolvedValue(true as any);
+      mockedFs.readdir.mockResolvedValue([
+        'vanished-session.json',
+        'old-session.json'
+      ] as any);
+      mockedFs.stat.mockImplementation((p: any) => {
+        if (String(p).includes('vanished')) {
+          const err: NodeJS.ErrnoException = new Error('ENOENT');
+          err.code = 'ENOENT';
+          return Promise.reject(err);
+        }
+        return Promise.resolve({ size: 1024, mtime: oldFileDate() } as any);
       });
 
-      mockedFs.readdir.mockResolvedValue(['recent-session.json'] as any);
-      mockedFs.stat.mockResolvedValue({
-        size: 1024,
-        mtime: recentDate
-      } as any);
+      const pruned = await shortRetentionStore.pruneOldSessions('/tmp/project');
 
-      await fileStore.store(mockContext);
-
-      // unlink should not be called for recent files
-      const unlinkCalls = mockedFs.unlink.mock.calls.filter(call =>
-        typeof call[0] === 'string' && call[0].includes('recent-session')
-      );
-      expect(unlinkCalls.length).toBe(0);
+      expect(pruned).toEqual(['old-session.json']);
+      expect(mockedFs.unlink).toHaveBeenCalledTimes(1);
     });
   });
 
