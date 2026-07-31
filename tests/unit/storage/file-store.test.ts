@@ -983,6 +983,90 @@ describe("FileStore", () => {
     });
   });
 
+  describe("pruneAllProjects", () => {
+    const oldDate = () => {
+      const d = new Date();
+      d.setDate(d.getDate() - 30);
+      return d;
+    };
+
+    it("should return a map of project name to pruned files", async () => {
+      const store = new FileStore({ retentionDays: 7 });
+
+      fileExists.mockResolvedValue(true as any);
+      mockedFs.readdir.mockImplementation((p: any) =>
+        String(p).endsWith("projects")
+          ? Promise.resolve(["alpha", "beta"] as any)
+          : Promise.resolve(["old-session.json"] as any),
+      );
+      mockedFs.stat.mockResolvedValue({ size: 1024, mtime: oldDate() } as any);
+
+      const results = await store.pruneAllProjects();
+
+      expect(results.get("alpha")).toEqual(["old-session.json"]);
+      expect(results.get("beta")).toEqual(["old-session.json"]);
+      expect(results.size).toBe(2);
+    });
+
+    it("should omit projects with nothing to prune", async () => {
+      const store = new FileStore({ retentionDays: 7 });
+
+      fileExists.mockResolvedValue(true as any);
+      mockedFs.readdir.mockImplementation((p: any) =>
+        String(p).endsWith("projects")
+          ? Promise.resolve(["alpha", "beta"] as any)
+          : String(p).includes("alpha")
+            ? Promise.resolve(["old-session.json"] as any)
+            : Promise.resolve(["recent-session.json"] as any),
+      );
+      mockedFs.stat.mockImplementation((p: any) =>
+        Promise.resolve({
+          size: 1024,
+          mtime: String(p).includes("old-session") ? oldDate() : new Date(),
+        } as any),
+      );
+
+      const results = await store.pruneAllProjects();
+
+      expect(results.has("alpha")).toBe(true);
+      expect(results.has("beta")).toBe(false);
+    });
+
+    /**
+     * The CLI prune command previews by default, so this path is what runs
+     * unless the user passes an explicit --apply flag.
+     */
+    it("should report without deleting when dryRun is set", async () => {
+      const store = new FileStore({ retentionDays: 7 });
+
+      fileExists.mockResolvedValue(true as any);
+      mockedFs.readdir.mockImplementation((p: any) =>
+        String(p).endsWith("projects")
+          ? Promise.resolve(["alpha"] as any)
+          : Promise.resolve(["old-session.json"] as any),
+      );
+      mockedFs.stat.mockResolvedValue({ size: 1024, mtime: oldDate() } as any);
+
+      const results = await store.pruneAllProjects({ dryRun: true });
+
+      expect(results.get("alpha")).toEqual(["old-session.json"]);
+      expect(mockedFs.unlink).not.toHaveBeenCalled();
+    });
+
+    it("should prune nothing when retention is disabled", async () => {
+      const store = new FileStore();
+
+      fileExists.mockResolvedValue(true as any);
+      mockedFs.readdir.mockResolvedValue(["alpha"] as any);
+      mockedFs.stat.mockResolvedValue({ size: 1024, mtime: oldDate() } as any);
+
+      const results = await store.pruneAllProjects();
+
+      expect(results.size).toBe(0);
+      expect(mockedFs.unlink).not.toHaveBeenCalled();
+    });
+  });
+
   describe("Error Handling", () => {
     it("should handle permission denied errors", async () => {
       mockedFs.writeFile.mockRejectedValue(

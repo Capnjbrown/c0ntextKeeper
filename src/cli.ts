@@ -626,6 +626,79 @@ program
     }
   });
 
+// Prune command - explicit, opt-in deletion of old archived sessions.
+// Deliberately previews by default: versions before 0.8.0 pruned automatically
+// on every write and destroyed a large share of users' archives. Deletion here
+// requires an explicit --apply flag.
+program
+  .command("prune")
+  .description(
+    "Delete archived sessions older than N days (previews unless --apply)",
+  )
+  .requiredOption(
+    "--older-than <days>",
+    "Age threshold in days; sessions older than this are pruned",
+  )
+  .option("--apply", "Actually delete. Without this flag, nothing is removed.")
+  .action(async (options: { olderThan: string; apply?: boolean }) => {
+    try {
+      const days = Number(options.olderThan);
+      if (!Number.isInteger(days) || days <= 0) {
+        console.log(
+          styles.error("--older-than must be a positive whole number of days"),
+        );
+        process.exit(1);
+      }
+
+      const dryRun = !options.apply;
+      const storage = new FileStore({ global: true, retentionDays: days });
+
+      console.log(
+        formatHeader(dryRun ? "🔍 Prune Preview" : "🗑️  Pruning Archives"),
+      );
+      console.log(
+        styles.muted(`Sessions older than ${days} days across all projects\n`),
+      );
+
+      const results = await storage.pruneAllProjects({ dryRun });
+      const total = Array.from(results.values()).reduce(
+        (sum, files) => sum + files.length,
+        0,
+      );
+
+      if (total === 0) {
+        console.log(styles.success("✅ Nothing to prune."));
+        return;
+      }
+
+      for (const [project, files] of results) {
+        console.log(styles.info(`  ${project} (${files.length})`));
+        for (const file of files) {
+          console.log(styles.muted(`    ${file}`));
+        }
+      }
+      console.log();
+
+      if (dryRun) {
+        console.log(
+          styles.warning(
+            `${total} sessions would be deleted. Nothing has been removed.`,
+          ),
+        );
+        console.log(
+          styles.tip(
+            `💡 Re-run with --apply to delete them. This cannot be undone.`,
+          ),
+        );
+      } else {
+        console.log(formatSuccess(`✅ Deleted ${total} archived sessions.`));
+      }
+    } catch (error) {
+      logger.error("Prune failed:", error);
+      process.exit(1);
+    }
+  });
+
 // Validate command
 program
   .command("validate")

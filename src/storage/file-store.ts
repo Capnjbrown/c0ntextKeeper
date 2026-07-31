@@ -759,6 +759,33 @@ Each session JSON file contains:
   }
 
   /**
+   * Prune old sessions across every archived project.
+   *
+   * Keeps archive layout knowledge inside FileStore rather than exposing
+   * listProjectDirs to callers. Like pruneOldSessions, this only acts when
+   * retentionDays is positive, and never runs automatically.
+   *
+   * @param options.dryRun Report what would be deleted without deleting
+   * @returns Project name mapped to the session filenames pruned. Projects
+   *          with nothing to prune are omitted.
+   */
+  async pruneAllProjects(
+    options: { dryRun?: boolean } = {},
+  ): Promise<Map<string, string[]>> {
+    const results = new Map<string, string[]>();
+    if (this.config.retentionDays <= 0) return results;
+
+    for (const projectDir of await this.listProjectDirs()) {
+      const pruned = await this.pruneOldSessions(projectDir, options);
+      if (pruned.length > 0) {
+        results.set(path.basename(projectDir), pruned);
+      }
+    }
+
+    return results;
+  }
+
+  /**
    * Delete archived sessions older than the configured retention window.
    *
    * This is an EXPLICIT operation and is never called from store(). Retention
